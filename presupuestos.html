@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nervo Design — Presupuestos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --crema:#F5F0EA;--lino:#EDE5D8;--dorado:#C9A84C;
+  --chocolate:#3B1F0F;--choco-mid:#6B3A1F;--choco-soft:#A0724A;
+  --burdeo:#5C1A1A;--texto:#2A1508;--texto-sec:#7A5A3A;
+  --border:#D4C4A8;--border-soft:#E8DDD0;
+  --font-brand:'Cormorant Garamond',serif;
+  --font-ui:'Jost',sans-serif;
+}
+html,body{min-height:100vh;background:var(--crema);font-family:var(--font-ui);color:var(--texto)}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.app-header{background:#3B1F0F;padding:16px 20px 0;position:sticky;top:0;z-index:100}
+.brand-name{color:#F5F0EA;font-size:22px;font-weight:600;letter-spacing:0.12em;font-family:'Cormorant Garamond',serif}
+.brand-accent{color:#C9A84C;font-size:11px;font-weight:300;margin-top:1px;letter-spacing:0.08em}
+.brand-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tabs{display:flex;overflow-x:auto;gap:0;-ms-overflow-style:none;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  padding:11px 18px;font-size:13px;font-weight:400;letter-spacing:0.03em;
+  cursor:pointer;border:none;background:#3B1F0F;
+  color:rgba(245,240,234,0.5);
+  border-bottom:2px solid transparent;
+  font-family:'Jost',sans-serif;white-space:nowrap;outline:none;
+  transition:color 0.15s,border-color 0.15s;
+}
+.tab:hover{color:rgba(245,240,234,0.85)}
+.tab.active{color:#F5F0EA;border-bottom:2px solid #C9A84C}
+.main{padding:1.25rem;max-width:1100px;margin:0 auto;width:100%}
+.panel{display:none;flex-direction:column;gap:1rem}
+.panel.active{display:flex}
+.card{background:#fff;border:0.5px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.card-title{font-size:11px;font-weight:500;color:var(--texto-sec);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em}
+.card-title-light{font-size:11px;font-weight:400;color:rgba(245,240,234,0.5);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.08em}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:600px){
+  .row-3{grid-template-columns:1fr}
+  .row-2{grid-template-columns:1fr}
+  .main{padding:0.75rem}
+  .card{padding:0.875rem 1rem}
+  .app-header{padding:12px 14px 0}
+  .brand-name{font-size:18px}
+}
+label{font-size:12px;color:var(--texto-sec);display:block;margin-bottom:3px}
+input,select,textarea{
+  width:100%;padding:8px 11px;border:0.5px solid var(--border);border-radius:8px;
+  font-size:13px;background:#fff;color:var(--texto);font-family:'Jost',sans-serif;
+}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--dorado);box-shadow:0 0 0 2px rgba(201,168,76,0.18)}
+.btn{padding:8px 16px;border:0.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;font-weight:400;background:#fff;color:var(--texto);font-family:'Jost',sans-serif;transition:background 0.15s}
+.btn:hover{background:var(--lino)}
+.btn-choco{background:#3B1F0F;color:#F5F0EA;border-color:#3B1F0F}
+.btn-choco:hover{background:#6B3A1F}
+.btn-dorado{background:var(--dorado);color:#3B1F0F;border-color:var(--dorado);font-weight:500}
+.btn-dorado:hover{background:#b8943e}
+.btn-danger{background:transparent;color:var(--burdeo);border-color:transparent;font-size:12px}
+.btn-danger:hover{background:#f5e6e6}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-full{width:100%;margin-bottom:8px;display:block;text-align:center}
+.tipo-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:400;cursor:pointer;border:0.5px solid}
+.tipo-may{background:var(--lino);color:var(--choco-mid);border-color:var(--border)}
+.tipo-min{background:#3B1F0F;color:#F5F0EA;border-color:#3B1F0F}
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.cat-btn{padding:4px 10px;border:0.5px solid var(--border);border-radius:999px;font-size:12px;cursor:pointer;background:transparent;color:var(--texto-sec);font-family:'Jost',sans-serif;transition:background 0.12s}
+.cat-btn:hover{background:var(--lino)}
+.cat-btn.active{background:#3B1F0F;color:#F5F0EA;border-color:#3B1F0F}
+.prod-picker{max-height:200px;overflow-y:auto;border:0.5px solid var(--border);border-radius:8px;background:#fff}
+.prod-item{padding:10px 11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--border-soft);font-size:13px;transition:background 0.1s}
+.prod-item:last-child{border-bottom:none}
+.prod-item:hover{background:var(--lino)}
+.pname{font-weight:500;color:var(--texto)}
+.pprice{color:var(--choco-soft);font-size:12px;font-weight:500;white-space:nowrap;margin-left:8px}
+.pcat{font-size:11px;padding:1px 6px;border-radius:999px;background:var(--lino);color:var(--texto-sec);margin-left:6px}
+.ptable{width:100%;border-collapse:collapse;font-size:13px}
+.ptable th{text-align:left;padding:7px 8px;color:var(--texto-sec);font-weight:500;border-bottom:1px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:0.04em}
+.ptable td{padding:7px 8px;border-bottom:0.5px solid var(--border-soft);vertical-align:middle}
+.ptable tr:last-child td{border-bottom:none}
+.ptable tbody tr:hover td{background:var(--crema)}
+.precio-edit,.cant-edit{border:0.5px solid transparent;border-radius:6px;background:transparent;font-size:13px;color:var(--texto);font-family:'Jost',sans-serif;padding:4px 6px;text-align:right}
+.precio-edit{width:110px}
+.cant-edit{width:55px}
+.precio-edit:focus,.cant-edit:focus{border-color:var(--dorado);background:#fff;box-shadow:0 0 0 2px rgba(201,168,76,0.15);outline:none}
+.resumen-box{background:#3B1F0F;border-radius:10px;padding:1.2rem 1.4rem}
+.res-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:13px;color:rgba(245,240,234,0.65)}
+.res-row.big{font-size:20px;font-weight:500;color:#F5F0EA;border-top:0.5px solid rgba(245,240,234,0.2);margin-top:8px;padding-top:10px;font-family:'Cormorant Garamond',serif;letter-spacing:0.04em}
+.res-row.senia-r{color:#C9A84C;font-size:14px}
+.res-row.saldo-r{background:#5C1A1A;margin:10px -1.4rem -1.2rem;padding:12px 1.4rem;border-radius:0 0 10px 10px;color:#F5F0EA;font-size:15px;font-weight:500}
+.res-row.desc-r{color:#E8A090}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px}
+.add-row{display:grid;grid-template-columns:1fr 110px 65px auto;gap:8px;align-items:end}
+@media(max-width:650px){
+  .add-row{grid-template-columns:1fr 1fr;}
+  .add-row>div:nth-child(3){grid-column:1}
+  .add-row>div:nth-child(4){grid-column:2;display:flex;align-items:flex-end}
+}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid var(--border-soft)}
+.hist-item:last-child{border-bottom:none}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:750px){.two-col{grid-template-columns:1fr}}
+.cat-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+@media(max-width:700px){.cat-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){
+  .ptable{font-size:12px}
+  .ptable th,.ptable td{padding:5px 5px}
+  .precio-edit{width:80px}
+  .cant-edit{width:44px}
+  .tab{padding:9px 12px;font-size:12px}
+}
+.empty-msg{text-align:center;padding:1.5rem;color:var(--texto-sec);font-size:13px}
+.pill-pago{padding:5px 12px;border:0.5px solid var(--border);border-radius:999px;font-size:12px;cursor:pointer;background:transparent;color:var(--texto-sec);font-family:'Jost',sans-serif;transition:all 0.12s}
+.pill-pago:hover{background:var(--lino)}
+.pill-pago.active{background:#3B1F0F;color:#F5F0EA;border-color:#3B1F0F}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="app-header">
+  <div class="brand-row">
+    <div>
+      <div class="brand-name">NERVO DESIGN</div>
+      <div class="brand-accent">Córdoba, Argentina · Sistema de presupuestos</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('nuevo',this)">Nuevo presupuesto</button>
+    <button class="tab" onclick="showTab('historial',this)">Historial</button>
+    <button class="tab" onclick="showTab('productos',this)">Catálogo</button>
+    <button class="tab" onclick="showTab('empresa',this)">Mi empresa</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- NUEVO PRESUPUESTO -->
+<div id="tab-nuevo" class="panel active">
+  <div class="card">
+    <div class="section-header">
+      <div class="card-title" style="margin-bottom:0">Datos del cliente</div>
+      <span class="tipo-badge tipo-may" id="badge-tipo" onclick="toggleTipo()">Mayorista ▾</span>
+    </div>
+    <div class="row-3">
+      <div><label>Nombre / razón social</label><input id="cli-nombre" placeholder="Distribuidora López"></div>
+      <div><label>Teléfono</label><input id="cli-tel" placeholder="+54 9 351..."></div>
+      <div><label>Email</label><input id="cli-email" placeholder="correo@ejemplo.com"></div>
+    </div>
+    <div class="row-2" style="margin-top:8px">
+      <div><label>Dirección</label><input id="cli-dir" placeholder="Calle, número, ciudad"></div>
+      <div><label>CUIT / DNI</label><input id="cli-cuit" placeholder="20-12345678-9"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Agregar productos</div>
+    <input id="buscar" placeholder="Buscar producto por nombre..." oninput="filtrarPicker()" style="margin-bottom:10px">
+    <div class="cat-filter" id="cat-filter"></div>
+    <div class="prod-picker" id="prod-picker"></div>
+    <div class="add-row" style="margin-top:10px">
+      <div><label>Producto</label><input id="add-nombre" placeholder="O escribí uno manual"></div>
+      <div><label>Precio $</label><input id="add-precio" type="number" style="text-align:right" placeholder="0"></div>
+      <div><label>Cant.</label><input id="add-cant" type="number" style="text-align:right" value="1" min="1"></div>
+      <div><label>&nbsp;</label><button class="btn btn-choco btn-sm" onclick="agregarItem()">+ Agregar</button></div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:10px;align-items:center">
+      <label style="margin:0;white-space:nowrap;font-size:12px">Descuento ítem %</label>
+      <input id="add-desc" type="number" style="text-align:right;width:70px" value="0">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div class="card-title" style="margin-bottom:0">Productos del presupuesto</div>
+      <span style="font-size:11px;color:var(--texto-sec)">Precio y cantidad editables en la tabla</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="ptable">
+        <thead><tr>
+          <th>Producto</th>
+          <th style="text-align:right">Precio unit. $</th>
+          <th style="text-align:right">Cant.</th>
+          <th style="text-align:right">Desc.%</th>
+          <th style="text-align:right">Subtotal</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tabla-items"></tbody>
+      </table>
+    </div>
+    <div id="empty-msg" class="empty-msg">Buscá un producto arriba y hacé click para seleccionarlo.</div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Condiciones de pago</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div><label>Descuento global %</label><input id="inp-desc-global" type="number" style="text-align:right" value="0" oninput="recalcular()"></div>
+
+        <!-- SOLO MAYORISTA -->
+        <div id="seccion-mayorista" style="display:flex;flex-direction:column;gap:9px">
+          <div><label>Seña $</label><input id="inp-senia" type="number" style="text-align:right" value="0" oninput="recalcular()"></div>
+        </div>
+
+        <!-- SOLO MINORISTA -->
+        <div id="seccion-minorista" style="display:none;flex-direction:column;gap:9px">
+          <div style="border-top:0.5px solid var(--border-soft);padding-top:9px">
+            <div style="font-size:11px;font-weight:500;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Precios</div>
+            <div><label>Descuento por transferencia %</label>
+              <input id="inp-desc-transf" type="number" style="text-align:right;width:90px" value="15" min="0" oninput="recalcular()">
+            </div>
+          </div>
+          <div style="border-top:0.5px solid var(--border-soft);padding-top:9px">
+            <div style="font-size:11px;font-weight:500;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Cuotas sin interés</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap" id="pills-cuotas">
+              <button class="pill-pago" id="pill-c0" onclick="setCuotas(0)">Sin cuotas</button>
+              <button class="pill-pago" id="pill-c3" onclick="setCuotas(3)">3 cuotas</button>
+              <button class="pill-pago" id="pill-c6" onclick="setCuotas(6)">6 cuotas</button>
+              <button class="pill-pago" id="pill-c12" onclick="setCuotas(12)">12 cuotas</button>
+            </div>
+          </div>
+        </div>
+
+        <div><label>Validez del presupuesto</label><input id="inp-validez" value="7 días"></div>
+
+        <!-- ENVÍO -->
+        <div style="border-top:0.5px solid var(--border-soft);padding-top:9px">
+          <div style="font-size:11px;font-weight:500;color:var(--texto-sec);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Envío</div>
+          <div><label>Costo de envío $ <span style="font-weight:300;font-size:11px">(0 = sucursal sin costo)</span></label>
+            <input id="inp-envio" type="number" style="text-align:right" value="0" min="0" oninput="recalcular()">
+          </div>
+        </div>
+
+        <div><label>Notas al pie</label><textarea id="inp-notas" rows="3" placeholder="Condiciones, forma de pago, aclaraciones..."></textarea></div>
+      </div>
+    </div>
+    <div>
+      <div class="resumen-box">
+        <div class="card-title-light">Resumen financiero</div>
+        <div class="res-row"><span>Subtotal</span><span id="tot-subtotal">$0</span></div>
+        <div class="res-row desc-r" id="row-dg" style="display:none"><span id="lbl-dg">Desc. global</span><span id="tot-dg">-$0</span></div>
+
+        <!-- MAYORISTA -->
+        <div id="bloque-may" style="display:flex;flex-direction:column">
+          <div class="res-row big"><span>Total</span><span id="tot-total">$0</span></div>
+          <div class="res-row" id="row-envio-may" style="display:none;color:rgba(245,240,234,0.65)"><span id="lbl-envio-may">Envío</span><span id="tot-envio-may">$0</span></div>
+          <div class="res-row" id="row-total-con-envio-may" style="display:none;font-size:13px;font-weight:500;color:rgba(245,240,234,0.9)"><span>Total c/ envío</span><span id="tot-total-envio-may">$0</span></div>
+          <div style="height:0.5px;background:rgba(245,240,234,0.15);margin:6px 0"></div>
+          <div class="res-row senia-r"><span>Seña</span><span id="tot-senia">$0</span></div>
+          <div class="res-row saldo-r"><span>Saldo a pagar</span><span id="tot-saldo">$0</span></div>
+        </div>
+
+        <!-- MINORISTA -->
+        <div id="bloque-min" style="display:none;flex-direction:column;gap:0">
+          <!-- Título total -->
+          <div class="res-row big" style="margin-bottom:10px"><span>Total</span><span id="tot-lista-min">$0</span></div>
+
+          <!-- Bloque 1: Tarjeta + cuotas -->
+          <div style="background:rgba(245,240,234,0.07);border-radius:8px;padding:10px 12px;margin-bottom:8px">
+            <div style="font-size:10px;font-weight:500;color:rgba(245,240,234,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Tarjeta · Cuotas sin interés</div>
+            <div id="cuotas-rows" style="display:flex;flex-direction:column;gap:5px">
+              <div style="font-size:12px;color:rgba(245,240,234,0.4)">Seleccioná las cuotas disponibles</div>
+            </div>
+          </div>
+
+          <!-- Bloque 2: Transferencia -->
+          <div style="background:rgba(201,168,76,0.12);border-radius:8px;padding:10px 12px;border:0.5px solid rgba(201,168,76,0.25)">
+            <div style="font-size:10px;font-weight:500;color:rgba(201,168,76,0.7);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Transferencia</div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font-size:13px;color:rgba(245,240,234,0.7)"><span id="lbl-desc-transf">15% de descuento</span></span>
+              <span style="font-size:18px;font-weight:500;color:#C9A84C;font-family:'Cormorant Garamond',serif" id="tot-transf">$0</span>
+            </div>
+            <div id="row-transf-con-envio" style="display:none;margin-top:4px;display:none">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:11px;color:rgba(201,168,76,0.6)">+ envío</span>
+                <span style="font-size:13px;font-weight:500;color:#C9A84C" id="tot-transf-envio">$0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Envío minorista -->
+          <div id="row-envio-min" style="display:none;margin-top:8px;padding:9px 12px;background:rgba(237,229,216,0.12);border-radius:8px;border:0.5px solid rgba(237,229,216,0.2)">
+            <div style="font-size:10px;font-weight:500;color:rgba(237,229,216,0.5);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Envío</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;color:rgba(237,229,216,0.6)">Costo de envío</span>
+              <span style="font-size:12px;color:rgba(237,229,216,0.8)" id="tot-envio-min">$0</span>
+            </div>
+            <div style="height:0.5px;background:rgba(237,229,216,0.15);margin:5px 0"></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+              <span style="font-size:12px;color:rgba(237,229,216,0.6)">Total c/ tarjeta</span>
+              <span style="font-size:13px;font-weight:500;color:#EDE5D8" id="tot-tarjeta-envio">$0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="font-size:12px;color:rgba(201,168,76,0.7)">Total c/ transferencia</span>
+              <span style="font-size:13px;font-weight:500;color:#C9A84C" id="tot-transf-envio2">$0</span>
+            </div>
+          </div>
+          <div id="row-envio-gratis-min" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(59,31,15,0.4);border-radius:8px;border:0.5px solid rgba(237,229,216,0.2)">
+            <span style="font-size:12px;color:#EDE5D8">Envío a sucursal sin costo</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-dorado btn-full" onclick="generarPDF()">⬇ Generar PDF</button>
+        <button class="btn btn-choco btn-full" onclick="guardarPresupuesto()">Guardar en historial</button>
+        <button style="background:transparent;border:none;color:var(--texto-sec);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;padding:4px;width:100%" onclick="limpiarPresupuesto()">Limpiar presupuesto</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div id="tab-historial" class="panel">
+  <div class="card">
+    <div class="card-title">Presupuestos guardados</div>
+    <div id="historial-list"></div>
+  </div>
+</div>
+
+<!-- CATÁLOGO -->
+<div id="tab-productos" class="panel">
+  <div class="card">
+    <div class="card-title">Agregar producto al catálogo</div>
+    <div class="cat-grid">
+      <div><label>Nombre</label><input id="np-nombre" placeholder="Ej: Colgante Ravenna"></div>
+      <div><label>Categoría</label>
+        <select id="np-cat">
+          <option>Iluminación - Colgantes</option>
+          <option>Iluminación - Apliques</option>
+          <option>Iluminación - Veladores</option>
+          <option>Iluminación - Accesorios</option>
+          <option>Deco</option><option>Bazar</option>
+          <option>Mobiliario</option><option>Sets / Combos</option>
+          <option>Otra</option>
+        </select>
+      </div>
+      <div><label>P. may. $</label><input id="np-pmay" type="number" style="text-align:right" placeholder="0"></div>
+      <div><label>P. min. $</label><input id="np-pmin" type="number" style="text-align:right" placeholder="0"></div>
+      <div><label>&nbsp;</label><button class="btn btn-choco btn-sm" onclick="addProducto()">Agregar</button></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-header">
+      <div class="card-title" style="margin-bottom:0">Catálogo completo</div>
+      <input id="buscar-cat" placeholder="Buscar..." style="width:180px;font-size:12px" oninput="renderCatalogo()">
+    </div>
+    <div style="overflow-x:auto">
+      <table class="ptable">
+        <thead><tr><th>Producto</th><th>Categoría</th><th style="text-align:right">P. may.</th><th style="text-align:right">P. min.</th><th></th></tr></thead>
+        <tbody id="lista-productos"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MI EMPRESA -->
+<div id="tab-empresa" class="panel">
+  <div class="card">
+    <div class="card-title">Datos de mi empresa</div>
+    <div class="row-2">
+      <div><label>Nombre de la empresa</label><input id="emp-nombre" placeholder="Nervo Design"></div>
+      <div><label>Teléfono</label><input id="emp-tel" placeholder="+54 9 351..."></div>
+      <div><label>Email</label><input id="emp-email" placeholder="ventas@nervodesign.com"></div>
+      <div><label>CUIT</label><input id="emp-cuit" placeholder="30-12345678-9"></div>
+      <div style="grid-column:1/-1"><label>Dirección</label><input id="emp-dir" placeholder="Av. Colón 123, Córdoba"></div>
+      <div style="grid-column:1/-1"><label>Sitio web (aparece en el pie del PDF)</label><input id="emp-web" placeholder="nervodesign.com"></div>
+      <div style="grid-column:1/-1"><label>URL del logo (link directo a imagen)</label><input id="emp-logo" placeholder="https://..." oninput="previewLogo()"></div>
+      <div id="logo-box" style="display:none;grid-column:1/-1">
+        <img id="logo-img" style="max-height:56px;max-width:180px;object-fit:contain;border-radius:6px">
+        <p style="font-size:11px;color:var(--texto-sec);margin-top:4px">Vista previa del logo</p>
+      </div>
+    </div>
+    <div style="margin-top:16px"><button class="btn btn-choco" onclick="guardarEmpresa()">Guardar datos de empresa</button></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Configuración</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div>
+        <div style="font-size:12px;font-weight:500;color:var(--texto-sec);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Numeración de presupuestos</div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1"><label>Próximo número a usar</label><input id="cfg-presupnum" type="number" style="text-align:right" min="1"></div>
+          <button class="btn btn-choco btn-sm" style="padding:8px 14px" onclick="guardarPresupNum()">Guardar</button>
+        </div>
+        <p style="font-size:11px;color:var(--texto-sec);margin-top:5px">El contador sube automáticamente con cada PDF generado. Cambialo solo si necesitás corregirlo.</p>
+      </div>
+
+      <div style="border-top:0.5px solid var(--border-soft);padding-top:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--texto-sec);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Descuento por transferencia</div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div><label>Porcentaje por defecto %</label><input id="cfg-desc-transf" type="number" style="text-align:right;width:90px" min="0" max="100"></div>
+          <button class="btn btn-choco btn-sm" style="padding:8px 14px" onclick="guardarConfigTransf()">Guardar</button>
+        </div>
+        <p style="font-size:11px;color:var(--texto-sec);margin-top:5px">Se carga automáticamente en cada presupuesto minorista nuevo.</p>
+      </div>
+
+      <div style="border-top:0.5px solid var(--border-soft);padding-top:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--texto-sec);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Validez del presupuesto</div>
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div style="flex:1"><label>Validez por defecto</label><input id="cfg-validez" placeholder="7 días"></div>
+          <button class="btn btn-choco btn-sm" style="padding:8px 14px" onclick="guardarConfigValidez()">Guardar</button>
+        </div>
+      </div>
+
+      <div style="border-top:0.5px solid var(--border-soft);padding-top:14px">
+        <div style="font-size:12px;font-weight:500;color:var(--texto-sec);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.06em">Zona de peligro</div>
+        <button class="btn btn-danger" onclick="resetearContador()" style="border:0.5px solid var(--border)">Resetear contador al número que elija</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── ESTADO ──────────────────────────────────────────────
+let tipoCliente='mayorista', items=[], productos=[], empresa={}, historial=[], presupNum=2899, catActiva='Todas';
+
+const STORAGE_KEY_PROD='nd_productos';
+const STORAGE_KEY_EMP='nd_empresa';
+const STORAGE_KEY_HIST='nd_historial';
+
+const PRODUCTOS_DEFAULT=[
+  {nombre:'Colgante Ravenna',cat:'Iluminación - Colgantes',pmay:209230,pmin:298900},
+  {nombre:'Colgante Liguria 60x60cm',cat:'Iluminación - Colgantes',pmay:267330,pmin:381900},
+  {nombre:'Colgante Liguria 40x45x60cm',cat:'Iluminación - Colgantes',pmay:167930,pmin:239900},
+  {nombre:'Colgante Catania',cat:'Iluminación - Colgantes',pmay:154000,pmin:220000},
+  {nombre:'Colgante Palermo',cat:'Iluminación - Colgantes',pmay:182000,pmin:260000},
+  {nombre:'Colgante Bari',cat:'Iluminación - Colgantes',pmay:126000,pmin:180000},
+  {nombre:'Colgante Nápoles',cat:'Iluminación - Colgantes',pmay:196000,pmin:280000},
+  {nombre:'Aplique de pared rattan',cat:'Iluminación - Apliques',pmay:98000,pmin:140000},
+  {nombre:'Aplique doble brazo',cat:'Iluminación - Apliques',pmay:112000,pmin:160000},
+  {nombre:'Velador inalámbrico recargable',cat:'Iluminación - Veladores',pmay:105000,pmin:150000},
+  {nombre:'Velador de mesa bambú',cat:'Iluminación - Veladores',pmay:84000,pmin:120000},
+  {nombre:'Velador de pie rattan',cat:'Iluminación - Veladores',pmay:196000,pmin:280000},
+  {nombre:'Accesorio portalámparas E27',cat:'Iluminación - Accesorios',pmay:14000,pmin:20000},
+  {nombre:'Cable textil 1,5m',cat:'Iluminación - Accesorios',pmay:21000,pmin:30000},
+  {nombre:'Cesto redondo chico',cat:'Deco',pmay:42000,pmin:60000},
+  {nombre:'Cesto redondo grande',cat:'Deco',pmay:63000,pmin:90000},
+  {nombre:'Bandeja rectangular mimbre',cat:'Deco',pmay:49000,pmin:70000},
+  {nombre:'Bandeja redonda natural',cat:'Deco',pmay:35000,pmin:50000},
+  {nombre:'Alfombra yute redonda 100cm',cat:'Deco',pmay:91000,pmin:130000},
+  {nombre:'Alfombra yute rectangular 160x230',cat:'Deco',pmay:182000,pmin:260000},
+  {nombre:'Objeto deco maceta cerámica',cat:'Deco',pmay:28000,pmin:40000},
+  {nombre:'Objeto deco figura rattan',cat:'Deco',pmay:35000,pmin:50000},
+  {nombre:'Tazas set x4 cerámica',cat:'Bazar',pmay:42000,pmin:60000},
+  {nombre:'Tabla de madera para picar',cat:'Bazar',pmay:35000,pmin:50000},
+  {nombre:'Jarras de vidrio x2',cat:'Bazar',pmay:49000,pmin:70000},
+  {nombre:'Set de cubiertos madera',cat:'Bazar',pmay:28000,pmin:40000},
+  {nombre:'Zapatero 3 módulos madera',cat:'Mobiliario',pmay:238000,pmin:340000},
+  {nombre:'Mesa lateral hierro y madera',cat:'Mobiliario',pmay:196000,pmin:280000},
+  {nombre:'Recibidor con espejo',cat:'Mobiliario',pmay:315000,pmin:450000},
+  {nombre:'Espejo redondo ratán 60cm',cat:'Mobiliario',pmay:140000,pmin:200000},
+  {nombre:'Set colgante + velador',cat:'Sets / Combos',pmay:259000,pmin:370000},
+  {nombre:'Combo deco 3 cestos',cat:'Sets / Combos',pmay:112000,pmin:160000},
+];
+
+// ── INIT ─────────────────────────────────────────────────
+function loadData(){
+  try{const r=localStorage.getItem(STORAGE_KEY_PROD);if(r)productos=JSON.parse(r);}catch(e){}
+  try{const r=localStorage.getItem(STORAGE_KEY_EMP);if(r){empresa=JSON.parse(r);loadEmpresaForm();}}catch(e){}
+  try{const r=localStorage.getItem(STORAGE_KEY_HIST);if(r)historial=JSON.parse(r);}catch(e){}
+  try{const n=localStorage.getItem('nd_presupnum');presupNum=Math.max(2899,parseInt(n)||2899);}catch(e){}
+  if(!productos.length){productos=[...PRODUCTOS_DEFAULT];saveProductos();}
+  renderCatFilter();renderPicker();renderCatalogo();renderHistorial();
+}
+function savePresupNum(){try{localStorage.setItem('nd_presupnum',String(presupNum));}catch(e){}}
+function saveProductos(){try{localStorage.setItem(STORAGE_KEY_PROD,JSON.stringify(productos));}catch(e){}}
+
+// ── PICKER ───────────────────────────────────────────────
+function getCats(){return['Todas',...new Set(productos.map(p=>p.cat))];}
+function renderCatFilter(){
+  document.getElementById('cat-filter').innerHTML=getCats().map(c=>
+    `<button class="cat-btn${c===catActiva?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}'')">${c}</button>`
+  ).join('').replace(/\\''/g,"'");
+}
+function setCat(c){catActiva=c;renderCatFilter();filtrarPicker();}
+function filtrarPicker(){renderPicker(document.getElementById('buscar').value.toLowerCase());}
+function renderPicker(q=''){
+  const el=document.getElementById('prod-picker');
+  let list=productos;
+  if(catActiva!=='Todas')list=list.filter(p=>p.cat===catActiva);
+  if(q)list=list.filter(p=>p.nombre.toLowerCase().includes(q));
+  if(!list.length){el.innerHTML='<div style="padding:12px;color:var(--texto-sec);font-size:13px;text-align:center">Sin resultados</div>';return;}
+  el.innerHTML=list.map(p=>{
+    const i=productos.indexOf(p);
+    const precio=tipoCliente==='mayorista'?p.pmay:p.pmin;
+    return`<div class="prod-item" onclick="selProd(${i})">
+      <span><span class="pname">${p.nombre}</span><span class="pcat">${p.cat}</span></span>
+      <span class="pprice">$${precio.toLocaleString('es-AR')}</span>
+    </div>`;
+  }).join('');
+}
+function selProd(i){
+  const p=productos[i];
+  document.getElementById('add-nombre').value=p.nombre;
+  document.getElementById('add-precio').value=tipoCliente==='mayorista'?p.pmay:p.pmin;
+  document.getElementById('add-cant').value=1;
+  document.getElementById('add-desc').value=0;
+}
+
+// ── ITEMS ────────────────────────────────────────────────
+function agregarItem(){
+  const nombre=document.getElementById('add-nombre').value.trim();
+  const precio=parseFloat(document.getElementById('add-precio').value)||0;
+  const cant=parseInt(document.getElementById('add-cant').value)||1;
+  const desc=parseFloat(document.getElementById('add-desc').value)||0;
+  if(!nombre||precio<=0){alert('Completá nombre y precio.');return;}
+  items.push({nombre,precio,cant,desc});
+  document.getElementById('add-nombre').value='';
+  document.getElementById('add-precio').value='';
+  document.getElementById('add-cant').value=1;
+  document.getElementById('add-desc').value=0;
+  renderTabla();recalcular();
+}
+function renderTabla(){
+  const tb=document.getElementById('tabla-items'),em=document.getElementById('empty-msg');
+  if(!items.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=items.map((it,i)=>{
+    const sub=it.precio*it.cant*(1-it.desc/100);
+    return`<tr>
+      <td>${it.nombre}</td>
+      <td style="text-align:right"><input class="precio-edit" type="number" value="${it.precio}" oninput="editPrecio(${i},this.value)"></td>
+      <td style="text-align:right"><input class="cant-edit" type="number" value="${it.cant}" min="1" oninput="editCant(${i},this.value)"></td>
+      <td style="text-align:right">${it.desc>0?it.desc+'%':'—'}</td>
+      <td style="text-align:right;font-weight:500;color:var(--chocolate)" id="sub-${i}">$${Math.round(sub).toLocaleString('es-AR')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeItem(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+function editPrecio(i,v){
+  items[i].precio=parseFloat(v)||0;
+  const sub=items[i].precio*items[i].cant*(1-items[i].desc/100);
+  const el=document.getElementById('sub-'+i);
+  if(el)el.textContent='$'+Math.round(sub).toLocaleString('es-AR');
+  recalcular();
+}
+function editCant(i,v){
+  items[i].cant=parseInt(v)||1;
+  const sub=items[i].precio*items[i].cant*(1-items[i].desc/100);
+  const el=document.getElementById('sub-'+i);
+  if(el)el.textContent='$'+Math.round(sub).toLocaleString('es-AR');
+  recalcular();
+}
+function removeItem(i){items.splice(i,1);renderTabla();recalcular();}
+
+// ── FORMA DE PAGO / CUOTAS ───────────────────────────────
+let formaPago='lista', cuotas=0;
+
+function setFormaPago(fp){
+  formaPago=fp;
+  document.querySelectorAll('.pill-pago').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('pill-'+fp);
+  if(el) el.classList.add('active');
+  recalcular();
+}
+
+function setCuotas(n){
+  cuotas=n;
+  document.querySelectorAll('#pills-cuotas .pill-pago').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pill-c'+n).classList.add('active');
+  recalcular();
+}
+
+// ── TOTALES ──────────────────────────────────────────────
+function recalcular(){
+  const sub=items.reduce((a,it)=>a+it.precio*it.cant*(1-it.desc/100),0);
+  const dg=parseFloat(document.getElementById('inp-desc-global').value)||0;
+  const dm=sub*(dg/100), totalLista=sub-dm;
+  const descTransf=parseFloat(document.getElementById('inp-desc-transf')?document.getElementById('inp-desc-transf').value:15)||0;
+  const totalTransf=totalLista*(1-descTransf/100);
+  const esMay=tipoCliente==='mayorista';
+
+  const envio=parseFloat(document.getElementById('inp-envio')?document.getElementById('inp-envio').value:0)||0;
+
+  document.getElementById('tot-subtotal').textContent='$'+Math.round(sub).toLocaleString('es-AR');
+  const rd=document.getElementById('row-dg');
+  if(dg>0){rd.style.display='flex';document.getElementById('tot-dg').textContent='-$'+Math.round(dm).toLocaleString('es-AR');document.getElementById('lbl-dg').textContent='Desc. global ('+dg+'%)';}
+  else rd.style.display='none';
+
+  if(esMay){
+    const senia=parseFloat(document.getElementById('inp-senia').value)||0;
+    const totalConEnvio=totalLista+envio;
+    const saldo=Math.max(0,totalConEnvio-senia);
+    document.getElementById('tot-total').textContent='$'+Math.round(totalLista).toLocaleString('es-AR');
+
+    // envío mayorista
+    const rowEMay=document.getElementById('row-envio-may');
+    const rowTEMay=document.getElementById('row-total-con-envio-may');
+    if(envio>0){
+      rowEMay.style.display='flex';
+      rowTEMay.style.display='flex';
+      document.getElementById('lbl-envio-may').textContent='Envío';
+      document.getElementById('tot-envio-may').textContent='$'+Math.round(envio).toLocaleString('es-AR');
+      document.getElementById('tot-total-envio-may').textContent='$'+Math.round(totalConEnvio).toLocaleString('es-AR');
+    } else {
+      rowEMay.style.display='none';
+      rowTEMay.style.display='none';
+    }
+
+    document.getElementById('tot-senia').textContent='$'+Math.round(senia).toLocaleString('es-AR');
+    document.getElementById('tot-saldo').textContent='$'+Math.round(saldo).toLocaleString('es-AR');
+  } else {
+    // minorista — usa descTransf y totalTransf ya calculados arriba
+    document.getElementById('tot-lista-min').textContent='$'+Math.round(totalLista).toLocaleString('es-AR');
+    document.getElementById('tot-transf').textContent='$'+Math.round(totalTransf).toLocaleString('es-AR');
+
+    const ld=document.getElementById('lbl-desc-transf');
+    if(ld) ld.textContent=descTransf+'% de descuento — ahorrás $'+Math.round(totalLista-totalTransf).toLocaleString('es-AR');
+
+    // envío minorista
+    const rowEMin=document.getElementById('row-envio-min');
+    const rowEGratis=document.getElementById('row-envio-gratis-min');
+    if(envio>0){
+      rowEMin.style.display='block';
+      rowEGratis.style.display='none';
+      document.getElementById('tot-envio-min').textContent='$'+Math.round(envio).toLocaleString('es-AR');
+      document.getElementById('tot-tarjeta-envio').textContent='$'+Math.round(totalLista+envio).toLocaleString('es-AR');
+      document.getElementById('tot-transf-envio2').textContent='$'+Math.round(totalTransf+envio).toLocaleString('es-AR');
+    } else {
+      rowEMin.style.display='none';
+      rowEGratis.style.display='block';
+    }
+
+    // cuotas — siempre mostrar las seleccionadas
+    const contenedor=document.getElementById('cuotas-rows');
+    if(cuotas>0){
+      // mostrar todas las cuotas hasta la seleccionada
+      const opciones=[3,6,12].filter(n=>n<=cuotas);
+      if(!opciones.includes(cuotas)) opciones.push(cuotas);
+      opciones.sort((a,b)=>a-b);
+      contenedor.innerHTML=opciones.map(n=>{
+        const esActiva=n===cuotas;
+        return`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;opacity:${esActiva?'1':'0.55'}">
+          <span style="font-size:${esActiva?'14':'13'}px;color:#F5F0EA;font-weight:${esActiva?'500':'400'}">${n} cuotas de</span>
+          <span style="font-size:${esActiva?'16':'13'}px;color:#F5F0EA;font-weight:${esActiva?'500':'400'};font-family:${esActiva?"'Cormorant Garamond',serif":"inherit"}">$${Math.round(totalLista/n).toLocaleString('es-AR')}</span>
+        </div>`;
+      }).join('');
+    } else {
+      contenedor.innerHTML=`<div style="font-size:12px;color:rgba(245,240,234,0.4)">Seleccioná las cuotas disponibles</div>`;
+    }
+  }
+}
+
+// ── TIPO CLIENTE ─────────────────────────────────────────
+function toggleTipo(){
+  tipoCliente=tipoCliente==='mayorista'?'minorista':'mayorista';
+  const b=document.getElementById('badge-tipo');
+  b.textContent=(tipoCliente==='mayorista'?'Mayorista':'Minorista')+' ▾';
+  b.className='tipo-badge '+(tipoCliente==='mayorista'?'tipo-may':'tipo-min');
+  renderPicker(document.getElementById('buscar').value.toLowerCase());
+  actualizarVistaResumen();
+  recalcular();
+}
+
+function actualizarVistaResumen(){
+  const esMay=tipoCliente==='mayorista';
+  document.getElementById('seccion-mayorista').style.display=esMay?'flex':'none';
+  document.getElementById('seccion-minorista').style.display=esMay?'none':'flex';
+  document.getElementById('bloque-may').style.display=esMay?'flex':'none';
+  document.getElementById('bloque-min').style.display=esMay?'none':'flex';
+}
+
+// ── LIMPIAR ──────────────────────────────────────────────
+function limpiarPresupuesto(){
+  if(!confirm('¿Limpiar el presupuesto actual?'))return;
+  items=[];
+  ['cli-nombre','cli-tel','cli-email','cli-dir','cli-cuit'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-senia').value=0;
+  document.getElementById('inp-desc-global').value=0;
+  document.getElementById('inp-notas').value='';
+  renderTabla();recalcular();
+}
+
+// ── HISTORIAL ────────────────────────────────────────────
+async function guardarPresupuesto(){
+  const cliente=document.getElementById('cli-nombre').value||'Sin nombre';
+  const dg=parseFloat(document.getElementById('inp-desc-global').value)||0;
+  const sub=items.reduce((a,it)=>a+it.precio*it.cant*(1-it.desc/100),0);
+  const total=sub*(1-dg/100);
+  historial.push({num:presupNum,cliente,tipo:tipoCliente,fecha:new Date().toLocaleDateString('es-AR'),total:Math.round(total)});
+  presupNum++;
+  savePresupNum();
+  try{localStorage.setItem(STORAGE_KEY_HIST,JSON.stringify(historial));}catch(e){}
+  renderHistorial();
+  alert('Presupuesto #'+(presupNum-1)+' guardado.');
+}
+function renderHistorial(){
+  const el=document.getElementById('historial-list');
+  if(!historial.length){el.innerHTML='<p style="color:var(--texto-sec);font-size:13px;text-align:center;padding:1.5rem">Sin presupuestos guardados todavía.</p>';return;}
+  el.innerHTML=historial.slice().reverse().map(h=>`
+    <div class="hist-item">
+      <div>
+        <span style="font-size:14px;font-weight:500;color:var(--chocolate)">#${h.num} — ${h.cliente}</span>
+        <span style="margin-left:8px;font-size:11px;padding:2px 9px;border-radius:999px;background:${h.tipo==='mayorista'?'var(--lino)':'#3B1F0F'};color:${h.tipo==='mayorista'?'var(--choco-mid)':'#F5F0EA'}">${h.tipo}</span>
+        <div style="font-size:12px;color:var(--texto-sec);margin-top:3px">${h.fecha} · Total: $${h.total.toLocaleString('es-AR')}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── CATÁLOGO ─────────────────────────────────────────────
+function renderCatalogo(){
+  const q=(document.getElementById('buscar-cat').value||'').toLowerCase();
+  const tb=document.getElementById('lista-productos');
+  let list=productos;
+  if(q)list=list.filter(p=>p.nombre.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:1rem;color:var(--texto-sec);font-size:13px">Sin resultados</td></tr>';return;}
+  tb.innerHTML=list.map(p=>{
+    const i=productos.indexOf(p);
+    return`<tr>
+      <td style="font-weight:500">${p.nombre}</td>
+      <td style="font-size:12px;color:var(--texto-sec)">${p.cat}</td>
+      <td style="text-align:right">$${p.pmay.toLocaleString('es-AR')}</td>
+      <td style="text-align:right">$${p.pmin.toLocaleString('es-AR')}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="delProducto(${i})">Eliminar</button></td>
+    </tr>`;
+  }).join('');
+}
+function addProducto(){
+  const nombre=document.getElementById('np-nombre').value.trim();
+  const cat=document.getElementById('np-cat').value;
+  const pmay=parseFloat(document.getElementById('np-pmay').value)||0;
+  const pmin=parseFloat(document.getElementById('np-pmin').value)||0;
+  if(!nombre){alert('Ingresá el nombre del producto.');return;}
+  productos.push({nombre,cat,pmay,pmin});
+  saveProductos();renderCatalogo();renderCatFilter();renderPicker();
+  document.getElementById('np-nombre').value='';
+  document.getElementById('np-pmay').value='';
+  document.getElementById('np-pmin').value='';
+}
+function delProducto(i){
+  if(!confirm('¿Eliminar "'+productos[i].nombre+'"?'))return;
+  productos.splice(i,1);saveProductos();renderCatalogo();renderCatFilter();renderPicker();
+}
+
+// ── EMPRESA ──────────────────────────────────────────────
+function loadEmpresaForm(){
+  ['nombre','tel','email','cuit','dir','logo','web'].forEach(k=>{
+    const el=document.getElementById('emp-'+k);
+    if(el&&empresa[k]) el.value=empresa[k];
+  });
+  if(empresa.logo) previewLogo();
+  // cargar config
+  document.getElementById('cfg-presupnum').value=presupNum;
+  try{const d=localStorage.getItem('nd_cfg_transf');if(d){document.getElementById('cfg-desc-transf').value=d;const inp=document.getElementById('inp-desc-transf');if(inp)inp.value=d;}}catch(e){}
+  try{const v=localStorage.getItem('nd_cfg_validez');if(v){document.getElementById('cfg-validez').value=v;const inp=document.getElementById('inp-validez');if(inp)inp.value=v;}}catch(e){}
+}
+function guardarEmpresa(){
+  empresa={
+    nombre:document.getElementById('emp-nombre').value,
+    tel:document.getElementById('emp-tel').value,
+    email:document.getElementById('emp-email').value,
+    cuit:document.getElementById('emp-cuit').value,
+    dir:document.getElementById('emp-dir').value,
+    logo:document.getElementById('emp-logo').value,
+    web:document.getElementById('emp-web').value,
+  };
+  try{localStorage.setItem(STORAGE_KEY_EMP,JSON.stringify(empresa));}catch(e){}
+  alert('Datos de empresa guardados.');
+}
+function guardarPresupNum(){
+  const n=parseInt(document.getElementById('cfg-presupnum').value)||2899;
+  presupNum=n;
+  savePresupNum();
+  alert('Numeración actualizada. Próximo presupuesto: N°'+n);
+}
+function guardarConfigTransf(){
+  const v=document.getElementById('cfg-desc-transf').value;
+  try{localStorage.setItem('nd_cfg_transf',v);}catch(e){}
+  const inp=document.getElementById('inp-desc-transf');
+  if(inp){inp.value=v;recalcular();}
+  alert('Descuento por transferencia guardado: '+v+'%');
+}
+function guardarConfigValidez(){
+  const v=document.getElementById('cfg-validez').value;
+  try{localStorage.setItem('nd_cfg_validez',v);}catch(e){}
+  const inp=document.getElementById('inp-validez');
+  if(inp) inp.value=v;
+  alert('Validez guardada: '+v);
+}
+function resetearContador(){
+  const n=parseInt(prompt('¿A qué número querés resetear el contador?',presupNum));
+  if(!isNaN(n)&&n>0){
+    presupNum=n;
+    savePresupNum();
+    document.getElementById('cfg-presupnum').value=n;
+    alert('Contador reseteado a N°'+n);
+  }
+}
+function previewLogo(){
+  const url=document.getElementById('emp-logo').value;
+  document.getElementById('logo-img').src=url;
+  document.getElementById('logo-box').style.display=url?'block':'none';
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='historial')renderHistorial();
+}
+
+// ── PDF ──────────────────────────────────────────────────
+function generarPDF(){
+  if(!items.length){alert('Agregá al menos un producto antes de generar el PDF.');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const pW=210,mg=15;let y=mg;
+  const CHOCO=[59,31,15],BURDEO=[92,26,26],DORADO=[201,168,76],CREMA=[245,240,234],LINO=[237,229,216],GRAY=[120,90,60];
+
+  // Header
+  doc.setFillColor(...CHOCO);doc.rect(0,0,pW,32,'F');
+  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(...CREMA);
+  doc.text(empresa.nombre||'Nervo Design',mg,13);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...DORADO);
+  const ei=[empresa.tel,empresa.email,empresa.dir].filter(Boolean).join('  ·  ');
+  if(ei)doc.text(ei,mg,20);
+  if(empresa.cuit)doc.text('CUIT: '+empresa.cuit,mg,27);
+  y=40;
+
+  // Número de presupuesto
+  doc.setFillColor(...LINO);doc.rect(mg,y,pW-mg*2,26,'F');
+  doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(...CHOCO);
+  doc.text('PRESUPUESTO N° '+presupNum,mg+4,y+9);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...GRAY);
+  doc.text('Fecha: '+new Date().toLocaleDateString('es-AR'),mg+4,y+16);
+  doc.text('Tipo de cliente: '+tipoCliente.charAt(0).toUpperCase()+tipoCliente.slice(1),mg+4,y+22);
+  const val=document.getElementById('inp-validez').value;
+  if(val)doc.text('Validez: '+val,mg+75,y+16);
+  y+=32;
+
+  // Cliente
+  doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(...CHOCO);
+  doc.text('DATOS DEL CLIENTE',mg,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setTextColor(...GRAY);doc.setFontSize(8);
+  const cn=document.getElementById('cli-nombre').value||'—';
+  const ct=document.getElementById('cli-tel').value,ce=document.getElementById('cli-email').value;
+  const cd=document.getElementById('cli-dir').value,cc=document.getElementById('cli-cuit').value;
+  doc.text('Nombre: '+cn,mg,y);y+=4;
+  if(ct||ce)doc.text('Tel: '+(ct||'—')+'   Email: '+(ce||'—'),mg,y),y+=4;
+  if(cd||cc)doc.text('Dirección: '+(cd||'—')+'   CUIT/DNI: '+(cc||'—'),mg,y),y+=4;
+  y+=5;
+
+  // Tabla productos
+  doc.setFillColor(...CHOCO);doc.rect(mg,y,pW-mg*2,7,'F');
+  doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...CREMA);
+  [{t:'Producto',x:mg+2},{t:'Precio unit.',x:mg+90},{t:'Cant.',x:mg+116},{t:'Desc.',x:mg+130},{t:'Subtotal',x:mg+148}].forEach(c=>doc.text(c.t,c.x,y+4.5));
+  y+=9;
+  doc.setFont('helvetica','normal');doc.setTextColor(50,30,10);doc.setFontSize(8);
+  items.forEach((it,i)=>{
+    if(i%2===0){doc.setFillColor(...LINO);doc.rect(mg,y-1,pW-mg*2,6.5,'F');}
+    const sub=it.precio*it.cant*(1-it.desc/100);
+    doc.text(it.nombre.substring(0,44),mg+2,y+3.5);
+    doc.text('$'+Math.round(it.precio).toLocaleString('es-AR'),mg+90,y+3.5);
+    doc.text(String(it.cant),mg+118,y+3.5);
+    doc.text(it.desc>0?it.desc+'%':'—',mg+132,y+3.5);
+    doc.setTextColor(...CHOCO);doc.setFont('helvetica','bold');
+    doc.text('$'+Math.round(sub).toLocaleString('es-AR'),mg+148,y+3.5);
+    doc.setFont('helvetica','normal');doc.setTextColor(50,30,10);
+    y+=6.5;
+    if(y>260){doc.addPage();y=mg;}
+  });
+  y+=6;
+
+  // Totales
+  const dg=parseFloat(document.getElementById('inp-desc-global').value)||0;
+  const sub2=items.reduce((a,it)=>a+it.precio*it.cant*(1-it.desc/100),0);
+  const dm=sub2*(dg/100), totalLista=sub2-dm;
+  const dtEl=document.getElementById('inp-desc-transf');
+  const descTransf=dtEl?parseFloat(dtEl.value)||0:0;
+  const totalTransf=totalLista*(1-descTransf/100);
+  const esMay=tipoCliente==='mayorista';
+  const senia=parseFloat(document.getElementById('inp-senia')?document.getElementById('inp-senia').value:0)||0;
+  const envio=parseFloat(document.getElementById('inp-envio')?document.getElementById('inp-envio').value:0)||0;
+  const rx=mg+95;
+  const tr=(lbl,val,bold=false,col=GRAY)=>{
+    doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(bold?10:8);doc.setTextColor(...col);
+    doc.text(lbl,rx,y);doc.text('$'+Math.round(val).toLocaleString('es-AR'),pW-mg,y,{align:'right'});y+=5;
+  };
+  tr('Subtotal:',sub2);
+  if(dg>0) tr('Descuento global ('+dg+'%):',dm,false,BURDEO);
+  doc.setDrawColor(...CHOCO);doc.setLineWidth(0.3);doc.line(rx,y,pW-mg,y);y+=6;
+
+  if(esMay){
+    const totalConEnvio=totalLista+envio;
+    const saldo=Math.max(0,totalConEnvio-senia);
+    doc.setFillColor(...CHOCO);doc.rect(rx-2,y-3,pW-mg-rx+4,7.5,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...CREMA);
+    doc.text('TOTAL',rx,y+1.5);
+    doc.text('$'+Math.round(totalLista).toLocaleString('es-AR'),pW-mg,y+1.5,{align:'right'});
+    y+=10;
+    if(envio>0){
+      tr('Envío:',envio,false,GRAY);
+      tr('Total c/ envío:',totalConEnvio,false,CHOCO);
+    } else {
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GRAY);
+      doc.text('Envío a sucursal sin costo',rx,y);y+=5;
+    }
+    tr('Seña:',senia,false,DORADO);
+    doc.setFillColor(...BURDEO);doc.rect(rx-2,y-3,pW-mg-rx+4,7.5,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...CREMA);
+    doc.text('Saldo a pagar:',rx,y+1.5);
+    doc.text('$'+Math.round(saldo).toLocaleString('es-AR'),pW-mg,y+1.5,{align:'right'});
+    y+=11;
+    doc.text('$'+Math.round(saldo).toLocaleString('es-AR'),pW-mg,y+1.5,{align:'right'});
+    y+=11;
+  } else {
+    // Minorista: total, luego bloque tarjeta/cuotas, luego transferencia
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...CHOCO);
+    doc.text('TOTAL',rx,y);
+    doc.text('$'+Math.round(totalLista).toLocaleString('es-AR'),pW-mg,y,{align:'right'});
+    y+=8;
+
+    // Bloque tarjeta + cuotas
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...GRAY);
+    doc.text('TARJETA',rx,y);y+=4;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(50,30,10);
+    doc.text('Contado:',rx,y);
+    doc.text('$'+Math.round(totalLista).toLocaleString('es-AR'),pW-mg,y,{align:'right'});y+=5;
+    if(cuotas>0){
+      const opciones=[3,6,12].filter(n=>n<=cuotas);
+      if(!opciones.includes(cuotas)) opciones.push(cuotas);
+      opciones.sort((a,b)=>a-b).forEach(n=>{
+        if(n===cuotas){doc.setFont('helvetica','bold');doc.setTextColor(...CHOCO);}
+        else{doc.setFont('helvetica','normal');doc.setTextColor(...GRAY);}
+        doc.text(n+'x sin interés:',rx,y);
+        doc.text('$'+Math.round(totalLista/n).toLocaleString('es-AR')+'/mes',pW-mg,y,{align:'right'});
+        y+=5;
+      });
+    }
+    y+=3;
+
+    // Bloque transferencia — solo precio, sin cuotas
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(...GRAY);
+    doc.text('TRANSFERENCIA  (-'+descTransf+'%)',rx,y);y+=4;
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(...CHOCO);
+    doc.text('$'+Math.round(totalTransf).toLocaleString('es-AR'),pW-mg,y,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GRAY);
+    doc.text('Ahorrás $'+Math.round(totalLista-totalTransf).toLocaleString('es-AR'),rx,y);
+    y+=8;
+
+    // Envío minorista
+    doc.setDrawColor(...CHOCO);doc.setLineWidth(0.2);doc.line(rx,y,pW-mg,y);y+=4;
+    if(envio>0){
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GRAY);
+      doc.text('Envío:',rx,y);
+      doc.text('$'+Math.round(envio).toLocaleString('es-AR'),pW-mg,y,{align:'right'});y+=5;
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...CHOCO);
+      doc.text('Total c/ tarjeta:',rx,y);
+      doc.text('$'+Math.round(totalLista+envio).toLocaleString('es-AR'),pW-mg,y,{align:'right'});y+=5;
+      doc.setTextColor(...DORADO);
+      doc.text('Total c/ transferencia:',rx,y);
+      doc.text('$'+Math.round(totalTransf+envio).toLocaleString('es-AR'),pW-mg,y,{align:'right'});y+=6;
+    } else {
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(...GRAY);
+      doc.text('Envío a sucursal sin costo',rx,y);y+=5;
+    }
+  }
+
+  // Notas
+  const notas=document.getElementById('inp-notas').value;
+  if(notas){
+    doc.setLineWidth(0.3);doc.setDrawColor(...CHOCO);doc.line(mg,y,pW-mg,y);y+=5;
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...CHOCO);
+    doc.text('Observaciones:',mg,y);y+=4;
+    doc.setFont('helvetica','normal');doc.setTextColor(...GRAY);
+    doc.splitTextToSize(notas,pW-mg*2).forEach(l=>{doc.text(l,mg,y);y+=4;});
+  }
+
+  // Footer
+  doc.setFillColor(...CHOCO);doc.rect(0,284,pW,13,'F');
+  doc.setFontSize(7);doc.setTextColor(...DORADO);
+  const webStr=empresa.web||'nervodesign.com';
+  doc.text('NERVO DESIGN  ·  '+webStr+'  ·  '+new Date().toLocaleString('es-AR'),pW/2,292,{align:'center'});
+
+  const nomCliente=(document.getElementById('cli-nombre').value||'cliente').replace(/\s+/g,'-').toLowerCase();
+  doc.save('presupuesto-'+nomCliente+'-N'+presupNum+'.pdf');
+  presupNum++;
+  savePresupNum();
+}
+
+// ── ARRANQUE ─────────────────────────────────────────────
+loadData();
+actualizarVistaResumen();
+</script>
+</body>
+</html>
