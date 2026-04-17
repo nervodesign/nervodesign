@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nervo Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blanco: #FAFAF8;
+    --lino: #F2EDE6;
+    --arena: #E2D9CF;
+    --chocolate: #251408;
+    --marron: #6B3F28;
+    --dorado: #B8935A;
+    --burdeo: #7A2020;
+    --gris: #9A9287;
+    --verde: #2D6A4F;
+    --texto: #251408;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#F5F0EA; font-family:'Plus Jakarta Sans',sans-serif; color:var(--texto); font-size:13px; min-height:100vh; }
+
+  /* LOGIN */
+  .login-wrap {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--chocolate);
+  }
+  .login-box {
+    background:var(--blanco); padding:48px 40px; width:340px;
+    border-top:3px solid var(--dorado);
+  }
+  .login-logo { font-size:22px; font-weight:600; letter-spacing:3px; color:var(--chocolate); margin-bottom:4px; }
+  .login-sub { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--gris); margin-bottom:32px; }
+  .login-label { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gris); display:block; margin-bottom:5px; }
+  .login-input {
+    width:100%; border:1px solid var(--arena); padding:11px 12px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:13px;
+    color:var(--chocolate); outline:none; margin-bottom:16px;
+    transition:border-color 0.15s;
+  }
+  .login-input:focus { border-color:var(--marron); }
+  .login-btn {
+    width:100%; background:var(--chocolate); color:var(--blanco);
+    border:none; padding:13px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:9px; letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+    transition:opacity 0.2s;
+  }
+  .login-btn:hover { opacity:0.8; }
+  .login-error { font-size:10px; color:var(--burdeo); margin-top:10px; min-height:14px; }
+
+  /* LAYOUT */
+  .app { display:none; min-height:100vh; }
+  .app.visible { display:block; }
+  
+  /* HEADER */
+  .header {
+    background:var(--chocolate); color:var(--blanco);
+    padding:0 24px; height:56px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+  }
+  .header-logo { font-size:11px; letter-spacing:3px; text-transform:uppercase; font-weight:500; }
+  .header-user { font-size:9px; color:rgba(255,255,255,0.5); letter-spacing:1px; }
+  .btn-logout {
+    background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.6);
+    padding:5px 12px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:8px; letter-spacing:1.5px; text-transform:uppercase; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .btn-logout:hover { border-color:rgba(255,255,255,0.5); color:white; }
+
+  /* TABS */
+  .tabs {
+    background:var(--blanco); border-bottom:1px solid var(--arena);
+    display:flex; gap:0; padding:0 24px;
+    position:sticky; top:56px; z-index:99;
+  }
+  .tab {
+    background:none; border:none; border-bottom:2px solid transparent;
+    padding:14px 20px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--gris); cursor:pointer; transition:all 0.15s;
+    display:flex; align-items:center; gap:7px;
+  }
+  .tab:hover { color:var(--chocolate); }
+  .tab.activa { color:var(--chocolate); border-bottom-color:var(--marron); font-weight:600; }
+  .tab-badge {
+    background:var(--marron); color:white; border-radius:10px;
+    padding:1px 6px; font-size:8px; font-weight:600;
+  }
+
+  /* CONTENT */
+  .content { padding:24px; max-width:1100px; margin:0 auto; }
+
+  /* PANEL */
+  .panel { display:none; }
+  .panel.activo { display:block; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+  .stat {
+    background:var(--blanco); padding:20px; border-left:3px solid var(--dorado);
+  }
+  .stat-num { font-size:28px; font-weight:600; color:var(--chocolate); line-height:1; }
+  .stat-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gris); margin-top:4px; }
+
+  /* TABLA */
+  .tabla-wrap { background:var(--blanco); overflow:hidden; }
+  .tabla-header {
+    padding:16px 20px; border-bottom:1px solid var(--arena);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .tabla-titulo { font-size:10px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--chocolate); }
+  .tabla-buscar {
+    border:1px solid var(--arena); padding:7px 12px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:12px;
+    color:var(--chocolate); outline:none; width:220px;
+  }
+  .tabla-buscar:focus { border-color:var(--marron); }
+  table { width:100%; border-collapse:collapse; }
+  th {
+    text-align:left; padding:11px 16px;
+    font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gris); background:var(--lino); font-weight:500;
+    border-bottom:1px solid var(--arena);
+  }
+  td { padding:12px 16px; border-bottom:1px solid var(--lino); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--lino); }
+
+  /* BADGES */
+  .badge-activo { background:#E8F5E9; color:#2D6A4F; padding:3px 8px; font-size:8px; letter-spacing:1px; font-weight:600; }
+  .badge-inactivo { background:#FBE9E7; color:#C62828; padding:3px 8px; font-size:8px; letter-spacing:1px; font-weight:600; }
+  .badge-stock { background:#FFF8E1; color:#F57F17; padding:3px 8px; font-size:8px; letter-spacing:1px; font-weight:600; }
+
+  /* BOTONES TABLA */
+  .btn-tbl {
+    background:none; border:1px solid var(--arena); padding:5px 10px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:8px;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+    transition:all 0.15s; color:var(--gris);
+  }
+  .btn-tbl:hover { border-color:var(--marron); color:var(--marron); }
+  .btn-tbl.danger:hover { border-color:var(--burdeo); color:var(--burdeo); }
+  .btn-tbl.success { border-color:var(--verde); color:var(--verde); }
+
+  /* TOGGLE */
+  .toggle {
+    position:relative; width:36px; height:20px;
+    background:var(--arena); border-radius:10px;
+    cursor:pointer; transition:background 0.2s; border:none;
+  }
+  .toggle::after {
+    content:''; position:absolute; top:3px; left:3px;
+    width:14px; height:14px; background:white; border-radius:50%;
+    transition:transform 0.2s;
+  }
+  .toggle.on { background:var(--verde); }
+  .toggle.on::after { transform:translateX(16px); }
+
+  /* MODAL EDITAR */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(37,20,8,0.5);
+    z-index:200; display:none; align-items:center; justify-content:center;
+  }
+  .modal-overlay.visible { display:flex; }
+  .modal {
+    background:var(--blanco); width:90%; max-width:480px;
+    max-height:85vh; overflow-y:auto;
+    border-top:3px solid var(--dorado);
+  }
+  .modal-header {
+    padding:20px 24px; border-bottom:1px solid var(--arena);
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; background:var(--blanco); z-index:1;
+  }
+  .modal-titulo { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+  .modal-cerrar { background:none; border:none; font-size:20px; color:var(--gris); cursor:pointer; }
+  .modal-body { padding:24px; }
+  .campo { margin-bottom:18px; }
+  .campo label { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gris); display:block; margin-bottom:5px; }
+  .campo input, .campo select, .campo textarea {
+    width:100%; border:1px solid var(--arena); padding:10px 12px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:13px;
+    color:var(--chocolate); outline:none; transition:border-color 0.15s;
+    background:var(--blanco);
+  }
+  .campo input:focus, .campo select:focus, .campo textarea:focus { border-color:var(--marron); }
+  .campo textarea { resize:vertical; min-height:70px; }
+  .campo-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .modal-footer {
+    padding:16px 24px; border-top:1px solid var(--arena);
+    display:flex; gap:10px; justify-content:flex-end;
+    position:sticky; bottom:0; background:var(--blanco);
+  }
+  .btn-guardar {
+    background:var(--chocolate); color:var(--blanco); border:none; padding:10px 20px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:9px; letter-spacing:2px;
+    text-transform:uppercase; cursor:pointer; transition:opacity 0.2s;
+  }
+  .btn-guardar:hover { opacity:0.8; }
+  .btn-cancelar {
+    background:none; border:1px solid var(--arena); color:var(--gris); padding:10px 20px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:9px; letter-spacing:2px;
+    text-transform:uppercase; cursor:pointer;
+  }
+
+  /* VACÍO */
+  .vacio { text-align:center; padding:48px 20px; color:var(--gris); }
+  .vacio p { font-size:12px; margin-bottom:6px; }
+  .vacio span { font-size:10px; }
+
+  /* CARGANDO */
+  .cargando { text-align:center; padding:32px; color:var(--gris); font-size:11px; letter-spacing:1px; }
+
+  /* PROMOS */
+  .promos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; margin-bottom:24px; }
+  .promo-card {
+    background:var(--blanco); border-left:3px solid var(--dorado);
+    padding:20px; position:relative;
+  }
+  .promo-card.vencida { border-left-color:var(--arena); opacity:0.6; }
+  .promo-card.hoy { border-left-color:var(--burdeo); }
+  .promo-alerta {
+    background:var(--burdeo); color:white;
+    font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
+    padding:3px 8px; display:inline-block; margin-bottom:10px;
+  }
+  .promo-nombre { font-size:13px; font-weight:600; color:var(--chocolate); margin-bottom:4px; }
+  .promo-fechas { font-size:10px; color:var(--gris); margin-bottom:12px; }
+  .promo-msg {
+    background:var(--lino); padding:12px; font-size:11px;
+    color:var(--chocolate); line-height:1.7; white-space:pre-wrap;
+    margin-bottom:14px; border-left:2px solid var(--arena);
+  }
+  .promo-actions { display:flex; gap:8px; }
+  .btn-copiar {
+    background:var(--chocolate); color:white; border:none; padding:8px 14px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:8px;
+    letter-spacing:1.5px; text-transform:uppercase; cursor:pointer;
+    transition:opacity 0.2s; flex:1; text-align:center;
+  }
+  .btn-copiar:hover { opacity:0.8; }
+  .btn-copiar.copiado { background:var(--verde); }
+  .btn-nueva-promo {
+    background:var(--marron); color:white; border:none; padding:11px 20px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:9px;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+    transition:opacity 0.2s; margin-bottom:20px;
+  }
+  .btn-nueva-promo:hover { opacity:0.8; }
+  .promo-estado {
+    position:absolute; top:16px; right:16px;
+    font-size:8px; letter-spacing:1px; text-transform:uppercase;
+    padding:3px 8px;
+  }
+  .estado-activa { background:#E8F5E9; color:#2D6A4F; }
+  .estado-borrador { background:#FFF8E1; color:#F57F17; }
+  .estado-vencida { background:var(--lino); color:var(--gris); }
+  .promo-dias {
+    font-size:10px; color:var(--burdeo); font-weight:600; margin-bottom:8px;
+  }
+
+  @media(max-width:600px){
+    .stats { grid-template-columns:1fr 1fr; }
+    .content { padding:16px; }
+    .tabs { padding:0 12px; overflow-x:auto; }
+    .tab { padding:12px 14px; white-space:nowrap; }
+    th, td { padding:10px 12px; }
+    .tabla-buscar { width:140px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">NERVO</div>
+    <div class="login-sub">Panel de administración</div>
+    <label class="login-label">Contraseña</label>
+    <input class="login-input" type="password" id="pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">Ingresar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="header">
+    <div class="header-logo">Nervo — Admin</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span class="header-user" id="header-user"></span>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab activa" onclick="irTab('productos')">Productos <span class="tab-badge" id="badge-productos">0</span></button>
+    <button class="tab" onclick="irTab('pedidos')">Pedidos <span class="tab-badge" id="badge-pedidos">0</span></button>
+    <button class="tab" onclick="irTab('clientes')">Clientes <span class="tab-badge" id="badge-clientes">0</span></button>
+    <button class="tab" onclick="irTab('promos')">Promos & Mensajes <span class="tab-badge" id="badge-promos">0</span></button>
+  </div>
+
+  <div class="content">
+
+    <!-- PANEL PRODUCTOS -->
+    <div class="panel activo" id="panel-productos">
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-label">Productos totales</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-activos">—</div>
+          <div class="stat-label">Activos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-sinstock">—</div>
+          <div class="stat-label">Sin stock</div>
+        </div>
+      </div>
+      <div class="tabla-wrap">
+        <div class="tabla-header">
+          <div class="tabla-titulo">Productos</div>
+          <input class="tabla-buscar" placeholder="Buscar producto..." oninput="filtrarProductos(this.value)">
+        </div>
+        <div id="tabla-productos-wrap">
+          <div class="cargando">Cargando productos...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL PEDIDOS -->
+    <div class="panel" id="panel-pedidos">
+      <div class="tabla-wrap">
+        <div class="tabla-header">
+          <div class="tabla-titulo">Pedidos recibidos</div>
+          <input class="tabla-buscar" placeholder="Buscar..." oninput="filtrarPedidos(this.value)">
+        </div>
+        <div id="tabla-pedidos-wrap">
+          <div class="cargando">Cargando pedidos...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL CLIENTES -->
+    <div class="panel" id="panel-clientes">
+      <div class="tabla-wrap">
+        <div class="tabla-header">
+          <div class="tabla-titulo">Base de clientes</div>
+          <input class="tabla-buscar" placeholder="Buscar cliente..." oninput="filtrarClientes(this.value)">
+        </div>
+        <div id="tabla-clientes-wrap">
+          <div class="cargando">Cargando clientes...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL PROMOS -->
+    <div class="panel" id="panel-promos">
+      <button class="btn-nueva-promo" onclick="abrirModalPromo()">+ Nueva promo / mensaje</button>
+      <div id="promos-contenido"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL NUEVA PROMO -->
+<div class="modal-overlay" id="modalPromoOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-titulo" id="modal-promo-titulo">Nueva promo / mensaje</div>
+      <button class="modal-cerrar" onclick="cerrarModalPromo()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="promo-edit-idx" value="-1">
+      <div class="campo">
+        <label>Nombre de la promo</label>
+        <input type="text" id="promo-nombre" placeholder="Ej: Liquidación invierno, Lanzamiento Carmina...">
+      </div>
+      <div class="campo-row">
+        <div class="campo">
+          <label>Fecha de envío / inicio</label>
+          <input type="date" id="promo-fecha-inicio">
+        </div>
+        <div class="campo">
+          <label>Fecha de vencimiento</label>
+          <input type="date" id="promo-fecha-fin">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Estado</label>
+        <select id="promo-estado">
+          <option value="borrador">Borrador — en preparación</option>
+          <option value="activa">Activa — lista para enviar</option>
+          <option value="vencida">Vencida / Archivada</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Mensaje de WhatsApp</label>
+        <textarea id="promo-mensaje" style="min-height:160px;" placeholder="Escribí el mensaje acá. Podés usar {nombre} para personalizar.
+
+Ej:
+🌿 Hola {nombre}!
+
+Este mes tenemos una promo especial en Colgante Carmina — 10% OFF en pedidos de 6+
+
+Precio especial: $84.510 c/u
+Válido hasta el 30/04
+
+¿Te interesa sumar algunas? 🙌"></textarea>
+      </div>
+      <div class="campo">
+        <label>Recordatorio (días antes de la fecha de envío)</label>
+        <select id="promo-recordatorio">
+          <option value="0">El mismo día</option>
+          <option value="1">1 día antes</option>
+          <option value="3" selected>3 días antes</option>
+          <option value="7">1 semana antes</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Notas internas</label>
+        <textarea id="promo-notas" placeholder="Ej: Aplicar solo a clientes A y B, stock limitado a 20 unidades..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="cerrarModalPromo()">Cancelar</button>
+      <button class="btn-guardar" onclick="guardarPromo()">Guardar promo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR PRODUCTO -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-titulo" id="modal-titulo">Editar producto</div>
+      <button class="modal-cerrar" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-idx">
+      <div class="campo">
+        <label>Nombre</label>
+        <input type="text" id="edit-nombre">
+      </div>
+      <div class="campo-row">
+        <div class="campo">
+          <label>Categoría</label>
+          <select id="edit-categoria">
+            <option value="colgantes">Colgantes</option>
+            <option value="veladores">Veladores</option>
+            <option value="pie">Lámparas de pie</option>
+            <option value="apliques">Apliques</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Precio mayorista</label>
+          <input type="number" id="edit-precio">
+        </div>
+      </div>
+      <div class="campo-row">
+        <div class="campo">
+          <label>PVP sugerido</label>
+          <input type="number" id="edit-pvp">
+        </div>
+        <div class="campo">
+          <label>Stock</label>
+          <select id="edit-stock">
+            <option value="SI">Con stock</option>
+            <option value="NO">Sin stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="campo-row">
+        <div class="campo">
+          <label>Etiqueta</label>
+          <select id="edit-badge" onchange="toggleBadgeCustom()">
+            <option value="">Sin etiqueta</option>
+            <option value="best">Best Seller</option>
+            <option value="nuevo">Novedad</option>
+            <option value="hotsale">🔥 Hot Sale</option>
+            <option value="oferta">Oferta</option>
+            <option value="envio">Envío gratis a sucursal</option>
+            <option value="limitado">Stock limitado</option>
+            <option value="custom">Personalizada...</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>% Descuento</label>
+          <input type="number" id="edit-descuento" placeholder="Ej: 15" min="0" max="100">
+        </div>
+      </div>
+      <div class="campo" id="campo-badge-custom" style="display:none;">
+        <label>Texto de etiqueta personalizada</label>
+        <input type="text" id="edit-badge-custom" placeholder="Ej: 2x1, Liquidación, Solo esta semana...">
+      </div>
+      <div class="campo">
+        <label>Material / Medida</label>
+        <input type="text" id="edit-medida">
+      </div>
+      <div class="campo">
+        <label>Variantes (separadas por coma)</label>
+        <input type="text" id="edit-variantes" placeholder="PKT, PKN, CH...">
+      </div>
+      <div class="campo">
+        <label>Nota interna</label>
+        <textarea id="edit-nota" placeholder="Ej: Alta rotación, ideal para barras..."></textarea>
+      </div>
+      <div class="campo">
+        <label>Activo en catálogo</label>
+        <select id="edit-activo">
+          <option value="SI">Sí — visible en catálogo</option>
+          <option value="NO">No — oculto</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-guardar" onclick="guardarProducto()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCxdGF_OzA4mvtMdO9fIY4gnf6JqeHrkdsKqe-ejuGLdiRt9aFNdk8XwnySGxSNnKP/exec';
+const SHEET_ID = '1H-xgj2yi4iCdV6jaqAN04THCeLoXCBw2VhI3gbdKZkc';
+const USERS = { 'nervo': 'nervo2026', 'admin': 'nervo2026' };
+
+let productosData = [];
+let pedidosData = [];
+let clientesData = [];
+let tabActual = 'productos';
+
+let promosData = JSON.parse(localStorage.getItem('nervo_promos') || '[]');
+
+// ─── LOGIN ───────────────────────────────────────────
+function login() {
+  const pwd = document.getElementById('pwd').value;
+  const usuario = Object.keys(USERS).find(u => USERS[u] === pwd);
+  if(usuario) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('app').classList.add('visible');
+    document.getElementById('header-user').textContent = usuario;
+    cargarTodo();
+  } else {
+    document.getElementById('login-error').textContent = 'Contraseña incorrecta.';
+  }
+}
+
+function logout() {
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('pwd').value = '';
+}
+
+// ─── TABS ─────────────────────────────────────────────
+function irTab(tab) {
+  tabActual = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('activa', ['productos','pedidos','clientes','promos'][i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+  document.getElementById(`panel-${tab}`).classList.add('activo');
+  if(tab === 'promos') renderPromos();
+}
+
+// ─── CARGAR DATOS ─────────────────────────────────────
+async function cargarTodo() {
+  await Promise.all([cargarProductos(), cargarPedidos(), cargarClientes()]);
+}
+
+async function cargarProductos() {
+  // Leer hoja Productos del Sheet
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Productos`;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    productosData = rows.map(r => ({
+      id:        r.c[0]?.v || '',
+      nombre:    r.c[1]?.v || '',
+      categoria: r.c[2]?.v || '',
+      variante:  r.c[3]?.v || '',
+      precio:    r.c[4]?.v || 0,
+      medida:    r.c[5]?.v || '',
+      material:  r.c[6]?.v || '',
+      badge:     r.c[7]?.v || '',
+      stock:     r.c[8]?.v || 'SI',
+      activo:    r.c[9]?.v || 'SI',
+      foto:      r.c[10]?.v || '',
+    }));
+    renderProductos(productosData);
+    actualizarStats();
+    document.getElementById('badge-productos').textContent = productosData.length;
+  } catch(e) {
+    document.getElementById('tabla-productos-wrap').innerHTML = `<div class="cargando">No se pudo conectar con Google Sheets.<br>Verificá que la planilla sea pública.</div>`;
+    // Mostrar productos de ejemplo si no hay conexión
+    cargarProductosEjemplo();
+  }
+}
+
+function cargarProductosEjemplo() {
+  productosData = [
+    { id:'carmina', nombre:'Colgante Carmina', categoria:'colgantes', variante:'PKT', precio:93900, medida:'40×25cm', material:'Kraft tejido a mano', badge:'', stock:'SI', activo:'SI', foto:'col_carmina_pkt' },
+    { id:'carmina', nombre:'Colgante Carmina', categoria:'colgantes', variante:'PKN', precio:93900, medida:'40×25cm', material:'Kraft tejido a mano', badge:'', stock:'SI', activo:'SI', foto:'col_carmina_pkn' },
+    { id:'mesina', nombre:'Colgante Mesina', categoria:'colgantes', variante:'PKT', precio:111900, medida:'60cm', material:'Kraft tejido a mano', badge:'best', stock:'SI', activo:'SI', foto:'col_mesina_pkt' },
+    { id:'mesina', nombre:'Colgante Mesina', categoria:'colgantes', variante:'PKN', precio:119900, medida:'70cm', material:'Kraft tejido a mano', badge:'best', stock:'SI', activo:'SI', foto:'col_mesina_pkn' },
+    { id:'vicenza', nombre:'Colgante Vicenza', categoria:'colgantes', variante:'', precio:37900, medida:'16×65cm', material:'Bamboo', badge:'', stock:'SI', activo:'SI', foto:'col_vicenza_16x65cm' },
+  ];
+  renderProductos(productosData);
+  actualizarStats();
+  document.getElementById('badge-productos').textContent = productosData.length;
+}
+
+async function cargarPedidos() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Pedidos`;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    pedidosData = rows.map(r => ({
+      fecha:     r.c[0]?.v || '',
+      nombre:    r.c[1]?.v || '',
+      mail:      r.c[2]?.v || '',
+      telefono:  r.c[3]?.v || '',
+      productos: r.c[4]?.v || '',
+      total:     r.c[5]?.v || '',
+    })).reverse();
+    renderPedidos(pedidosData);
+    document.getElementById('badge-pedidos').textContent = pedidosData.length;
+  } catch(e) {
+    document.getElementById('tabla-pedidos-wrap').innerHTML = '<div class="vacio"><p>Sin pedidos aún</p><span>Los pedidos del catálogo aparecerán acá</span></div>';
+  }
+}
+
+async function cargarClientes() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Clientes`;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    clientesData = rows.map(r => ({
+      fecha:    r.c[0]?.v || '',
+      nombre:   r.c[1]?.v || '',
+      mail:     r.c[2]?.v || '',
+      telefono: r.c[3]?.v || '',
+    })).reverse();
+    renderClientes(clientesData);
+    document.getElementById('badge-clientes').textContent = clientesData.length;
+  } catch(e) {
+    document.getElementById('tabla-clientes-wrap').innerHTML = '<div class="vacio"><p>Sin clientes aún</p><span>Los datos se guardan cuando alguien hace un pedido</span></div>';
+  }
+}
+
+// ─── RENDER TABLAS ────────────────────────────────────
+function renderProductos(data) {
+  if(!data.length) {
+    document.getElementById('tabla-productos-wrap').innerHTML = '<div class="vacio"><p>Sin productos</p><span>Agregá productos desde Google Sheets</span></div>';
+    return;
+  }
+  const html = `<table>
+    <thead><tr>
+      <th>Producto</th><th>Variante</th><th>Medida</th>
+      <th>Precio</th><th>Etiqueta</th><th>Stock</th><th>Activo</th><th>Acciones</th>
+    </tr></thead>
+    <tbody>${data.map((p,i) => {
+      const badgeLabels = {best:'Best Seller',nuevo:'Novedad',hotsale:'🔥 Hot Sale',oferta:'Oferta',envio:'Envío gratis',limitado:'Stock limitado'};
+      const badgeText = badgeLabels[p.badge] || p.badge || '—';
+      const badgeStyle = p.badge ? 'background:var(--marron);color:white;padding:2px 7px;font-size:8px;letter-spacing:1px;' : 'color:var(--gris);font-size:11px;';
+      const descuento = p.descuento ? `<span style="color:var(--burdeo);font-size:10px;font-weight:600;"> -${p.descuento}%</span>` : '';
+      return `
+      <tr>
+        <td>
+          <div style="font-weight:500;font-size:12px;">${p.nombre}</div>
+          <div style="font-size:10px;color:var(--gris);">${p.categoria}</div>
+        </td>
+        <td style="font-size:11px;">${p.variante || '—'}</td>
+        <td style="font-size:11px;">${p.medida || '—'}</td>
+        <td style="font-weight:500;">$${Number(p.precio).toLocaleString('es-AR')}${descuento}</td>
+        <td><span style="${badgeStyle}">${badgeText}</span></td>
+        <td><span class="${p.stock==='SI'?'badge-activo':'badge-stock'}">${p.stock==='SI'?'Con stock':'Sin stock'}</span></td>
+        <td>
+          <button class="toggle ${p.activo==='SI'?'on':''}" onclick="toggleActivo(${i})" title="${p.activo==='SI'?'Desactivar':'Activar'}"></button>
+        </td>
+        <td>
+          <button class="btn-tbl" onclick="editarProducto(${i})">Editar</button>
+        </td>
+      </tr>`}).join('')}
+    </tbody>
+  </table>`;
+  document.getElementById('tabla-productos-wrap').innerHTML = html;
+}
+
+function renderPedidos(data) {
+  if(!data.length) {
+    document.getElementById('tabla-pedidos-wrap').innerHTML = '<div class="vacio"><p>Sin pedidos aún</p><span>Los pedidos del catálogo aparecerán acá</span></div>';
+    return;
+  }
+  const html = `<table>
+    <thead><tr>
+      <th>Fecha</th><th>Cliente</th><th>Contacto</th><th>Productos</th><th>Total</th>
+    </tr></thead>
+    <tbody>${data.map(p => `
+      <tr>
+        <td style="font-size:11px;white-space:nowrap;">${formatFecha(p.fecha)}</td>
+        <td style="font-weight:500;">${p.nombre}</td>
+        <td>
+          <div style="font-size:11px;">${p.mail}</div>
+          <div style="font-size:11px;color:var(--gris);">${p.telefono}</div>
+        </td>
+        <td style="font-size:11px;max-width:280px;white-space:pre-wrap;">${p.productos}</td>
+        <td style="font-weight:600;color:var(--marron);white-space:nowrap;">${p.total}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  document.getElementById('tabla-pedidos-wrap').innerHTML = html;
+}
+
+function renderClientes(data) {
+  if(!data.length) {
+    document.getElementById('tabla-clientes-wrap').innerHTML = '<div class="vacio"><p>Sin clientes aún</p><span>Los datos se guardan cuando alguien hace un pedido</span></div>';
+    return;
+  }
+  const html = `<table>
+    <thead><tr>
+      <th>Nombre</th><th>Email</th><th>Teléfono</th><th>Desde</th>
+    </tr></thead>
+    <tbody>${data.map(c => `
+      <tr>
+        <td style="font-weight:500;">${c.nombre}</td>
+        <td style="font-size:12px;">${c.mail}</td>
+        <td style="font-size:12px;">${c.telefono}</td>
+        <td style="font-size:11px;color:var(--gris);">${formatFecha(c.fecha)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+  document.getElementById('tabla-clientes-wrap').innerHTML = html;
+}
+
+// ─── STATS ────────────────────────────────────────────
+function actualizarStats() {
+  const total = productosData.length;
+  const activos = productosData.filter(p => p.activo === 'SI').length;
+  const sinStock = productosData.filter(p => p.stock === 'NO').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-activos').textContent = activos;
+  document.getElementById('stat-sinstock').textContent = sinStock;
+}
+
+// ─── FILTROS ──────────────────────────────────────────
+function filtrarProductos(q) {
+  const f = productosData.filter(p =>
+    p.nombre.toLowerCase().includes(q.toLowerCase()) ||
+    p.categoria.toLowerCase().includes(q.toLowerCase()) ||
+    p.variante.toLowerCase().includes(q.toLowerCase())
+  );
+  renderProductos(f);
+}
+
+function filtrarPedidos(q) {
+  const f = pedidosData.filter(p =>
+    p.nombre.toLowerCase().includes(q.toLowerCase()) ||
+    p.mail.toLowerCase().includes(q.toLowerCase())
+  );
+  renderPedidos(f);
+}
+
+function filtrarClientes(q) {
+  const f = clientesData.filter(c =>
+    c.nombre.toLowerCase().includes(q.toLowerCase()) ||
+    c.mail.toLowerCase().includes(q.toLowerCase())
+  );
+  renderClientes(f);
+}
+
+// ─── TOGGLE ACTIVO ────────────────────────────────────
+function toggleActivo(i) {
+  productosData[i].activo = productosData[i].activo === 'SI' ? 'NO' : 'SI';
+  renderProductos(productosData);
+  actualizarStats();
+  // Guardar en Sheets
+  guardarEnSheets({ tipo:'toggleActivo', id:productosData[i].id, variante:productosData[i].variante, activo:productosData[i].activo });
+}
+
+// ─── EDITAR ───────────────────────────────────────────
+function toggleBadgeCustom() {
+  const val = document.getElementById('edit-badge').value;
+  document.getElementById('campo-badge-custom').style.display = val === 'custom' ? 'block' : 'none';
+}
+
+function editarProducto(i) {
+  const p = productosData[i];
+  document.getElementById('edit-idx').value = i;
+  document.getElementById('modal-titulo').textContent = p.nombre;
+  document.getElementById('edit-nombre').value = p.nombre;
+  document.getElementById('edit-categoria').value = p.categoria;
+  document.getElementById('edit-precio').value = p.precio;
+  document.getElementById('edit-medida').value = p.medida;
+  document.getElementById('edit-variantes').value = p.variante;
+  document.getElementById('edit-stock').value = p.stock;
+  document.getElementById('edit-activo').value = p.activo;
+  document.getElementById('edit-nota').value = p.nota || '';
+  document.getElementById('edit-pvp').value = p.pvp || '';
+  document.getElementById('edit-descuento').value = p.descuento || '';
+  // Badge
+  const badgeOpciones = ['','best','nuevo','hotsale','oferta','envio','limitado'];
+  const badgeVal = p.badge || '';
+  if(badgeOpciones.includes(badgeVal)) {
+    document.getElementById('edit-badge').value = badgeVal;
+    document.getElementById('campo-badge-custom').style.display = 'none';
+  } else if(badgeVal) {
+    document.getElementById('edit-badge').value = 'custom';
+    document.getElementById('edit-badge-custom').value = badgeVal;
+    document.getElementById('campo-badge-custom').style.display = 'block';
+  } else {
+    document.getElementById('edit-badge').value = '';
+  }
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function guardarProducto() {
+  const i = parseInt(document.getElementById('edit-idx').value);
+  const badgeSel = document.getElementById('edit-badge').value;
+  const badgeFinal = badgeSel === 'custom' ? document.getElementById('edit-badge-custom').value : badgeSel;
+
+  productosData[i].nombre     = document.getElementById('edit-nombre').value;
+  productosData[i].categoria  = document.getElementById('edit-categoria').value;
+  productosData[i].precio     = parseInt(document.getElementById('edit-precio').value);
+  productosData[i].medida     = document.getElementById('edit-medida').value;
+  productosData[i].variante   = document.getElementById('edit-variantes').value;
+  productosData[i].stock      = document.getElementById('edit-stock').value;
+  productosData[i].activo     = document.getElementById('edit-activo').value;
+  productosData[i].nota       = document.getElementById('edit-nota').value;
+  productosData[i].pvp        = document.getElementById('edit-pvp').value;
+  productosData[i].badge      = badgeFinal;
+  productosData[i].descuento  = document.getElementById('edit-descuento').value;
+
+  renderProductos(productosData);
+  actualizarStats();
+  cerrarModal();
+  guardarEnSheets({ tipo:'editarProducto', producto:productosData[i] });
+  mostrarToast('Cambios guardados ✓');
+}
+
+// ─── PROMOS ───────────────────────────────────────────
+function abrirModalPromo(idx) {
+  const isEdit = idx !== undefined;
+  document.getElementById('modal-promo-titulo').textContent = isEdit ? 'Editar promo' : 'Nueva promo / mensaje';
+  document.getElementById('promo-edit-idx').value = isEdit ? idx : -1;
+
+  if(isEdit) {
+    const p = promosData[idx];
+    document.getElementById('promo-nombre').value = p.nombre;
+    document.getElementById('promo-fecha-inicio').value = p.fechaInicio;
+    document.getElementById('promo-fecha-fin').value = p.fechaFin;
+    document.getElementById('promo-estado').value = p.estado;
+    document.getElementById('promo-mensaje').value = p.mensaje;
+    document.getElementById('promo-recordatorio').value = p.recordatorio;
+    document.getElementById('promo-notas').value = p.notas || '';
+  } else {
+    document.getElementById('promo-nombre').value = '';
+    document.getElementById('promo-fecha-inicio').value = '';
+    document.getElementById('promo-fecha-fin').value = '';
+    document.getElementById('promo-estado').value = 'borrador';
+    document.getElementById('promo-mensaje').value = '';
+    document.getElementById('promo-recordatorio').value = '3';
+    document.getElementById('promo-notas').value = '';
+  }
+  document.getElementById('modalPromoOverlay').classList.add('visible');
+}
+
+function cerrarModalPromo() {
+  document.getElementById('modalPromoOverlay').classList.remove('visible');
+}
+
+function guardarPromo() {
+  const idx = parseInt(document.getElementById('promo-edit-idx').value);
+  const promo = {
+    nombre:       document.getElementById('promo-nombre').value,
+    fechaInicio:  document.getElementById('promo-fecha-inicio').value,
+    fechaFin:     document.getElementById('promo-fecha-fin').value,
+    estado:       document.getElementById('promo-estado').value,
+    mensaje:      document.getElementById('promo-mensaje').value,
+    recordatorio: document.getElementById('promo-recordatorio').value,
+    notas:        document.getElementById('promo-notas').value,
+    creadaEl:     new Date().toISOString(),
+  };
+  if(!promo.nombre || !promo.mensaje) {
+    alert('El nombre y el mensaje son obligatorios.');
+    return;
+  }
+  if(idx >= 0) {
+    promosData[idx] = promo;
+  } else {
+    promosData.unshift(promo);
+  }
+  localStorage.setItem('nervo_promos', JSON.stringify(promosData));
+  cerrarModalPromo();
+  renderPromos();
+  mostrarToast('Promo guardada ✓');
+}
+
+function eliminarPromo(idx) {
+  if(!confirm('¿Eliminás esta promo?')) return;
+  promosData.splice(idx, 1);
+  localStorage.setItem('nervo_promos', JSON.stringify(promosData));
+  renderPromos();
+}
+
+function copiarMensaje(idx) {
+  const msg = promosData[idx].mensaje;
+  navigator.clipboard.writeText(msg).then(() => {
+    const btn = document.getElementById(`btn-copiar-${idx}`);
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('copiado');
+    setTimeout(() => { btn.textContent = 'Copiar mensaje'; btn.classList.remove('copiado'); }, 2000);
+  });
+}
+
+function renderPromos() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  document.getElementById('badge-promos').textContent = promosData.filter(p => p.estado === 'activa').length;
+
+  if(!promosData.length) {
+    document.getElementById('promos-contenido').innerHTML = `
+      <div class="vacio">
+        <p>Sin promos todavía</p>
+        <span>Creá tu primera promo o mensaje para mayoristas</span>
+      </div>`;
+    return;
+  }
+
+  const html = `<div class="promos-grid">${promosData.map((p, i) => {
+    const fechaInicio = p.fechaInicio ? new Date(p.fechaInicio + 'T00:00:00') : null;
+    const diasRestantes = fechaInicio ? Math.ceil((fechaInicio - hoy) / 86400000) : null;
+    const esHoy = diasRestantes === 0;
+    const esPronto = diasRestantes !== null && diasRestantes > 0 && diasRestantes <= parseInt(p.recordatorio || 3);
+    const vencida = p.estado === 'vencida' || (p.fechaFin && new Date(p.fechaFin + 'T00:00:00') < hoy);
+
+    let claseCard = 'promo-card';
+    if(vencida) claseCard += ' vencida';
+    else if(esHoy || esPronto) claseCard += ' hoy';
+
+    let estadoLabel = p.estado === 'activa' ? 'estado-activa' : p.estado === 'borrador' ? 'estado-borrador' : 'estado-vencida';
+    let estadoTexto = p.estado === 'activa' ? 'Activa' : p.estado === 'borrador' ? 'Borrador' : 'Vencida';
+
+    let alertaHTML = '';
+    if(esHoy) alertaHTML = '<div class="promo-alerta">🔔 HOY ES EL DÍA DE ENVÍO</div>';
+    else if(esPronto) alertaHTML = `<div class="promo-alerta">⏰ Faltan ${diasRestantes} día${diasRestantes!==1?'s':''}</div>`;
+
+    return `<div class="${claseCard}">
+      <span class="promo-estado ${estadoLabel}">${estadoTexto}</span>
+      ${alertaHTML}
+      <div class="promo-nombre">${p.nombre}</div>
+      <div class="promo-fechas">
+        ${p.fechaInicio ? `📅 Envío: ${formatFechaCorta(p.fechaInicio)}` : ''}
+        ${p.fechaFin ? ` · Vence: ${formatFechaCorta(p.fechaFin)}` : ''}
+      </div>
+      <div class="promo-msg">${p.mensaje}</div>
+      ${p.notas ? `<div style="font-size:10px;color:var(--gris);margin-bottom:12px;padding:8px;background:var(--lino);">📝 ${p.notas}</div>` : ''}
+      <div class="promo-actions">
+        <button class="btn-copiar" id="btn-copiar-${i}" onclick="copiarMensaje(${i})">Copiar mensaje</button>
+        <button class="btn-tbl" onclick="abrirModalPromo(${i})">Editar</button>
+        <button class="btn-tbl danger" onclick="eliminarPromo(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+
+  document.getElementById('promos-contenido').innerHTML = html;
+}
+
+function formatFechaCorta(f) {
+  if(!f) return '';
+  const [y,m,d] = f.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+// ─── GUARDAR EN SHEETS ────────────────────────────────
+function guardarEnSheets(data) {
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(data) }).catch(()=>{});
+}
+
+// ─── UTILS ────────────────────────────────────────────
+function formatFecha(f) {
+  if(!f) return '—';
+  const d = new Date(f);
+  if(isNaN(d)) return f;
+  return d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function mostrarToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--chocolate);color:white;padding:10px 20px;font-size:11px;letter-spacing:1px;z-index:999;animation:fadeUp 0.3s ease';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+document.getElementById('modalPromoOverlay').addEventListener('click', function(e){
+  if(e.target === this) cerrarModalPromo();
+});
+
+// Cerrar modal al hacer clic afuera
+document.getElementById('modalOverlay').addEventListener('click', function(e){
+  if(e.target === this) cerrarModal();
+});
+</script>
+</body>
+</html>
