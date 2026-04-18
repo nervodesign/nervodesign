@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nervo Design — Catálogo Mayorista</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blanco: #FAFAF8;
+    --lino: #F2EDE6;
+    --arena: #E2D9CF;
+    --chocolate: #251408;
+    --marron: #6B3F28;
+    --dorado: #B8935A;
+    --burdeo: #7A2020;
+    --gris: #9A9287;
+    --texto: #251408;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--blanco); font-family:'Plus Jakarta Sans',sans-serif; color:var(--texto); font-size:14px; }
+
+  /* HEADER */
+  header {
+    background:var(--blanco);
+    border-bottom:1px solid var(--arena);
+    padding:0 24px;
+    height:62px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+  }
+  .hamburger {
+    background:none; border:none; cursor:pointer;
+    display:flex; flex-direction:column; gap:5px; padding:4px;
+  }
+  .hamburger span {
+    display:block; width:22px; height:1.5px; background:var(--chocolate); transition:all 0.3s;
+  }
+  .header-logo {
+    position:absolute; left:50%; transform:translateX(-50%);
+  }
+  .header-logo img {
+    height:34px; width:auto; filter:brightness(0);
+  }
+  .header-right { display:flex; align-items:center; gap:12px; }
+  .carrito-btn {
+    background:var(--marron); color:var(--lino);
+    border:none; padding:9px 16px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    cursor:pointer; display:flex; align-items:center; gap:8px; transition:opacity 0.2s;
+  }
+  .carrito-btn:hover { opacity:0.75; }
+  .carrito-count {
+    background:var(--dorado); color:white;
+    border-radius:50%; width:17px; height:17px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; font-weight:600;
+  }
+
+  /* MENÚ */
+  .menu-overlay { position:fixed; inset:0; background:rgba(37,20,8,0.3); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .menu-overlay.visible { opacity:1; pointer-events:all; }
+  .menu-panel {
+    position:fixed; top:0; left:-320px; width:290px; height:100vh;
+    background:var(--blanco); z-index:300;
+    transition:left 0.35s cubic-bezier(0.4,0,0.2,1);
+    display:flex; flex-direction:column;
+    border-right:1px solid var(--arena);
+  }
+  .menu-panel.abierto { left:0; }
+  .menu-header {
+    padding:22px 24px 18px;
+    border-bottom:1px solid var(--arena);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .menu-logo { font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--gris); }
+  .menu-cerrar { background:none; border:none; cursor:pointer; font-size:18px; color:var(--gris); }
+  .menu-body { padding:28px 24px; flex:1; overflow-y:auto; }
+  .menu-section-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--gris); margin-bottom:16px; }
+  .menu-nav { display:flex; flex-direction:column; gap:2px; margin-bottom:36px; }
+  .menu-nav-btn {
+    background:none; border:none; text-align:left;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:20px; font-weight:300; color:var(--chocolate);
+    padding:9px 0; cursor:pointer; letter-spacing:0.3px;
+    border-bottom:1px solid transparent; transition:all 0.2s;
+  }
+  .menu-nav-btn:hover { color:var(--marron); border-bottom-color:var(--arena); padding-left:4px; }
+  .menu-info { display:flex; flex-direction:column; gap:6px; }
+  .menu-info-item { font-size:10px; color:var(--gris); letter-spacing:0.5px; line-height:1.7; }
+  .menu-footer { padding:20px 24px; border-top:1px solid var(--arena); }
+
+  /* STRIP */
+  .strip {
+    background:var(--lino); border-bottom:1px solid var(--arena);
+    padding:10px 16px;
+    text-align:center;
+  }
+  .strip-item {
+    font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gris); display:inline; white-space:normal; line-height:1.8;
+  }
+  .strip-sep { display:none; }
+
+  /* SECCIÓN */
+  .seccion { padding:0 16px 48px; background:var(--blanco); }
+  .seccion-titulo {
+    padding:0 0 24px;
+    margin:0 -16px;
+  }
+  .seccion-titulo h2 {
+    font-size:9px; font-weight:600; letter-spacing:4px;
+    text-transform:uppercase;
+    color:var(--lino);
+    background:var(--marron);
+    padding:12px 24px;
+    display:block; width:100%;
+  }
+  .seccion-titulo .linea { display:none; }
+  .seccion-titulo .count { display:none; }
+
+  /* GRIDS */
+  /* Grid 2 columnas para productos con pocas variantes */
+  .grid-2col {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px; background:var(--arena);
+  }
+  /* Grid 1 columna para productos con muchas variantes */
+  .grid-1col {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:1px; background:var(--arena);
+  }
+  /* Grid especial para lámparas de pie — siempre 3 columnas, imagen portrait */
+  .grid-pie {
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:1px; background:var(--arena);
+  }
+  .grid-pie .card-img,
+  .grid-pie .card-full-img {
+    aspect-ratio: 3/4 !important;
+    height: auto !important;
+  }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── CARD COMPACTA (2 col) ── */
+  .card {
+    background:var(--blanco); overflow:hidden;
+    transition:background 0.2s; animation:fadeUp 0.4s ease both;
+  }
+  .card:hover { background:var(--lino); }
+
+  /* Imagen cuadrada */
+  .card-img {
+    position:relative;
+    width:100%; aspect-ratio:1;
+    background:var(--lino);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .card-img .lamp-svg { width:55%; height:55%; opacity:0.18; }
+  .card-badges { position:absolute; top:8px; left:8px; z-index:2; }
+  .badge {
+    font-size:7px; font-weight:500; letter-spacing:1.5px;
+    text-transform:uppercase; padding:3px 7px; display:inline-block;
+  }
+  .badge-best { background:var(--burdeo); color:white; }
+  .badge-nuevo { background:var(--marron); color:white; }
+
+  /* Swatches debajo de la imagen en card compacta */
+  .swatches-row {
+    display:flex; flex-wrap:wrap; gap:3px;
+    padding:8px 10px; border-bottom:1px solid var(--arena);
+    background:var(--blanco);
+  }
+  .swatch {
+    width:18px; height:18px;
+    cursor:pointer; border:1.5px solid transparent;
+    transition:border-color 0.15s, transform 0.12s;
+    border-radius:50%;
+  }
+  .swatch:hover { transform:scale(1.15); }
+  .swatch.activa { border-color:var(--chocolate); }
+
+  /* Cuerpo card compacta */
+  .card-body-compact {
+    padding:10px 10px 14px;
+  }
+  .card-nombre-compact {
+    font-size:11px; font-weight:500; color:var(--chocolate);
+    text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;
+  }
+  .card-vsel-compact {
+    font-size:8px; color:var(--gris); letter-spacing:1px;
+    text-transform:uppercase; margin-bottom:6px; min-height:12px;
+  }
+  .card-medida-compact {
+    font-size:9px; color:var(--chocolate); font-weight:500;
+    letter-spacing:0.5px; margin-bottom:10px;
+  }
+  .card-bottom-compact {
+    display:flex; flex-direction:column; gap:8px; margin-top:8px;
+  }
+  .card-bottom-actions {
+    display:flex; gap:4px; align-items:center;
+  }
+  .precio-compact {
+    font-size:13px; font-weight:600; color:var(--marron);
+  }
+  .btn-agregar-compact {
+    background:var(--marron); color:var(--lino);
+    border:none; padding:7px 8px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:7.5px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:opacity 0.2s; white-space:nowrap; flex-shrink:0;
+  }
+  .btn-agregar-compact:hover { opacity:0.75; }
+  .btn-agregar-compact.ok { background:var(--dorado); }
+
+  /* CONTROLES DE CANTIDAD EN CARD */
+  .qty-ctrl {
+    display:flex; align-items:center; gap:0; flex-shrink:0;
+  }
+  .qty-btn {
+    background:var(--marron); color:var(--lino);
+    border:none; width:28px; height:28px;
+    font-size:16px; font-weight:300; cursor:pointer;
+    transition:opacity 0.2s; display:flex; align-items:center; justify-content:center;
+    line-height:1;
+  }
+  .qty-btn:hover { opacity:0.75; }
+  .qty-num {
+    background:var(--marron); color:var(--lino);
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:600;
+  }
+
+  /* ── CARD FULL (1 col / muchas variantes) ── */
+  .card-full {
+    background:var(--blanco); overflow:hidden;
+    transition:background 0.2s; animation:fadeUp 0.4s ease both;
+  }
+  .card-full:hover { background:var(--lino); }
+
+  .card-full-inner {
+    display:flex; gap:0;
+  }
+
+  /* Imagen lado izquierdo */
+  .card-full-img {
+    position:relative;
+    width:160px; flex-shrink:0;
+    background:var(--lino);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-full-img .lamp-svg { width:60%; height:60%; opacity:0.18; }
+
+  /* Variantes col */
+  .card-full-variantes {
+    display:flex; flex-direction:column; gap:3px;
+    padding:10px; background:var(--lino);
+    width:72px; flex-shrink:0;
+    border-left:1px solid var(--arena);
+  }
+  .vthumb-full {
+    width:52px; height:52px;
+    cursor:pointer; border:1.5px solid transparent;
+    transition:border-color 0.15s, transform 0.12s;
+    position:relative; overflow:hidden; display:flex; align-items:flex-end;
+  }
+  .vthumb-full:hover { transform:scale(1.04); }
+  .vthumb-full.activa { border-color:var(--chocolate); }
+  .vthumb-color { width:100%; height:100%; }
+  .vthumb-label {
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(37,20,8,0.55); color:white;
+    font-size:6px; letter-spacing:0.3px;
+    text-align:center; padding:2px; text-transform:uppercase; line-height:1.3;
+  }
+
+  /* Info lado derecho */
+  .card-full-body {
+    flex:1; padding:16px 16px 16px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    border-left:1px solid var(--arena);
+    min-width:0;
+  }
+  .card-full-nombre {
+    font-size:12px; font-weight:500; color:var(--chocolate);
+    text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px;
+  }
+  .card-full-vsel {
+    font-size:9px; color:var(--gris); letter-spacing:1px;
+    text-transform:uppercase; margin-bottom:10px; min-height:13px;
+  }
+  .card-full-medida {
+    font-size:10px; color:var(--chocolate); font-weight:500;
+    letter-spacing:0.5px; margin-bottom:auto;
+    border:1px solid var(--arena); display:inline-block;
+    padding:3px 8px; align-self:flex-start;
+  }
+  .card-full-bottom {
+    display:flex; align-items:flex-end;
+    justify-content:space-between; margin-top:14px;
+    border-top:1px solid var(--arena); padding-top:12px; gap:8px;
+  }
+  .precio-full-label {
+    font-size:8px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gris); margin-bottom:2px;
+  }
+  .precio-full {
+    font-size:16px; font-weight:600; color:var(--marron);
+  }
+  .btn-agregar-full {
+    background:var(--marron); color:var(--lino);
+    border:none; padding:9px 14px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:8px; letter-spacing:2px; text-transform:uppercase;
+    cursor:pointer; transition:opacity 0.2s; white-space:nowrap; flex-shrink:0;
+  }
+  .btn-agregar-full:hover { opacity:0.75; }
+  .btn-agregar-full.ok { background:var(--dorado); }
+
+  /* COMBOS */
+  .combos-wrap { background:var(--lino); padding:48px 16px; border-top:1px solid var(--arena); }
+  .combos-titulo {
+    font-size:9px; font-weight:600; letter-spacing:4px;
+    text-transform:uppercase; color:var(--lino);
+    background:var(--marron);
+    padding:12px 24px;
+    display:block;
+    margin:0 -16px 24px;
+  }
+  .combos-grid { display:grid; grid-template-columns:1fr; gap:1px; background:var(--arena); }
+
+  .combo-card { background:var(--blanco); overflow:hidden; transition:background 0.2s; }
+  .combo-img-area {
+    background:var(--lino);
+    border-bottom:1px solid var(--arena);
+    padding:20px 16px;
+    display:flex; align-items:flex-end; justify-content:center;
+    gap:4px; min-height:100px;
+  }
+  .combo-card-body { padding:20px; }
+  .combo-card:hover { background:var(--lino); }
+  .combo-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .combo-nombre { font-size:12px; color:var(--chocolate); font-weight:500; text-transform:uppercase; letter-spacing:0.5px; }
+  .combo-desc-tag { background:var(--burdeo); color:white; font-size:8px; font-weight:500; letter-spacing:1.5px; padding:2px 7px; white-space:nowrap; }
+  .combo-detalle { font-size:11px; color:var(--gris); line-height:1.7; margin-bottom:14px; }
+  .combo-bottom { display:flex; align-items:center; justify-content:space-between; }
+  .combo-original { font-size:9px; color:var(--arena); text-decoration:line-through; margin-bottom:2px; }
+  .combo-precio { font-size:16px; color:var(--marron); font-weight:600; }
+  .btn-combo {
+    background:var(--chocolate); color:var(--blanco); border:none; padding:9px 16px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:8px; letter-spacing:2px;
+    text-transform:uppercase; cursor:pointer; transition:opacity 0.2s;
+  }
+  .btn-combo:hover { opacity:0.75; }
+
+  /* CARRITO */
+  .cart-overlay { position:fixed; inset:0; background:rgba(37,20,8,0.3); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .cart-overlay.visible { opacity:1; pointer-events:all; }
+  .carrito-panel {
+    position:fixed; top:0; right:-105%; width:100%; max-width:380px; height:100vh;
+    background:var(--blanco); z-index:300;
+    box-shadow:-2px 0 24px rgba(37,20,8,0.1);
+    transition:right 0.35s cubic-bezier(0.4,0,0.2,1);
+    display:flex; flex-direction:column; border-left:1px solid var(--arena);
+  }
+  .carrito-panel.abierto { right:0; }
+  .cph { background:var(--chocolate); color:var(--blanco); padding:18px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .cph h3 { font-size:9px; font-weight:500; letter-spacing:3px; text-transform:uppercase; }
+  .cerrar { background:none; border:none; color:var(--blanco); cursor:pointer; font-size:18px; opacity:0.6; }
+  .cerrar:hover { opacity:1; }
+  .citems { flex:1; overflow-y:auto; padding:14px; }
+  .citem { display:flex; gap:10px; padding:13px 0; border-bottom:1px solid var(--arena); }
+  .citem-info { flex:1; }
+  .citem-nombre { font-size:11px; font-weight:500; color:var(--chocolate); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px; }
+  .citem-var { font-size:9px; color:var(--gris); letter-spacing:1px; text-transform:uppercase; margin-bottom:7px; }
+  .citem-ctrl { display:flex; align-items:center; gap:7px; }
+  .qbtn { background:var(--lino); border:1px solid var(--arena); width:24px; height:24px; cursor:pointer; font-size:13px; transition:all 0.15s; }
+  .qbtn:hover { background:var(--chocolate); color:white; border-color:var(--chocolate); }
+  .qnum { font-size:13px; font-weight:500; min-width:18px; text-align:center; }
+  .citem-precio { font-size:14px; font-weight:600; color:var(--marron); }
+  .eliminar { background:none; border:none; color:var(--arena); cursor:pointer; font-size:14px; transition:color 0.15s; }
+  .eliminar:hover { color:var(--burdeo); }
+  .cvacio { text-align:center; padding:56px 20px; }
+  .cvacio p { font-size:12px; color:var(--arena); font-weight:500; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .cvacio span { font-size:9px; color:var(--gris); letter-spacing:1px; }
+  .cfooter { padding:18px; border-top:1px solid var(--arena); background:var(--lino); }
+  .ctotal-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+  .ctotal-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--gris); }
+  .ctotal { font-size:22px; font-weight:600; color:var(--marron); }
+  .ctotal-sub { font-size:9px; color:var(--gris); letter-spacing:1px; margin-bottom:14px; }
+  .minimo-aviso { background:rgba(122,32,32,0.05); border:1px solid rgba(122,32,32,0.15); padding:8px 12px; font-size:10px; color:var(--burdeo); margin-bottom:12px; text-align:center; }
+  .btn-wa {
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    width:100%; background:#25D366; color:white; border:none; padding:15px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:10px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:opacity 0.2s;
+  }
+  .btn-wa:hover { opacity:0.88; }
+  .btn-wa:disabled { background:var(--arena); color:var(--gris); cursor:not-allowed; }
+
+
+
+  /* BENEFICIOS */
+  .beneficios {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1px; background:var(--arena);
+    border-bottom:1px solid var(--arena);
+  }
+  .beneficio {
+    background:var(--lino);
+    padding:22px 20px;
+    display:flex; align-items:flex-start; gap:14px;
+  }
+  .beneficio-icono { flex-shrink:0; opacity:0.7; margin-top:2px; }
+  .beneficio-texto {}
+  .beneficio-titulo {
+    font-size:11px; font-weight:600; color:var(--chocolate);
+    letter-spacing:0.3px; margin-bottom:3px;
+  }
+  .beneficio-sub {
+    font-size:10px; color:var(--gris); letter-spacing:0.3px; line-height:1.5;
+  }
+  @media(min-width:600px) {
+    .beneficios { grid-template-columns:repeat(4,1fr); }
+  }
+
+
+  /* CONDICIONES ACORDEÓN */
+  .condiciones-wrap {
+    background:var(--blanco);
+    border-top:1px solid var(--arena);
+    padding:0 16px 48px;
+  }
+  .condiciones-titulo {
+    font-size:9px; font-weight:600; letter-spacing:4px;
+    text-transform:uppercase; color:var(--lino);
+    background:var(--marron);
+    padding:12px 24px;
+    display:block;
+    margin:0 -16px 0;
+  }
+  .acordeon { margin-top:1px; }
+  .acordeon-item {
+    border-bottom:1px solid var(--arena);
+    overflow:hidden;
+  }
+  .acordeon-btn {
+    width:100%; background:none; border:none;
+    padding:16px 4px;
+    display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; text-align:left;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    transition:background 0.15s;
+  }
+  .acordeon-btn:hover { background:var(--lino); }
+  .acordeon-titulo {
+    font-size:11px; font-weight:600; color:var(--chocolate);
+    letter-spacing:0.3px;
+  }
+  .acordeon-icono {
+    font-size:16px; color:var(--marron);
+    transition:transform 0.3s; flex-shrink:0; margin-left:12px;
+    font-weight:300;
+  }
+  .acordeon-item.abierto .acordeon-icono { transform:rotate(45deg); }
+  .acordeon-contenido {
+    max-height:0; overflow:hidden;
+    transition:max-height 0.4s ease;
+  }
+  .acordeon-item.abierto .acordeon-contenido { max-height:600px; }
+  .acordeon-texto {
+    font-size:11px; color:var(--gris);
+    line-height:1.8; padding:0 4px 18px;
+    letter-spacing:0.2px;
+  }
+  .acordeon-texto strong { color:var(--chocolate); font-weight:600; }
+
+  @media(min-width:600px) {
+    .condiciones-wrap { padding:0 24px 56px; }
+    .condiciones-titulo { margin:0 -24px 0; }
+  }
+
+  /* MEDIDAS COMO BOTONES */
+  .medidas-row { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+  .btn-medida {
+    background:var(--blanco); color:var(--chocolate);
+    border:1px solid var(--arena);
+    padding:4px 9px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:9px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all 0.15s; white-space:nowrap;
+  }
+  .btn-medida:hover { border-color:var(--marron); color:var(--marron); }
+  .btn-medida.activa { background:var(--chocolate); color:var(--lino); border-color:var(--chocolate); }
+  .btn-medida-sinstock { opacity:0.45; cursor:not-allowed; text-decoration:line-through; }
+
+  .combo-bajada { font-size:10px; color:var(--gris); letter-spacing:1px; margin-bottom:14px; }
+  .combo-items { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; padding:14px; background:var(--lino); }
+  .combo-item { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .combo-item-nombre { font-size:11px; font-weight:600; color:var(--chocolate); letter-spacing:0.3px; white-space:nowrap; }
+  .combo-item-detalle { font-size:10px; color:var(--gris); text-align:right; }
+  .combo-kit { font-size:9px; color:var(--dorado); letter-spacing:1px; text-transform:uppercase; margin-bottom:16px; padding:6px 10px; border:1px solid rgba(184,147,90,0.3); display:inline-block; }
+  /* FORMULARIO PEDIDO */
+  .form-overlay {
+    position:fixed; inset:0; background:rgba(37,20,8,0.5);
+    z-index:400; opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .form-overlay.visible { opacity:1; pointer-events:all; }
+  .form-panel {
+    position:fixed; bottom:-100%; left:0; right:0;
+    background:var(--blanco); z-index:500;
+    border-radius:12px 12px 0 0;
+    transition:bottom 0.4s cubic-bezier(0.4,0,0.2,1);
+    padding:0 20px 32px;
+  }
+  .form-panel.visible { bottom:0; }
+  .form-handle { width:36px; height:4px; background:var(--arena); border-radius:2px; margin:12px auto 20px; }
+  .form-titulo { font-size:13px; font-weight:600; color:var(--chocolate); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+  .form-sub { font-size:10px; color:var(--gris); margin-bottom:20px; line-height:1.6; }
+  .form-campo { margin-bottom:14px; }
+  .form-label { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gris); display:block; margin-bottom:5px; }
+  .form-input {
+    width:100%; border:1px solid var(--arena); background:var(--blanco);
+    padding:11px 12px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:13px; color:var(--chocolate); outline:none;
+    transition:border-color 0.15s;
+  }
+  .form-input:focus { border-color:var(--marron); }
+  .form-error { font-size:10px; color:var(--burdeo); margin-bottom:10px; min-height:14px; }
+  .btn-enviar {
+    width:100%; background:#25D366; color:white; border:none; padding:15px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-size:10px; font-weight:600;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:9px;
+  }
+  .btn-enviar:hover { opacity:0.88; }
+  @media(min-width:600px){
+    .form-panel { left:50%; right:auto; transform:translateX(-50%); width:420px; border-radius:12px 12px 0 0; }
+  }
+
+  /* FICHA DE PRODUCTO */
+  .ficha-overlay {
+    position:fixed; inset:0; background:rgba(37,20,8,0.5);
+    z-index:400; opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .ficha-overlay.visible { opacity:1; pointer-events:all; }
+  .ficha-panel {
+    position:fixed; bottom:-100%; left:0; right:0;
+    max-height:85vh; background:var(--blanco);
+    z-index:500; border-radius:12px 12px 0 0;
+    transition:bottom 0.4s cubic-bezier(0.4,0,0.2,1);
+    overflow-y:auto; padding:0 0 32px;
+  }
+  .ficha-panel.visible { bottom:0; }
+  .ficha-handle {
+    width:36px; height:4px; background:var(--arena);
+    border-radius:2px; margin:12px auto 0;
+  }
+  .ficha-header {
+    padding:20px 20px 0;
+    display:flex; justify-content:space-between; align-items:flex-start;
+  }
+  .ficha-nombre {
+    font-size:13px; font-weight:600; color:var(--chocolate);
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .ficha-cerrar {
+    background:none; border:none; font-size:20px;
+    color:var(--gris); cursor:pointer; padding:0; line-height:1;
+  }
+  .ficha-body { padding:16px 20px 0; }
+  .ficha-seccion-titulo {
+    font-size:8px; font-weight:600; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gris);
+    margin:18px 0 8px; padding-bottom:6px;
+    border-bottom:1px solid var(--arena);
+  }
+  .ficha-row {
+    display:flex; justify-content:space-between;
+    padding:6px 0; border-bottom:1px solid var(--lino);
+    font-size:11px;
+  }
+  .ficha-row-label { color:var(--gris); }
+  .ficha-row-value { color:var(--chocolate); font-weight:500; text-align:right; max-width:60%; }
+  .ficha-pvp {
+    background:var(--lino); border-radius:6px;
+    padding:14px 16px; margin-top:16px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .ficha-pvp-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gris); }
+  .ficha-pvp-precio { font-size:18px; font-weight:600; color:var(--marron); }
+  .ficha-pvp-margen { font-size:9px; color:var(--dorado); letter-spacing:0.5px; margin-top:2px; }
+  .btn-ficha {
+    background:none; border:1px solid var(--arena);
+    color:var(--gris); padding:5px 7px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:7px; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all 0.15s; white-space:nowrap; flex-shrink:0;
+  }
+  .btn-ficha:hover { border-color:var(--marron); color:var(--marron); }
+  @media(min-width:600px){
+    .ficha-panel {
+      left:50%; right:auto; transform:translateX(-50%);
+      width:480px; bottom:-100%; border-radius:12px 12px 0 0;
+    }
+    .ficha-panel.visible { bottom:0; }
+  }
+
+  /* MOBILE: card-full en grilla 2 columnas */
+  .grid-1col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--arena);
+  }
+  .card-full-inner { flex-direction: column; }
+  .card-full-img { width:100%; aspect-ratio:1; height:auto; }
+  .card-full-variantes {
+    width:100%; flex-direction:row; flex-wrap:wrap;
+    padding:8px 10px; gap:5px;
+    border-left:none; border-top:1px solid var(--arena);
+  }
+  .vthumb-full { width:38px; height:38px; }
+  .card-full-body { 
+    border-left:none; border-top:1px solid var(--arena);
+    padding:10px 10px 14px;
+  }
+  .card-full-nombre {
+    font-size:11px;
+  }
+  .card-full-bottom {
+    margin-top:10px; padding-top:10px;
+  }
+  .precio-full { font-size:13px; }
+  .btn-agregar-full {
+    padding:7px 10px; font-size:7px;
+  }
+
+  /* DESKTOP: layout mejorado */
+  @media(min-width:600px) {
+    .seccion { padding:0 24px 48px; }
+    .combos-wrap { padding:48px 24px; }
+    .combos-grid { grid-template-columns:repeat(2,1fr); }
+
+    /* Grid compacto: 4 columnas en desktop */
+    .grid-2col { grid-template-columns: repeat(4, 1fr); }
+
+    /* Grid full: 2 columnas en desktop */
+    .grid-1col { grid-template-columns: repeat(2, 1fr); }
+
+    /* Card full: imagen más alta en desktop */
+    .card-full-inner { flex-direction: column; }
+    .card-full-img { width:100%; aspect-ratio:3/4; height:auto; }
+    /* Card compacta: también un poco más alta */
+    .card-img { aspect-ratio:4/5; }
+    .card-full-variantes {
+      width:100%; flex-direction:row; flex-wrap:wrap;
+      padding:10px 12px; gap:6px;
+      border-left:none; border-top:1px solid var(--arena);
+    }
+    .vthumb-full { width:48px; height:48px; }
+    .card-full-body {
+      border-left:none; border-top:1px solid var(--arena);
+      padding:14px 14px 18px;
+    }
+    .card-full-nombre { font-size:12px; }
+    .card-full-bottom { margin-top:12px; padding-top:12px; }
+    .precio-full { font-size:15px; }
+    .btn-agregar-full { padding:9px 14px; font-size:8px; }
+  }
+
+  /* DESKTOP GRANDE: más espacio */
+  @media(min-width:900px) {
+    .grid-2col { grid-template-columns: repeat(5, 1fr); }
+    .grid-1col { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-panel" id="menuPanel">
+  <div class="menu-header">
+    <span class="menu-logo">Nervo Design</span>
+    <button class="menu-cerrar" onclick="toggleMenu()">✕</button>
+  </div>
+  <div class="menu-body">
+    <div class="menu-section-label">Catálogo</div>
+    <div class="menu-nav">
+      <button class="menu-nav-btn" onclick="irA('colgantes')">Colgantes</button>
+      <button class="menu-nav-btn" onclick="irA('veladores')">Veladores</button>
+      <button class="menu-nav-btn" onclick="irA('pie')">Lámparas de pie</button>
+      <button class="menu-nav-btn" onclick="irA('apliques')">Apliques de pared</button>
+      <button class="menu-nav-btn" onclick="irA('combos')">Combos</button>
+      <button class="menu-nav-btn" onclick="irA('condiciones')">Condiciones</button>
+    </div>
+    <div class="menu-section-label">Condiciones de compra</div>
+    <div class="menu-info">
+      <div class="menu-info-item">Mínimo 8 unidades en total (mix libre)</div>
+      <div class="menu-info-item">Pago: Efectivo · Transferencia bancaria</div>
+      <div class="menu-info-item">Envíos a todo el país — elegís tu transporte</div>
+      <div class="menu-info-item">Somos fabricantes · Córdoba Capital</div>
+    </div>
+  </div>
+  <div class="menu-footer">
+    <div class="menu-info-item">WhatsApp: +54 9 351 862-2392</div>
+  </div>
+</div>
+
+<header>
+  <button class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="header-logo">
+    <img src="https://raw.githubusercontent.com/nervodesign/nervodesign/main/logo_nervo.png" 
+      alt="Nervo Design" 
+      style="height:36px;width:auto;object-fit:contain;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52" width="150" height="39" aria-label="Nervo Design" style="display:none;">
+      <text x="100" y="32" font-family="Didot,Georgia,serif" font-size="30" font-weight="700" fill="#251408" text-anchor="middle" letter-spacing="3">NERVO</text>
+      <text x="100" y="46" font-family="Didot,Georgia,serif" font-size="9" font-weight="400" fill="#251408" text-anchor="middle" letter-spacing="5.5">DESIGN</text>
+    </svg>
+  </div>
+  <div class="header-right">
+    <button class="carrito-btn" onclick="toggleCarrito()">
+      Pedido <span class="carrito-count" id="ccount">0</span>
+    </button>
+  </div>
+</header>
+
+<div class="strip">
+  <span class="strip-item">✦ Todos los colgantes incluyen kit eléctrico blanco o negro</span>
+</div>
+
+<!-- BENEFICIOS -->
+<div class="beneficios">
+  <div class="beneficio">
+    <div class="beneficio-icono">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+    </div>
+    <div class="beneficio-texto">
+      <div class="beneficio-titulo">Envíos a todo el país</div>
+      <div class="beneficio-sub">Elegís tu transporte</div>
+    </div>
+  </div>
+  <div class="beneficio">
+    <div class="beneficio-icono">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+    </div>
+    <div class="beneficio-texto">
+      <div class="beneficio-titulo">Medios de pago</div>
+      <div class="beneficio-sub">Efectivo · Transferencia</div>
+    </div>
+  </div>
+  <div class="beneficio">
+    <div class="beneficio-icono">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+    <div class="beneficio-texto">
+      <div class="beneficio-titulo">Somos fabricantes</div>
+      <div class="beneficio-sub">Diseño propio · Córdoba</div>
+    </div>
+  </div>
+  <div class="beneficio">
+    <div class="beneficio-icono">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <div class="beneficio-texto">
+      <div class="beneficio-titulo">Mínimo 8 unidades</div>
+      <div class="beneficio-sub">Mix libre entre productos</div>
+    </div>
+  </div>
+</div>
+
+<div id="colgantes" class="seccion">
+  <div class="seccion-titulo"><h2>Colgantes</h2><div class="linea"></div><div class="count" id="count-colgantes"></div></div>
+  <div id="grid-colgantes"></div>
+</div>
+
+<div id="veladores" class="seccion">
+  <div class="seccion-titulo"><h2>Veladores de mesa</h2><div class="linea"></div><div class="count" id="count-veladores"></div></div>
+  <div id="grid-veladores"></div>
+</div>
+
+<div id="pie" class="seccion">
+  <div class="seccion-titulo"><h2>Lámparas de pie</h2><div class="linea"></div><div class="count" id="count-pie"></div></div>
+  <div id="grid-pie"></div>
+</div>
+
+<div id="apliques" class="seccion">
+  <div class="seccion-titulo"><h2>Apliques de pared</h2><div class="linea"></div><div class="count" id="count-apliques"></div></div>
+  <div id="grid-apliques"></div>
+</div>
+
+<div id="combos" class="combos-wrap">
+  <div class="combos-titulo">Combos</div>
+  <div class="combos-grid" id="grid-combos"></div>
+</div>
+
+<!-- CONDICIONES DE COMPRA -->
+<div id="condiciones" class="condiciones-wrap">
+  <div class="condiciones-titulo">Condiciones de compra</div>
+  <div class="acordeon">
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">1. Pedido mínimo</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          <strong>Compra mínima: 8 productos.</strong> No es necesario que sean iguales — podés elegir cualquier combinación para alcanzar el mínimo. Esto te da mayor flexibilidad para armar tu pedido según las necesidades de tus clientes.<br><br>
+          <strong>Reposición:</strong> dentro de los 3 meses posteriores a la compra inicial, sin requerimiento de mínimo.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">2. Plazos de entrega</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          <strong>Con stock disponible:</strong> entrega entre 1 y 5 días hábiles.<br><br>
+          <strong>Sin stock o producción a pedido:</strong> hasta 30 días según el volumen. Si el pedido está listo antes, te notificamos para coordinar la entrega.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">3. Entregas parciales</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Ofrecemos entregas parciales para que puedas recibir los productos conforme los necesites. Podés hacer tu pedido completo y recibir las entregas por etapas.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">4. Personalización de productos</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Ofrecemos productos totalmente personalizables. Nos adaptamos a tus necesidades específicas, permitiéndote ajustar modelos, colores, materiales y tamaños.<br><br>
+          Los tiempos de producción pueden variar según la personalización solicitada. Consultanos sin compromiso.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">5. Formas de pago</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Efectivo · Transferencia bancaria.<br><br>
+          <strong>60%</strong> inicial para confirmar pedido y stock — <strong>40%</strong> restante al retirar o despachar.<br><br>
+          Tarjetas de crédito con recargo según cuotas. Emitimos <strong>Factura C</strong>.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">6. Envíos</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Enviamos a todo el país. Los costos de envío son a cargo del comprador según destino y volumen.<br><br>
+          Podés elegir tu transporte de confianza. No nos hacemos cargo por daños ocasionados durante el transporte.<br><br>
+          <strong>Transportes más utilizados:</strong> Sendbox · Buspack · Bicentenario · Vía Cargo.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">7. Embalaje</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Embalaje seguro sin costo adicional. Cada producto va protegido con pluribol, cartón corrugado, film de protección y cinta frágil para garantizar que llegue en perfectas condiciones.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">8. Devoluciones y cambios</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Aceptamos devoluciones únicamente por defectos de fabricación o errores en el pedido. No se realizan devoluciones de dinero.<br><br>
+          El reclamo debe realizarse dentro de los <strong>7 días</strong> posteriores a la recepción del pedido.
+        </div>
+      </div>
+    </div>
+
+    <div class="acordeon-item">
+      <button class="acordeon-btn" onclick="toggleAcordeon(this)">
+        <span class="acordeon-titulo">9. Soporte y consultas</span>
+        <span class="acordeon-icono">+</span>
+      </button>
+      <div class="acordeon-contenido">
+        <div class="acordeon-texto">
+          Todos nuestros clientes mayoristas acceden a soporte exclusivo las 24 horas y atención personalizada.<br><br>
+          Contactanos por <strong>WhatsApp</strong> o correo electrónico en cualquier etapa del proceso — estamos disponibles para resolver tus dudas rápidamente.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>© 2026 Nervo Design Mayorista · Córdoba, Argentina</footer>
+
+<!-- FORMULARIO PEDIDO -->
+<div class="form-overlay" id="formOverlay" onclick="cerrarFormulario()"></div>
+<div class="form-panel" id="formPanel">
+  <div class="form-handle"></div>
+  <div class="form-titulo">Casi listo 🙌</div>
+  <div class="form-sub">Dejanos tus datos para poder contactarte a la brevedad y hacer seguimiento de tu pedido.</div>
+  <div class="form-campo">
+    <label class="form-label">Nombre</label>
+    <input class="form-input" id="f-nombre" type="text" placeholder="Tu nombre">
+  </div>
+  <div class="form-campo">
+    <label class="form-label">Email</label>
+    <input class="form-input" id="f-mail" type="email" placeholder="tu@email.com">
+  </div>
+  <div class="form-campo">
+    <label class="form-label">Teléfono</label>
+    <input class="form-input" id="f-tel" type="tel" placeholder="+54 9 11 0000-0000">
+  </div>
+  <div class="form-error" id="f-error"></div>
+  <button class="btn-enviar" onclick="enviarPedido()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    Enviar pedido por WhatsApp
+  </button>
+</div>
+
+<!-- FICHA DE PRODUCTO -->
+<div class="ficha-overlay" id="fichaOverlay" onclick="cerrarFicha()"></div>
+<div class="ficha-panel" id="fichaPanel">
+  <div class="ficha-handle"></div>
+  <div class="ficha-header">
+    <div class="ficha-nombre" id="ficha-nombre"></div>
+    <button class="ficha-cerrar" onclick="cerrarFicha()">✕</button>
+  </div>
+  <div class="ficha-body" id="ficha-body"></div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCarrito()"></div>
+<div class="carrito-panel" id="cPanel">
+  <div class="cph"><h3>Tu pedido</h3><button class="cerrar" onclick="toggleCarrito()">✕</button></div>
+  <div class="citems" id="citems">
+    <div class="cvacio"><p>Sin productos aún</p><span>Explorá y sumá productos</span></div>
+  </div>
+  <div class="cfooter">
+    <div class="ctotal-row">
+      <span class="ctotal-label">Total estimado</span>
+      <span class="ctotal" id="ctotal">$0</span>
+    </div>
+    <div class="ctotal-sub" id="ctotal-uds">0 unidades seleccionadas</div>
+    <div class="minimo-aviso" id="maviso" style="display:none"></div>
+    <button class="btn-wa" id="btnwa" onclick="irWA()" disabled>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+      Consultar por WhatsApp
+    </button>
+  </div>
+</div>
+
+<script>
+const WA = '543518622392';
+const MINIMO = 8;
+
+const C = {
+  'Cordón Habano':'#C4966A','Cordón Natural':'#E8D5B0','Cordón Negro':'#1E1814',
+  'Cordón Gris':'#9B9590','Hilo de papel kraft tostado':'#B8926A','Hilo de papel kraft negro':'#2A1F1A',
+  'Hilo de yute':'#C8A96A','Papel Kraft Tostado':'#B8926A','Papel Kraft Negro':'#2A1F1A',
+  'Negro':'#1E1814','Blanco':'#F0EDE8','Simil madera clara con negro':'#D4B896',
+  'Lienzo Natural':'#E8D5B0','Lienzo Negro':'#1E1814',
+  'Hilo de papel kraft tostado y yute tostado':'#C4966A',
+  'Hilo de papel kraft negro y yute negro':'#2A1F1A',
+};
+
+const MAT_STD = ['Cordón Habano','Cordón Negro','Cordón Natural','Cordón Gris','Hilo de papel kraft tostado','Hilo de papel kraft negro'];
+const MAT_KRAFT = ['Hilo de papel kraft tostado','Hilo de papel kraft negro'];
+const MAT_ALL = ['Cordón Habano','Cordón Natural','Cordón Negro','Cordón Gris','Hilo de yute','Hilo de papel kraft tostado','Hilo de papel kraft negro'];
+
+const KIT_ELECTRICO = 'Kit eléctrico incluido (blanco o negro) · 1m de cable · florón · portalámparas';
+const LAMPARA_STD = 'E27 hasta 60W · LED recomendada';
+const ORIGEN_PROPIO = 'Fabricación propia · Córdoba, Argentina';
+const ORIGEN_IMP = 'Importado · Distribución exclusiva Nervo Design';
+
+function mkFicha(material, origen, pvp, nota) {
+  return { material, kit: KIT_ELECTRICO, lampara: LAMPARA_STD, origen, pvp: pvp||null, nota: nota||null };
+}
+
+const PRODUCTOS = {
+  colgantes: [
+    // ── KRAFT — fabricación propia ──
+    { id:'mesina', nombre:'Colgante Mesina', precio:111900, badge:'best', medida:'60cm / 70cm alt', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · 2 medidas disponibles') },
+    { id:'cagliari', nombre:'Colgante Cagliari', precio:108900, badge:null, medida:'50 × 25cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'toscana', nombre:'Colgante Toscana', precio:98900, badge:null, medida:'40×25 / 50×30 / 65×40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'carmina', nombre:'Colgante Carmina', precio:93900, badge:null, medida:'40×25 / 50×30 / 65×40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Alta rotación · Ideal para barras de cocina y dormitorios') },
+    { id:'burano', nombre:'Colgante Burano', precio:107900, badge:null, medida:'50 × 25cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'siena', nombre:'Colgante Siena', precio:112900, badge:null, medida:'50 × 40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'parma', nombre:'Colgante Parma', precio:135900, badge:'best', medida:'50×35 / 60×45 / 70×60 / 80×70cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · 4 medidas disponibles') },
+    { id:'lucca', nombre:'Colgante Lucca', precio:98900, badge:null, medida:'', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'parma-jaula', nombre:'Colgante Parma Jaula', precio:115900, badge:null, medida:'30 × 45cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'trento', nombre:'Colgante Trento', precio:132900, badge:null, medida:'40 × 50cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'firenze', nombre:'Colgante Firenze', precio:78900, badge:'best', medida:'50 × 30cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Ideal para barras de cocina') },
+    { id:'firenze-xl', nombre:'Colgante Firenze XL', precio:89900, badge:null, medida:'60 × 38cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'mini-firenze', nombre:'Colgante Mini Firenze', precio:47900, badge:null, medida:'15×30 / 30×25cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Ideal en tríos · Muy buen precio de entrada') },
+    { id:'perugia', nombre:'Colgante Perugia', precio:101900, badge:'best', medida:'48cm ø × 42cm alt', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Alta rotación') },
+    { id:'bolonia', nombre:'Colgante Bolonia', precio:76900, badge:null, medida:'30cm ø × 40cm alt', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'turin', nombre:'Colgante Turín', precio:62900, badge:null, medida:'50 × 30cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'ferrara', nombre:'Colgante Ferrara', precio:81900, badge:null, medida:'40 × 35cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'ferrara-xl', nombre:'Colgante Ferrara XL', precio:125900, badge:null, medida:'', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'pompeya', nombre:'Colgante Pompeya', precio:94900, badge:null, medida:'50 × 40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'amalfi', nombre:'Colgante Amalfi', precio:47900, badge:null, medida:'20×30×30 / 30×40×35 / 40×50×45cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, '3 medidas · Excelente precio de entrada') },
+    { id:'asti', nombre:'Colgante Asti', precio:98900, badge:null, medida:'45×45×25cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Ideal en tríos · Alta rotación') },
+    { id:'sicilia', nombre:'Colgante Sicilia', precio:127900, badge:null, medida:'40×60 / 50×65cm', variantes: ['Hilo de papel kraft tostado y yute tostado','Hilo de papel kraft negro y yute negro'], ficha: mkFicha('Papel kraft y yute tejidos a mano', ORIGEN_PROPIO, null, '2 medidas · Combinación exclusiva kraft + yute') },
+    { id:'siracusa', nombre:'Colgante Siracusa', precio:72900, badge:null, medida:'30×20×60cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'vat', nombre:'Colgante Vat', precio:125900, badge:null, medida:'45×29cm · Doble foco', variantes: [], ficha: mkFicha('Esterilla natural y lienzo crudo', ORIGEN_PROPIO, null, 'Doble foco · Pieza de autor') },
+    { id:'roma', nombre:'Colgante Roma', precio:125900, badge:null, medida:'50×40×32cm', variantes: [], ficha: mkFicha('Tela tipo arpillera', ORIGEN_PROPIO) },
+    { id:'ravenna', nombre:'Colgante Ravenna', precio:99900, badge:null, medida:'50×35cm', variantes: [], ficha: mkFicha('Arpillera tostada', ORIGEN_PROPIO) },
+    // ── RATTAN — importados premium ──
+    { id:'cinque-terre', nombre:'Colgante Cinque Terre', precio:171900, badge:null, medida:'40×35 / 60×54 / 80×70cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, '3 medidas · Material importado') },
+    { id:'puglia-rattan', nombre:'Colgante Puglia Rattan', precio:178900, badge:null, medida:'55×44×26 / 70×55×40 / 90×65×50cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, '3 medidas · Pieza de impacto') },
+    { id:'varapodio', nombre:'Colgante Varapodio', precio:205900, badge:null, medida:'35×25 / 50×46cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, 'Top of line · Pieza destacada') },
+    { id:'praiano', nombre:'Colgante Praiano', precio:152900, badge:'nuevo', medida:'39 × 90cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, 'Nuevo · Diseño premium') },
+    { id:'liguria', nombre:'Colgante Liguria', precio:109900, badge:null, medida:'50×25 / 60×45 / 60×60cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'veneto', nombre:'Colgante Veneto', precio:98900, badge:null, medida:'30 × 30cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'viena', nombre:'Colgante Viena', precio:97900, badge:null, medida:'40 × 30cm', variantes: MAT_KRAFT, ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    // ── SEAGRASS / BAMBOO / OTROS ──
+    { id:'modena', nombre:'Colgante Módena', precio:61900, badge:null, medida:'30 × 30cm', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP, null, 'Ideal en tríos') },
+    { id:'taormina', nombre:'Colgante Taormina', precio:43900, badge:null, medida:'25 × 27cm', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP, null, 'Ideal en tríos · Precio muy accesible') },
+    { id:'portofino', nombre:'Colgante Portofino Seagrass', precio:52900, badge:null, medida:'48×35×70cm', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP) },
+    { id:'matera', nombre:'Colgante Matera', precio:79900, badge:null, medida:'', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP) },
+    { id:'bolzano', nombre:'Colgante Bolzano', precio:47900, badge:null, medida:'20 × 50cm', variantes: [], ficha: mkFicha('Yute tejido a mano', ORIGEN_IMP) },
+    { id:'avellino', nombre:'Colgante Avellino', precio:63900, badge:null, medida:'', variantes: [], ficha: mkFicha('Yute tejido a mano', ORIGEN_IMP) },
+    { id:'vicenza', nombre:'Colgante Vicenza', precio:37900, badge:null, medida:'16×65 / 35×55 / 50×80cm', variantes: [], ficha: mkFicha('Bamboo natural', ORIGEN_IMP, null, '3 medidas · Precio de entrada muy competitivo') },
+    { id:'puglia-bamboo', nombre:'Colgante Puglia Bamboo', precio:113900, badge:null, medida:'60×15 / 80×25cm', variantes: [], ficha: mkFicha('Bamboo natural', ORIGEN_IMP, null, '2 medidas disponibles') },
+    { id:'arauco', nombre:'Colgante Arauco', precio:69900, badge:null, medida:'18×40 / 22×55cm', variantes: [], ficha: mkFicha('Bamboo natural', ORIGEN_IMP) },
+    { id:'lombardia', nombre:'Colgante Lombardía', precio:135900, badge:null, medida:'', variantes: [], ficha: mkFicha('Fibra de banano tejida a mano', ORIGEN_IMP) },
+    { id:'castellana', nombre:'Colgante Castellana', precio:169900, badge:'nuevo', medida:'', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP, null, 'Nuevo · Diseño exclusivo') },
+  ],
+  veladores: [
+    { id:'capri', nombre:'Velador Capri Set x2', precio:47900, badge:'best', medida:'Set de 2 unidades', variantes:['Negro','Blanco','Simil madera clara con negro'], ficha: mkFicha('Estructura metálica con pantalla', ORIGEN_PROPIO, null, 'Se vende en set de 2 · Best seller') },
+    { id:'indi-mesa', nombre:'Velador Indi', precio:89900, badge:'best', medida:'Pantalla: Lienzo natural o negro', variantes:['Hilo de papel kraft tostado','Hilo de papel kraft negro'], ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Pantalla lienzo') },
+    { id:'cali', nombre:'Velador Cali', precio:55900, badge:null, medida:'Velador de mesa', variantes: MAT_ALL, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'ona', nombre:'Velador Ona Set x2', precio:155900, badge:null, medida:'Set de 2 unidades', variantes:[], ficha: mkFicha('Fibra natural', ORIGEN_IMP, null, 'Se vende en set de 2') },
+    { id:'duomo', nombre:'Velador Duomo Set x2', precio:155900, badge:null, medida:'Set de 2 unidades', variantes:[], ficha: mkFicha('Fibra natural', ORIGEN_IMP, null, 'Se vende en set de 2') },
+  ],
+  pie: [
+    { id:'palermo', nombre:'Velador de Pie Palermo', precio:145900, badge:'best', medida:'Lámpara de pie', variantes:['Papel Kraft Tostado','Papel Kraft Negro'], ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Múltiples variantes') },
+    { id:'indi-pie', nombre:'Velador de Pie Indi', precio:201900, badge:null, medida:'Lámpara de pie', variantes:['Hilo de papel kraft tostado','Hilo de papel kraft negro'], ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'amapola', nombre:'Velador de Pie Amapola', precio:109900, badge:null, medida:'Lámpara de pie', variantes:['Papel Kraft Negro','Papel Kraft Tostado'], ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+  ],
+  apliques: [
+    { id:'aplique-prato', nombre:'Aplique Prato', precio:43900, badge:null, medida:'Aplique de pared', variantes:[], ficha: mkFicha('Material mixto', ORIGEN_PROPIO) },
+    { id:'aplique-pisa', nombre:'Aplique Pisa', precio:63900, badge:null, medida:'Aplique de pared', variantes:[], ficha: mkFicha('Material mixto', ORIGEN_PROPIO) },
+  ]
+};
+
+const COMBOS = [
+  {
+    nombre:'Combo Clásico x8',
+    foto:'combo_clasico',
+    bajada:'Alta rotación · Ideal para arrancar · Mix de estilos',
+    desc:'-5%',
+    precio:571140, original:601200,
+    items:[
+      { nombre:'Colgante Firenze x2', detalle:'50×30cm · Cordón a elección' },
+      { nombre:'Colgante Turín x2',   detalle:'50×30cm · Cordón a elección' },
+      { nombre:'Colgante Ferrara x2', detalle:'40×35cm · Cordón a elección' },
+      { nombre:'Colgante Bolonia x2', detalle:'30cm ø × 40cm alt · Cordón a elección' },
+    ],
+    nota:'Todos incluyen kit eléctrico blanco o negro'
+  },
+  {
+    nombre:'Combo Asti x3',
+    foto:'combo_asti',
+    bajada:'Pack compacto para exhibir · Alta rotación',
+    desc:'-10%',
+    precio:267900, original:296700,
+    items:[
+      { nombre:'Colgante Asti x3', detalle:'3 unidades · Colores a elección' },
+    ],
+    nota:'Incluyen kit eléctrico blanco o negro'
+  },
+  {
+    nombre:'Combo Módena x3',
+    foto:'combo_modena',
+    bajada:'Minimalista y versátil · Muy buen margen',
+    desc:'-5%',
+    precio:176900, original:185900,
+    items:[
+      { nombre:'Colgante Módena x3', detalle:'30×30cm · Colores a elección' },
+    ],
+    nota:'Incluyen kit eléctrico blanco o negro'
+  },
+  {
+    nombre:'Combo Premium x8',
+    foto:'combo_premium',
+    bajada:'Máxima rentabilidad · Top ventas temporada',
+    desc:'-5%',
+    precio:917900, original:967200,
+    items:[
+      { nombre:'Colgante Siena x2',  detalle:'50×40cm · Hilo de papel kraft tostado o negro' },
+      { nombre:'Colgante Trento x2', detalle:'Hilo de papel kraft tostado o negro' },
+      { nombre:'Colgante Carmina x2',detalle:'50×30cm · Hilo de papel kraft tostado o negro' },
+      { nombre:'Colgante Parma x2',  detalle:'50×35cm · Kraft o cordón habano (el más elegido)' },
+    ],
+    nota:'Todos incluyen kit eléctrico blanco o negro'
+  },
+  {
+    nombre:'Combo Taormina x3',
+    foto:'combo_taormina',
+    bajada:'Natural y versátil · Excelente salida en decoración',
+    desc:'-6%',
+    precio:123900, original:131700,
+    items:[
+      { nombre:'Colgante Taormina x3', detalle:'25×27cm · Seagrass natural artesanal' },
+    ],
+    nota:'Incluyen kit eléctrico blanco o negro'
+  },
+];
+
+let sel = {};
+let carrito = [];
+
+function fmt(n){ return '$'+n.toLocaleString('es-AR'); }
+
+const CLOUD = 'nervocatalogo';
+const CDN = `https://raw.githubusercontent.com/nervodesign/nervodesign/main`;
+
+// Abreviaturas de variante para armar el nombre del archivo
+const VAR_ABBR = {
+  'Cordón Habano':                'CH',
+  'Cordón Natural':               'CN',
+  'Cordón Negro':                 'CNG',
+  'Cordón Gris':                  'CG',
+  'Hilo de papel kraft tostado':  'PKT',
+  'Hilo de papel kraft negro':    'PKN',
+  'Papel Kraft Tostado':          'PKT',
+  'Papel Kraft Negro':            'PKN',
+  'Negro':                        'Negro',
+  'Blanco':                       'Blanco',
+  'Simil madera clara con negro': 'Madera',
+  'Lienzo Natural':               'LN',
+  'Lienzo Negro':                 'LNG',
+};
+
+// Prefijo por categoría
+const CAT_PREFIX = {
+  colgantes: 'Col',
+  veladores: 'Vel',
+  pie: 'Pie',
+  apliques: 'Apl',
+};
+
+// Mapa exacto de fotos en GitHub
+const FOTOS = {
+  // COLGANTES — color
+  'burano':       { PKN:'col_burano_pkn', PKT:'col_burano_pkt' },
+  'cagliari':     { PKN:'col_cagliari_pkn', PKT:'col_cagliari_pkt' },
+  'carmina':      { PKN:'col_carmina_pkn', PKT:'col_carmina_pkt' },
+  'ferrara':      { CG:'col_ferrara_cg', CN:'col_ferrara_cn' },
+  'firenze':      { CH:'col_firenze_50x30cm_ch' },
+  'firenze-xl':   { CG:'col_firenzexl_60x38cm_cg', CH:'col_firenzexl_60x38cm_ch', CN:'col_firenzexl_60x38cm_cn' },
+  'ferrara-xl':   { PKN:'col_ferraraxl_pkn' },
+  'mini-firenze': { CH:'col_firenze_mini_invertida_ch', CN:'col_minifirenzeinvertida_cn' },
+  'turin':        { CH:'col_turin_ch', CN:'col_turin_cn', CNG:'col_turin_cng' },
+  'mesina':       { PKN:'col_mesina_pkn', PKT:'col_mesina_pkt' },
+  'parma-jaula':  { CH:'col_parma_jaula_ch', PKN:'col_parma_jaula_pkn', PKT:'col_parma_jaula_pkt' },
+  'parma':        { CH:'col_parma_ch', CN:'col_parma_cn', PKN:'col_parma_pkn' },
+  'perugia':      { CN:'col_perugia_cn', PKN:'col_perugia_pkn', PKT:'col_perugia_pkt' },
+  'pompeya':      { PKN:'col_pompeya_pkn', PKT:'col_pompeya_pkt' },
+  'siena':        { PKN:'col_siena_pkn', PKT:'col_siena_pkt' },
+  'toscana':      { PKN:'col_toscana_pkn', PKT:'col_toscana_pkt' },
+  'trento':       { PKN:'col_trento_pkn', PKT:'col_trento_pkt' },
+  'lucca':        { PKN:'col_lucca_pkn', PKT:'col_lucca_pkt' },
+  'asti':         { PKT:'col_asti' },
+  'sicilia':      { 'Hilo de papel kraft tostado y yute tostado':'col_silicia_pht' },
+  'siracusa':     { PKN:'col_siracursa_pkn', PKT:'col_siracursa_pkt' },
+  'bolonia':      { CH:'col_bolonia_ch', CN:'col_bolonia_cn', CNG:'col_bolonia_cng' },
+  // COLGANTES — sin variante
+  'arauco':       { default:'col_arauco_bamboo' },
+  'amalfi':       { CH:'col_amalfi_ch', CN:'col_amalfi_cn' },
+  'bolzano':      { default:'col_bolzano_yute' },
+  'castellana':   { default:'col_castellana_seagrass' },
+  'cinque-terre': { default:'col_cinque_terre' },
+  'lombardia':    { default:'col_lombardia' },
+  'matera':       { default:'col_matera' },
+  'modena':       { default:'col_modena' },
+  'portofino':    { default:'col_portofino_seagrass' },
+  'praiano':      { default:'col_praiano' },
+  'puglia-bamboo':{ default:'col_puglia_bamboo' },
+  'puglia-rattan':{ default:'col_puglia_rattan' },
+  'ravenna':      { default:'col_ravenna' },
+  'roma':         { default:'col_roma' },
+  'taormina':     { default:'col_taormina' },
+  'varapodio':    { default:'col_varapodio' },
+  'vat':          { default:'col_vat' },
+  'veneto':       { default:'col_veneto' },
+  'viena':        { default:'col_viena_rattan' },
+  // COLGANTES — medida (Tipo B)
+  'vicenza':      { '16×65cm':'col_vicenza_16x65cm', '35×55cm':'col_vicenza_35x55cm', '50×80cm':'col_vicenza_50x80cm' },
+  'liguria':      { '50×25cm':'col_liguria_RT_50x25cm', '60×45cm':'col_liguria_rn_40x40cm', '60×60cm':'col_liguria_40x40cm', '40×40cm':'col_liguria_20x30x50cm' },
+  // VELADORES
+  'capri':        { Negro:'vel_capri_negro', Blanco:'vel_capri_blanco', 'Simil madera clara con negro':'vel_capri_madera' },
+  'indi-mesa':    { PKT:'vel_indi_pkt' },
+  'ona':          { default:'vel_ona' },
+  'duomo':        { default:'vel_duomo' },
+  // PIE
+  'amapola':      { PKN:'pie_amapola_pkn', PKT:'pie_amapola_pkt' },
+  'palermo':      { default:'pie_palermo' },
+  'indi-pie':     { PKN:'pie_indi_pkn', PKT:'pie_indi_pkt' },
+  // APLIQUES
+  'aplique-pisa':  { default:'apl_pisa' },
+  'aplique-prato': { default:'apl_prato' },
+};
+
+// Devuelve la URL de la foto correspondiente
+function fotoURL(p, varSel) {
+  const mapa = FOTOS[p.id];
+  if(!mapa) return null;
+
+  let key = 'default';
+
+  // Tipo B: medida cambia foto (sin variante de color)
+  if(p.variantes.length === 0 && MEDIDAS[p.id]) {
+    const mi = selMedida[p.id] ?? 0;
+    key = MEDIDAS[p.id][mi].m;
+  }
+  // Tipo A: color cambia foto
+  else if(varSel && VAR_ABBR[varSel]) {
+    key = VAR_ABBR[varSel];
+  }
+
+  const archivo = mapa[key] || mapa['default'] || Object.values(mapa)[0];
+  if(!archivo) return null;
+  return `${CDN}/${archivo}.png`;
+}
+
+// Renderiza la imagen: foto real si carga, SVG fallback si no
+function imgContent(p, varSel, color, badge) {
+  const url = fotoURL(p, varSel);
+  return `${badge}
+    <img src="${url}" 
+      style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+    />
+    <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;position:absolute;top:0;left:0;">
+      ${lampSVG(color)}
+    </span>`;
+}
+
+function lampSVG(color){
+  return `<svg class="lamp-svg" viewBox="0 0 100 160" fill="none">
+    <line x1="50" y1="0" x2="50" y2="26" stroke="${color}" stroke-width="3"/>
+    <polygon points="24,86 76,86 62,26 38,26" fill="${color}" opacity="0.85"/>
+    <rect x="44" y="86" width="12" height="6" fill="${color}" opacity="0.4"/>
+    <ellipse cx="50" cy="97" rx="16" ry="4" fill="${color}" opacity="0.18"/>
+  </svg>`;
+}
+
+function varLabel(v){
+  const m={'Cordón Habano':'Habano','Cordón Natural':'Natural','Cordón Negro':'Negro',
+    'Cordón Gris':'Gris','Hilo de papel kraft tostado':'Kraft T.','Hilo de papel kraft negro':'Kraft N.',
+    'Hilo de yute':'Yute','Papel Kraft Tostado':'Kraft T.','Papel Kraft Negro':'Kraft N.',
+    'Negro':'Negro','Blanco':'Blanco','Simil madera clara con negro':'Madera',
+    'Lienzo Natural':'Lienzo N.','Lienzo Negro':'Lienzo Ng.',
+    'Hilo de papel kraft tostado y yute tostado':'Kraft+Yute T.',
+    'Hilo de papel kraft negro y yute negro':'Kraft+Yute N.',
+  };
+  return m[v]||v.split(' ').pop();
+}
+
+// Render section: agrupa productos en grids según cantidad de variantes
+function renderSeccion(cat){
+  const prods = PRODUCTOS[cat];
+  document.getElementById(`count-${cat}`).textContent = prods.length+' productos';
+  const container = document.getElementById(`grid-${cat}`);
+  container.innerHTML = '';
+
+  // Sección pie: siempre grid-pie (3 columnas, imagen portrait)
+  if(cat === 'pie') {
+    prods.forEach(p => { p._cat = cat; });
+    const g = document.createElement('div');
+    g.className = 'grid-pie';
+    prods.forEach((p,pi) => {
+      g.appendChild(buildCardCompact(p, pi, cat));
+    });
+    container.appendChild(g);
+    return;
+  }
+
+  // Separar: pocas variantes (0-2) → grid 2col, muchas (3+) → 1col
+  let pocas = [], muchas = [];
+  prods.forEach(p => {
+    p._cat = cat;
+    if(p.variantes.length <= 2) pocas.push(p);
+    else muchas.push(p);
+  });
+
+  // Grid 2 columnas para pocas variantes
+  if(pocas.length > 0){
+    const g = document.createElement('div');
+    g.className = 'grid-2col';
+    g.style.marginBottom = '1px';
+    pocas.forEach((p,pi) => {
+      g.appendChild(buildCardCompact(p, pi, cat));
+    });
+    container.appendChild(g);
+  }
+
+  // Grid full para muchas variantes
+  if(muchas.length > 0){
+    const g = document.createElement('div');
+    g.className = 'grid-1col';
+    muchas.forEach((p,pi) => {
+      g.appendChild(buildCardFull(p, pi, cat));
+    });
+    container.appendChild(g);
+  }
+}
+
+function buildPlaceholder() {
+  const ph = document.createElement('div');
+  ph.style.cssText = 'background:var(--chocolate);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;';
+  ph.innerHTML = `
+    <div style="font-size:11px;color:rgba(242,237,230,0.7);letter-spacing:0.5px;line-height:1.7;margin-bottom:10px;">Productos de diseño que<br>transforman cualquier espacio</div>
+    <div style="font-size:8px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--dorado);">POTENCIÁ TU NEGOCIO</div>
+  `;
+  return ph;
+}
+
+function buildCardCompact(p, pi, cat){
+  const vi = sel[p.id]??0;
+  const varSel = p.variantes[vi];
+  const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  
+  // swatches circulares
+  const swatches = p.variantes.map((v,vi2)=>{
+    const c=C[v]||'#C4966A';
+    return `<div class="swatch ${vi2===vi?'activa':''}" onclick="selVarCompact('${p.id}',${vi2},'${cat}')" title="${v}" style="background:${c}"></div>`;
+  }).join('');
+
+  const div = document.createElement('div');
+  div.className='card';
+  div.style.animationDelay=(pi*0.05)+'s';
+  const precioInicialCompact = getPrecio(p);
+  div.innerHTML=`
+    <div class="card-img" id="img-${p.id}" style="position:relative;">
+      ${imgContent(p, varSel, color, badge)}
+    </div>
+    ${p.variantes.length>0?`<div class="swatches-row">${swatches}</div>`:''}
+    <div class="card-body-compact">
+      <div class="card-nombre-compact">${p.nombre}</div>
+      <div class="card-vsel-compact" id="vsel-${p.id}">${varSel||''}</div>
+      ${getMedidaHTML(p)}
+      <div class="card-bottom-compact">
+        <div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>
+        <div class="card-bottom-actions">
+          ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Info</button>`:''}
+          <button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>
+        </div>
+      </div>
+    </div>`;
+  return div;
+}
+
+function buildCardFull(p, pi, cat){
+  const vi = sel[p.id]??0;
+  const varSel = p.variantes[vi];
+  const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+
+  const thumbs = p.variantes.map((v,vi2)=>{
+    const c=C[v]||'#C4966A';
+    return `<div class="vthumb-full ${vi2===vi?'activa':''}" onclick="selVarFull('${p.id}',${vi2},'${cat}')" title="${v}">
+      <div class="vthumb-color" style="background:${c}"></div>
+      <span class="vthumb-label">${varLabel(v)}</span>
+    </div>`;
+  }).join('');
+
+  const div = document.createElement('div');
+  div.className='card-full';
+  div.style.animationDelay=(pi*0.05)+'s';
+  const precioInicialFull = getPrecio(p);
+  div.innerHTML=`
+    <div class="card-full-inner">
+      <div class="card-full-img" style="position:relative;" id="img-${p.id}">
+        ${imgContent(p, varSel, color, badge)}
+      </div>
+      ${p.variantes.length>0?`<div class="card-full-variantes">${thumbs}</div>`:''}
+      <div class="card-full-body">
+        <div>
+          <div class="card-full-nombre">${p.nombre}</div>
+          <div class="card-full-vsel" id="vsel-${p.id}">${varSel||'Sin variantes'}</div>
+          ${getMedidaHTMLFull(p)}
+        </div>
+        <div class="card-full-bottom">
+          <div>
+            <div class="precio-full-label">Precio unidad</div>
+            <div class="precio-full" id="precio-${p.id}">${fmt(precioInicialFull)}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Ficha</button>`:''}
+            <button class="btn-agregar-full" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  return div;
+}
+
+function selVarCompact(pid, vi, cat){
+  sel[pid]=vi;
+  const p=PRODUCTOS[cat].find(x=>x.id===pid);
+  const v=p.variantes[vi];
+  const color=C[v]||'#C4966A';
+  const imgEl=document.getElementById(`img-${pid}`);
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  imgEl.innerHTML = imgContent(p, v, color, badge);
+  document.getElementById(`vsel-${pid}`).textContent=v;
+  // update swatches
+  imgEl.closest('.card').querySelectorAll('.swatch').forEach((s,i)=>s.classList.toggle('activa',i===vi));
+}
+
+function selVarFull(pid, vi, cat){
+  sel[pid]=vi;
+  const p=PRODUCTOS[cat].find(x=>x.id===pid);
+  const v=p.variantes[vi];
+  const color=C[v]||'#C4966A';
+  const imgEl=document.getElementById(`img-${pid}`);
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  imgEl.innerHTML = imgContent(p, v, color, badge);
+  document.getElementById(`vsel-${pid}`).textContent=v;
+  imgEl.closest('.card-full').querySelectorAll('.vthumb-full').forEach((t,i)=>t.classList.toggle('activa',i===vi));
+}
+
+function getQtyEnCarrito(pid, vi, mi) {
+  const key = `${pid}-${vi}-${mi}`;
+  const it = carrito.find(x => x.key === key);
+  return it ? it.cantidad : 0;
+}
+
+function actualizarBtnCard(pid) {
+  const vi = sel[pid] ?? 0;
+  const mi = selMedida[pid] ?? 0;
+  const qty = getQtyEnCarrito(pid, vi, mi);
+  const btnEl = document.getElementById(`ba-${pid}`);
+  if(!btnEl) return;
+  if(qty === 0) {
+    btnEl.outerHTML = `<button class="btn-agregar-compact" id="ba-${pid}" onclick="agregar('${pid}','${btnEl.dataset.cat}')">+ Agregar</button>`;
+  } else {
+    btnEl.outerHTML = `<div class="qty-ctrl" id="ba-${pid}" data-cat="${btnEl.dataset.cat}">
+      <button class="qty-btn" onclick="restarCard('${pid}')">−</button>
+      <div class="qty-num">${qty}</div>
+      <button class="qty-btn" onclick="agregarCard('${pid}')">+</button>
+    </div>`;
+  }
+}
+
+function agregarCard(pid) {
+  // Encontrar cat desde el elemento
+  const el = document.getElementById(`ba-${pid}`);
+  const cat = el ? el.dataset.cat : null;
+  if(cat) agregar(pid, cat);
+}
+
+function restarCard(pid) {
+  const vi = sel[pid] ?? 0;
+  const mi = selMedida[pid] ?? 0;
+  const key = `${pid}-${vi}-${mi}`;
+  const it = carrito.find(x => x.key === key);
+  if(!it) return;
+  if(it.cantidad <= 1) {
+    carrito = carrito.filter(x => x.key !== key);
+  } else {
+    it.cantidad--;
+  }
+  actualizarCarrito();
+  // Actualizar botón
+  const qty = it && it.cantidad > 0 ? it.cantidad : 0;
+  const btnWrap = document.getElementById(`ba-${pid}`);
+  if(!btnWrap) return;
+  const cat = btnWrap.dataset.cat;
+  if(qty === 0) {
+    btnWrap.outerHTML = `<button class="btn-agregar-compact" id="ba-${pid}" data-cat="${cat}" onclick="agregar('${pid}','${cat}')">+ Agregar</button>`;
+  } else {
+    btnWrap.querySelector('.qty-num').textContent = qty;
+  }
+}
+
+function agregar(pid, cat){
+  const p=PRODUCTOS[cat].find(x=>x.id===pid);
+  const vi=sel[pid]??0;
+  const v=p.variantes[vi]||'—';
+  const mi=selMedida[pid]??0;
+  const medInfo=MEDIDAS[pid]?MEDIDAS[pid][mi]:null;
+
+  // Bloquear si sin stock
+  if(medInfo && medInfo.stock === false) return;
+
+  const precioFinal=medInfo?medInfo.p:p.precio;
+  const medLabel=medInfo?medInfo.m:'';
+  const varLabel2=p.variantes.length>0?v:'';
+  const varianteFull=[medLabel,varLabel2].filter(Boolean).join(' · ')||'—';
+  const key=`${pid}-${vi}-${mi}`;
+  const ex=carrito.find(x=>x.key===key);
+  if(ex) ex.cantidad++; else carrito.push({key,nombre:p.nombre,variante:varianteFull,precio:precioFinal,cantidad:1});
+
+  // Actualizar botón en card
+  const qty = carrito.find(x=>x.key===key).cantidad;
+  const btnEl = document.getElementById(`ba-${pid}`);
+  if(btnEl) {
+    if(btnEl.tagName === 'BUTTON') {
+      btnEl.outerHTML = `<div class="qty-ctrl" id="ba-${pid}" data-cat="${cat}">
+        <button class="qty-btn" onclick="restarCard('${pid}')">−</button>
+        <div class="qty-num">${qty}</div>
+        <button class="qty-btn" onclick="agregarCard('${pid}')">+</button>
+      </div>`;
+    } else {
+      const numEl = btnEl.querySelector('.qty-num');
+      if(numEl) numEl.textContent = qty;
+    }
+  }
+
+  actualizarCarrito();
+}
+
+function agregarCombo(i){
+  const c=COMBOS[i]; const key=`combo-${i}`;
+  const ex=carrito.find(x=>x.key===key);
+  if(ex) ex.cantidad++; else carrito.push({key,nombre:c.nombre,variante:'Combo',precio:c.precio,cantidad:1});
+  actualizarCarrito(); toggleCarrito();
+}
+
+function cambiarQty(key,d){
+  const it=carrito.find(x=>x.key===key);
+  if(!it)return; it.cantidad=Math.max(1,it.cantidad+d); actualizarCarrito();
+}
+function eliminar(key){ carrito=carrito.filter(x=>x.key!==key); actualizarCarrito(); }
+function totalUds(){ return carrito.reduce((s,x)=>s+x.cantidad,0); }
+function totalPrecio(){ return carrito.reduce((s,x)=>s+(x.precio*x.cantidad),0); }
+
+function actualizarCarrito(){
+  const uds=totalUds();
+  document.getElementById('ccount').textContent=uds;
+  document.getElementById('ctotal').textContent=fmt(totalPrecio());
+  document.getElementById('ctotal-uds').textContent=uds+' unidad'+(uds!==1?'es':'')+' seleccionada'+(uds!==1?'s':'');
+  const ci=document.getElementById('citems');
+  if(!carrito.length){
+    ci.innerHTML=`<div class="cvacio"><p>Sin productos aún</p><span>Explorá y sumá productos</span></div>`;
+    document.getElementById('btnwa').disabled=true;
+    document.getElementById('maviso').style.display='none';
+    return;
+  }
+  const ok=uds>=MINIMO;
+  const av=document.getElementById('maviso');
+  av.style.display=ok?'none':'block';
+  if(!ok) av.textContent=`Pedido mínimo: 8 unidades en total. Si es reposición dentro de los 3 meses, sin mínimo.`;
+  document.getElementById('btnwa').disabled=false;
+  ci.innerHTML=carrito.map(it=>`
+    <div class="citem">
+      <div class="citem-info">
+        <div class="citem-nombre">${it.nombre}</div>
+        <div class="citem-var">${it.variante}</div>
+        <div class="citem-ctrl">
+          <button class="qbtn" onclick="cambiarQty('${it.key}',-1)">−</button>
+          <span class="qnum">${it.cantidad}</span>
+          <button class="qbtn" onclick="cambiarQty('${it.key}',1)">+</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <button class="eliminar" onclick="eliminar('${it.key}')">✕</button>
+        <div class="citem-precio">${fmt(it.precio*it.cantidad)}</div>
+      </div>
+    </div>`).join('');
+}
+
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCxdGF_OzA4mvtMdO9fIY4gnf6JqeHrkdsKqe-ejuGLdiRt9aFNdk8XwnySGxSNnKP/exec';
+
+function irWA(){
+  if(!carrito.length) return;
+  abrirFormulario();
+}
+
+function abrirFormulario(){
+  document.getElementById('formOverlay').classList.add('visible');
+  document.getElementById('formPanel').classList.add('visible');
+}
+
+function cerrarFormulario(){
+  document.getElementById('formOverlay').classList.remove('visible');
+  document.getElementById('formPanel').classList.remove('visible');
+}
+
+function enviarPedido(){
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const mail = document.getElementById('f-mail').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+
+  if(!nombre || !mail || !tel){
+    document.getElementById('f-error').textContent = 'Completá todos los campos para continuar.';
+    return;
+  }
+  document.getElementById('f-error').textContent = '';
+
+  // Armar texto del pedido
+  let productosTexto = '';
+  carrito.forEach(it => { productosTexto += `${it.nombre} — ${it.variante} × ${it.cantidad} (${fmt(it.precio*it.cantidad)})\n`; });
+  const total = fmt(totalPrecio());
+
+  // Guardar en Sheets (sin esperar respuesta para no bloquear)
+  const data = { tipo:'pedido', nombre, mail, telefono:tel, productos:productosTexto, total };
+  const dataCliente = { tipo:'cliente', nombre, mail, telefono:tel };
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(data) }).catch(()=>{});
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(dataCliente) }).catch(()=>{});
+
+  // Cerrar formulario y abrir WhatsApp
+  cerrarFormulario();
+  const msg = `¡Hola! Soy ${nombre}.\n\nArmé este carrito:\n\n${productosTexto}\n*Total estimado: ${total}*\n\n¿Tienen stock disponible?`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+
+function abrirFicha(pid) {
+  let p = null;
+  for(const cat of Object.keys(PRODUCTOS)) {
+    p = PRODUCTOS[cat].find(x => x.id === pid);
+    if(p) break;
+  }
+  if(!p || !p.ficha) return;
+  const f = p.ficha;
+
+  const precio = p.precio;
+  const pvp = f.pvp;
+  const margen = pvp ? Math.round(((pvp - precio) / pvp) * 100) : null;
+
+  document.getElementById('ficha-nombre').textContent = p.nombre;
+  document.getElementById('ficha-body').innerHTML = `
+    <div class="ficha-seccion-titulo">Especificaciones</div>
+    ${f.material ? `<div class="ficha-row"><span class="ficha-row-label">Material</span><span class="ficha-row-value">${f.material}</span></div>` : ''}
+    ${f.origen ? `<div class="ficha-row"><span class="ficha-row-label">Origen</span><span class="ficha-row-value">${f.origen}</span></div>` : ''}
+    <div class="ficha-row">
+      <span class="ficha-row-label">Lámpara recomendada</span>
+      <span class="ficha-row-value">LED E27 · 8W a 12W · Luz cálida (2700K)</span>
+    </div>
+
+    <div class="ficha-seccion-titulo">Incluye</div>
+    <div style="font-size:11px;color:var(--gris);line-height:1.8;">
+      ${f.kit || '—'}<br>
+      <span style="color:var(--dorado);">✦</span> Embalaje sin costo — pluribol, cartón corrugado y film de protección
+    </div>
+
+    ${f.usos ? `
+    <div class="ficha-seccion-titulo">Usos sugeridos</div>
+    <div style="font-size:11px;color:var(--gris);line-height:1.8;">${f.usos}</div>` : ''}
+
+    ${pvp ? `
+    <div class="ficha-pvp">
+      <div>
+        <div class="ficha-pvp-label">PVP sugerido</div>
+        <div class="ficha-pvp-precio">${fmt(pvp)}</div>
+        ${margen ? `<div class="ficha-pvp-margen">Margen aprox. ${margen}%</div>` : ''}
+      </div>
+    </div>` : ''}
+
+    ${f.nota ? `<div style="font-size:10px;color:var(--dorado);margin-top:14px;padding:8px 10px;border:1px solid rgba(184,147,90,0.3);">✦ ${f.nota}</div>` : ''}
+  `;
+
+  document.getElementById('fichaOverlay').classList.add('visible');
+  document.getElementById('fichaPanel').classList.add('visible');
+}
+
+function cerrarFicha() {
+  document.getElementById('fichaOverlay').classList.remove('visible');
+  document.getElementById('fichaPanel').classList.remove('visible');
+}
+
+function toggleAcordeon(btn) {
+  var item = btn.parentElement;
+  var abierto = item.classList.contains('abierto');
+  // cerrar todos
+  document.querySelectorAll('.acordeon-item').forEach(function(el){ el.classList.remove('abierto'); });
+  // abrir este si estaba cerrado
+  if(!abierto) item.classList.add('abierto');
+}
+
+function toggleCarrito(){
+  document.getElementById('cPanel').classList.toggle('abierto');
+  document.getElementById('cartOverlay').classList.toggle('visible');
+}
+function toggleMenu(){
+  document.getElementById('menuPanel').classList.toggle('abierto');
+  document.getElementById('menuOverlay').classList.toggle('visible');
+}
+function irA(id){
+  toggleMenu();
+  setTimeout(()=>{
+    const el=document.getElementById(id);
+    if(el){ const y=el.getBoundingClientRect().top+window.scrollY-70; window.scrollTo({top:y,behavior:'smooth'}); }
+  },320);
+}
+
+
+// Medidas con precio (placeholder hasta conectar API)
+const MEDIDAS = {
+  'carmina':        [{m:'40×25cm', p:93900},{m:'50×30cm', p:103900},{m:'65×40cm', p:118900}],
+  'toscana':        [{m:'40×25cm', p:98900},{m:'50×30cm', p:108900},{m:'65×40cm', p:123900}],
+  'mesina':         [{m:'60cm',    p:111900},{m:'70cm',   p:119900}],
+  'amalfi':         [{m:'20×30×30cm',p:47900},{m:'30×40×35cm',p:59900},{m:'40×50×45cm',p:74900}],
+  'parma':          [{m:'50×35cm',p:135900},{m:'60×45cm',p:149900},{m:'70×60cm',p:169900},{m:'80×70cm',p:189900}],
+  'parma-jaula':    [{m:'30×45cm',p:115900}],
+  'mini-firenze':   [{m:'15×30cm',p:47900},{m:'30×25cm',p:54900}],
+  'cinque-terre':   [{m:'40×35cm',p:171900},{m:'60×54cm',p:221900},{m:'80×70cm',p:318900}],
+  'vicenza':        [{m:'16×65cm',p:37900},{m:'35×55cm',p:78900},{m:'50×80cm',p:97900}],
+  'liguria':        [{m:'50×25cm',p:52900},{m:'60×45cm',p:99900},{m:'60×60cm',p:109900},{m:'40×40cm',p:145000}],
+  'varapodio':      [{m:'35×25cm',p:205900},{m:'50×46cm',p:239900}],
+  'matera':         [{m:'36×34cm',p:79900,stock:false},{m:'45×42cm',p:79900}],
+  'avellino':       [{m:'10×32×20cm',p:63900,stock:false},{m:'15×55×20cm',p:63900},{m:'15×45×26cm',p:63900}],
+  'arauco':         [{m:'18×40cm',p:69900},{m:'22×55cm',p:69900}],
+  'puglia-bamboo':  [{m:'60×15cm',p:113900},{m:'80×25cm',p:137900}],
+  'puglia-rattan':  [{m:'55×44×26cm',p:178900},{m:'70×55×40cm',p:219800},{m:'90×65×50cm',p:287900}],
+};
+let selMedida = {}; // { pid: idx }
+
+function getMedidaActual(pid) {
+  if(!MEDIDAS[pid]) return null;
+  return MEDIDAS[pid][selMedida[pid]??0];
+}
+
+function selMed(pid, idx, cat) {
+  selMedida[pid] = idx;
+  const m = MEDIDAS[pid][idx];
+  // update botones
+  document.querySelectorAll(`.btn-medida[data-pid="${pid}"]`).forEach((b,i)=>b.classList.toggle('activa',i===idx));
+  // update precio
+  const precioEl = document.getElementById(`precio-${pid}`);
+  if(precioEl) {
+    if(m.stock === false) {
+      precioEl.textContent = 'Sin stock';
+      precioEl.style.color = 'var(--gris)';
+      precioEl.style.fontSize = '11px';
+    } else {
+      precioEl.textContent = fmt(m.p);
+      precioEl.style.color = '';
+      precioEl.style.fontSize = '';
+    }
+  }
+  // update boton agregar
+  const btnEl = document.getElementById(`ba-${pid}`);
+  if(btnEl) {
+    if(m.stock === false) {
+      btnEl.style.opacity = '0.4';
+      btnEl.style.pointerEvents = 'none';
+    } else {
+      btnEl.style.opacity = '';
+      btnEl.style.pointerEvents = '';
+    }
+  }
+  // update foto si es Tipo B
+  const p = PRODUCTOS[cat] ? PRODUCTOS[cat].find(x=>x.id===pid) : null;
+  if(p && p.variantes.length === 0 && FOTOS[pid]) {
+    const imgEl = document.getElementById(`img-${pid}`);
+    if(imgEl) {
+      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+      imgEl.innerHTML = imgContent(p, null, '#C4966A', badge);
+    }
+  }
+}
+
+function getPrecio(p) {
+  if(MEDIDAS[p.id]) return getMedidaActual(p.id).p;
+  return p.precio;
+}
+
+function getMedidaHTML(p) {
+  if(!MEDIDAS[p.id]) return `<div class="card-medida-compact">${p.medida}</div>`;
+  const btns = MEDIDAS[p.id].map((m,i)=>
+    `<button class="btn-medida${i===0?' activa':''}${m.stock===false?' btn-medida-sinstock':''}" data-pid="${p.id}" onclick="selMed('${p.id}',${i},'${p._cat}')" ${m.stock===false?'title="Sin stock"':''}>${m.m}${m.stock===false?' ✕':''}</button>`
+  ).join('');
+  return `<div class="medidas-row">${btns}</div>`;
+}
+
+function getMedidaHTMLFull(p) {
+  if(!MEDIDAS[p.id]) return `<div class="card-full-medida">${p.medida}</div>`;
+  const btns = MEDIDAS[p.id].map((m,i)=>
+    `<button class="btn-medida${i===0?' activa':''}${m.stock===false?' btn-medida-sinstock':''}" data-pid="${p.id}" onclick="selMed('${p.id}',${i},'${p._cat}')" ${m.stock===false?'title="Sin stock"':''}>${m.m}${m.stock===false?' ✕':''}</button>`
+  ).join('');
+  return `<div class="medidas-row">${btns}</div>`;
+}
+
+// ── CARGA DESDE GOOGLE SHEETS ──────────────────────────
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=0&single=true&output=csv';
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = parseCSVLine(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h,i) => obj[h.trim()] = (vals[i]||'').trim());
+    return obj;
+  });
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for(let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if(ch === '"') {
+      if(inQuotes && line[i+1] === '"') { cur += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if(ch === ',' && !inQuotes) {
+      result.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+function variantesDesdeSheet(varStr, material) {
+  if(!varStr) return [];
+  // Si tiene múltiples variantes separadas por /
+  return varStr.split('/').map(v => v.trim()).filter(Boolean).map(v => {
+    // Convertir abreviatura a nombre completo
+    const MAP = {
+      'PKT':'Hilo de papel kraft tostado','PKN':'Hilo de papel kraft negro',
+      'CH':'Cordón Habano','CN':'Cordón Natural','CNG':'Cordón Negro','CG':'Cordón Gris',
+      'Negro':'Negro','Blanco':'Blanco','Madera':'Simil madera clara con negro',
+      'LN':'Lienzo Natural','LNG':'Lienzo Negro',
+      'Kraft+Yute Tostado':'Hilo de papel kraft tostado y yute tostado',
+      'Kraft+Yute Negro':'Hilo de papel kraft negro y yute negro',
+    };
+    return MAP[v] || v;
+  });
+}
+
+async function cargarDesdeSheets() {
+  try {
+    const res = await fetch(SHEET_CSV);
+    const text = await res.text();
+    const rows = parseCSV(text);
+
+    // Solo actualizar precio, stock, badge y descuento desde el Sheet
+    // El resto (variantes, orden, medidas, fichas) lo maneja el código local
+    const sheetData = {};
+    rows.forEach(r => {
+      if(!r.id) return;
+      if(!sheetData[r.id]) sheetData[r.id] = { precio: r.precio, stock: r.stock, badge: r.badge, descuento: r.descuento, activo: r.activo };
+    });
+
+    // Aplicar datos del Sheet a los productos locales
+    Object.keys(PRODUCTOS).forEach(cat => {
+      PRODUCTOS[cat] = PRODUCTOS[cat].filter(p => {
+        const s = sheetData[p.id];
+        if(!s) return true; // Si no está en Sheet, mantener
+        if(s.activo === 'NO') return false; // Ocultar si inactivo
+        if(s.precio) p.precio = parseInt(s.precio) || p.precio;
+        if(s.stock) p.stock = s.stock;
+        if(s.badge !== undefined) p.badge = s.badge || null;
+        if(s.descuento) p.descuento = s.descuento;
+        return true;
+      });
+    });
+
+    console.log('✓ Precios y estados actualizados desde Sheets');
+  } catch(e) {
+    console.warn('No se pudo cargar desde Sheets, usando datos locales:', e);
+  }
+
+  // Renderizar siempre
+  renderSeccion('colgantes');
+  renderSeccion('veladores');
+  renderSeccion('pie');
+  renderSeccion('apliques');
+  renderCombos();
+}
+
+function generarSVGsCombo(c) {
+  var total = 0;
+  c.items.forEach(function(it) {
+    var m = it.nombre.match(/x(\d+)/i);
+    total += m ? parseInt(m[1]) : 1;
+  });
+  var svgs = '';
+  for(var k=0; k<Math.min(total,4); k++) {
+    svgs += '<svg viewBox="0 0 60 90" width="42" height="60" fill="none">' +
+      '<line x1="30" y1="0" x2="30" y2="16" stroke="#6B3F28" stroke-width="2"/>' +
+      '<polygon points="14,52 46,52 38,16 22,16" fill="#6B3F28" opacity="0.3"/>' +
+      '<rect x="26" y="52" width="8" height="4" fill="#6B3F28" opacity="0.2"/>' +
+      '</svg>';
+  }
+  return svgs;
+}
+
+function renderCombos() {
+  var grid = document.getElementById('grid-combos');
+  if(!grid) return;
+  grid.innerHTML = '';
+  COMBOS.forEach(function(c, i) {
+    var imgArea = '';
+    if(c.foto) {
+      var fotoURL = CDN + '/' + c.foto + '.png';
+      imgArea = '<div class="combo-img-area" style="padding:0;overflow:hidden;">' +
+        '<img src="' + fotoURL + '" style="width:100%;height:100%;object-fit:cover;" ' +
+        'onerror="this.style.display=\'none\'">' +
+        '</div>';
+    } else {
+      imgArea = '<div class="combo-img-area">' + generarSVGsCombo(c) + '</div>';
+    }
+
+    // Items
+    var itemsHTML = '';
+    c.items.forEach(function(it) {
+      itemsHTML += '<div class="combo-item">' +
+        '<span class="combo-item-nombre">' + it.nombre + '</span>' +
+        '<span class="combo-item-detalle">' + it.detalle + '</span>' +
+        '</div>';
+    });
+
+    var card = document.createElement('div');
+    card.className = 'combo-card';
+    card.innerHTML =
+      imgArea +
+      '<div class="combo-card-body">' +
+        '<div class="combo-header">' +
+          '<span class="combo-nombre">' + c.nombre + '</span>' +
+          '<span class="combo-desc-tag">' + c.desc + '</span>' +
+        '</div>' +
+        '<div class="combo-bajada">' + c.bajada + '</div>' +
+        '<div class="combo-items">' + itemsHTML + '</div>' +
+        '<div class="combo-kit">' + c.nota + '</div>' +
+        '<div class="combo-bottom">' +
+          '<div>' +
+            '<div class="combo-original">' + fmt(c.original) + '</div>' +
+            '<div class="combo-precio">' + fmt(c.precio) + '</div>' +
+          '</div>' +
+          '<button class="btn-combo" onclick="agregarCombo(' + i + ')">Agregar</button>' +
+        '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+// Arrancar
+cargarDesdeSheets();
+</script>
+</body>
+</html>
