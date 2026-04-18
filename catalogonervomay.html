@@ -1260,10 +1260,12 @@ function fotoURL(p, varSel) {
 
   let key = 'default';
 
-  // Tipo B: medida cambia foto (sin variante de color)
+  // Tipo B: medida cambia foto (sin variante de color) — solo si hay múltiples fotos en el mapa
   if(p.variantes.length === 0 && MEDIDAS[p.id]) {
     const mi = selMedida[p.id] ?? 0;
-    key = MEDIDAS[p.id][mi].m;
+    const medKey = MEDIDAS[p.id][mi].m;
+    // Solo usar la medida como key si existe en el mapa
+    if(mapa[medKey]) key = medKey;
   }
   // Tipo A: color cambia foto
   else if(varSel && VAR_ABBR[varSel]) {
@@ -1615,7 +1617,7 @@ function actualizarCarrito(){
     </div>`).join('');
 }
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCxdGF_OzA4mvtMdO9fIY4gnf6JqeHrkdsKqe-ejuGLdiRt9aFNdk8XwnySGxSNnKP/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLB5MsCdnTDuyxmgCyYrJXdK7JwJ7wZqR_pvPhSTZNhKUAWC8u00Y70cWpbFksRrDnIw/exec';
 
 function irWA(){
   if(!carrito.length) return;

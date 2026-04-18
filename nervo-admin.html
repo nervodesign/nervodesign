@@ -506,6 +506,10 @@ Válido hasta el 30/04
         <input type="text" id="edit-variantes" placeholder="PKT, PKN, CH...">
       </div>
       <div class="campo">
+        <label>Usos sugeridos</label>
+        <textarea id="edit-usos" placeholder="Ej: Living, comedor, dormitorio, barra de cocina..."></textarea>
+      </div>
+      <div class="campo">
         <label>Nota interna</label>
         <textarea id="edit-nota" placeholder="Ej: Alta rotación, ideal para barras..."></textarea>
       </div>
@@ -525,7 +529,7 @@ Válido hasta el 30/04
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCxdGF_OzA4mvtMdO9fIY4gnf6JqeHrkdsKqe-ejuGLdiRt9aFNdk8XwnySGxSNnKP/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLB5MsCdnTDuyxmgCyYrJXdK7JwJ7wZqR_pvPhSTZNhKUAWC8u00Y70cWpbFksRrDnIw/exec';
 const SHEET_ID = '1H-xgj2yi4iCdV6jaqAN04THCeLoXCBw2VhI3gbdKZkc';
 const USERS = { 'nervo': 'nervo2026', 'admin': 'nervo2026' };
 
@@ -805,6 +809,7 @@ function editarProducto(i) {
   document.getElementById('edit-variantes').value = p.variante;
   document.getElementById('edit-stock').value = p.stock;
   document.getElementById('edit-activo').value = p.activo;
+  document.getElementById('edit-usos').value = p.usos || '';
   document.getElementById('edit-nota').value = p.nota || '';
   document.getElementById('edit-pvp').value = p.pvp || '';
   document.getElementById('edit-descuento').value = p.descuento || '';
@@ -836,6 +841,7 @@ function guardarProducto() {
   productosData[i].variante   = document.getElementById('edit-variantes').value;
   productosData[i].stock      = document.getElementById('edit-stock').value;
   productosData[i].activo     = document.getElementById('edit-activo').value;
+  productosData[i].usos       = document.getElementById('edit-usos').value;
   productosData[i].nota       = document.getElementById('edit-nota').value;
   productosData[i].pvp        = document.getElementById('edit-pvp').value;
   productosData[i].badge      = badgeFinal;
