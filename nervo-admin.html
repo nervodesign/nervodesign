@@ -577,36 +577,27 @@ async function cargarTodo() {
 }
 
 async function cargarProductos() {
-  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=0&single=true&output=csv';
-  const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(csvUrl);
+  const url = 'https://script.google.com/macros/s/AKfycbxLB5MsCdnTDuyxmgCyYrJXdK7JwJ7wZqR_pvPhSTZNhKUAWC8u00Y70cWpbFksRrDnIw/exec?sheet=Productos';
   try {
     const res = await fetch(url);
-    const data = await res.json();
-    const text = data.contents;
-    const lines = text.trim().split('\n');
-    const headers = parseCSVLine(lines[0]);
-    productosData = lines.slice(1).map(line => {
-      const vals = parseCSVLine(line);
-      const obj = {};
-      headers.forEach((h,i) => obj[h.trim()] = (vals[i]||'').trim());
-      return {
-        id:        obj.id || '',
-        nombre:    obj.nombre || '',
-        categoria: obj.categoria || '',
-        variante:  obj.variante || '',
-        precio:    parseInt(obj.precio) || 0,
-        medida:    obj.medida || '',
-        material:  obj.material || '',
-        badge:     obj.badge || '',
-        stock:     obj.stock || 'SI',
-        activo:    obj.activo || 'SI',
-        foto:      obj.foto || '',
-        pvp:       obj.pvp || '',
-        descuento: obj.descuento || '',
-        usos:      obj.usos || '',
-        nota:      obj.nota || '',
-      };
-    }).filter(p => p.id);
+    const rows = await res.json();
+    productosData = rows.filter(r => r.id).map(r => ({
+      id:        r.id || '',
+      nombre:    r.nombre || '',
+      categoria: r.categoria || '',
+      variante:  r.variante || '',
+      precio:    parseInt(r.precio) || 0,
+      medida:    r.medida || '',
+      material:  r.material || '',
+      badge:     r.badge || '',
+      stock:     r.stock || 'SI',
+      activo:    r.activo || 'SI',
+      foto:      r.foto || '',
+      pvp:       r.pvp || '',
+      descuento: r.descuento || '',
+      usos:      r.usos || '',
+      nota:      r.nota || '',
+    }));
     renderProductos(productosData);
     actualizarStats();
     document.getElementById('badge-productos').textContent = productosData.length;
