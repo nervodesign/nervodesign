@@ -135,10 +135,10 @@
     grid-template-columns:1fr;
     gap:1px; background:var(--arena);
   }
-  /* Grid especial para lámparas de pie — siempre 3 columnas, imagen portrait */
+  /* Grid especial para lámparas de pie — 2 columnas en mobile, imagen portrait */
   .grid-pie {
     display:grid;
-    grid-template-columns:1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr;
     gap:1px; background:var(--arena);
   }
   .grid-pie .card-img,
@@ -249,13 +249,13 @@
   .card-full:hover { background:var(--lino); }
 
   .card-full-inner {
-    display:flex; gap:0;
+    display:flex; flex-direction:column; gap:0;
   }
 
-  /* Imagen lado izquierdo */
+  /* Imagen arriba en mobile */
   .card-full-img {
     position:relative;
-    width:160px; flex-shrink:0;
+    width:100%; aspect-ratio:1;
     background:var(--lino);
     display:flex; align-items:center; justify-content:center;
   }
@@ -263,13 +263,13 @@
 
   /* Variantes col */
   .card-full-variantes {
-    display:flex; flex-direction:column; gap:3px;
-    padding:10px; background:var(--lino);
-    width:72px; flex-shrink:0;
-    border-left:1px solid var(--arena);
+    display:flex; flex-direction:row; flex-wrap:wrap; gap:3px;
+    padding:6px 8px; background:var(--lino);
+    width:100%; flex-shrink:0;
+    border-top:1px solid var(--arena);
   }
   .vthumb-full {
-    width:52px; height:52px;
+    width:32px; height:32px;
     cursor:pointer; border:1.5px solid transparent;
     transition:border-color 0.15s, transform 0.12s;
     position:relative; overflow:hidden; display:flex; align-items:flex-end;
@@ -280,8 +280,8 @@
   .vthumb-label {
     position:absolute; bottom:0; left:0; right:0;
     background:rgba(37,20,8,0.55); color:white;
-    font-size:6px; letter-spacing:0.3px;
-    text-align:center; padding:2px; text-transform:uppercase; line-height:1.3;
+    font-size:5px; letter-spacing:0.2px;
+    text-align:center; padding:1px; text-transform:uppercase; line-height:1.2;
   }
 
   /* Info lado derecho */
@@ -354,7 +354,7 @@
   .combo-desc-tag { background:var(--burdeo); color:white; font-size:8px; font-weight:500; letter-spacing:1.5px; padding:2px 7px; white-space:nowrap; }
   .combo-detalle { font-size:11px; color:var(--gris); line-height:1.7; margin-bottom:14px; }
   .combo-bottom { display:flex; align-items:center; justify-content:space-between; }
-  .combo-original { font-size:9px; color:var(--arena); text-decoration:line-through; margin-bottom:2px; }
+  .combo-original { font-size:9px; color:var(--marron); text-decoration:line-through; margin-bottom:2px; opacity:0.5; }
   .combo-precio { font-size:16px; color:var(--marron); font-weight:600; }
   .btn-combo {
     background:var(--chocolate); color:var(--blanco); border:none; padding:9px 16px;
@@ -628,10 +628,10 @@
   .card-full-img { width:100%; aspect-ratio:1; height:auto; }
   .card-full-variantes {
     width:100%; flex-direction:row; flex-wrap:wrap;
-    padding:8px 10px; gap:5px;
+    padding:5px 6px; gap:3px;
     border-left:none; border-top:1px solid var(--arena);
   }
-  .vthumb-full { width:38px; height:38px; }
+  .vthumb-full { width:28px; height:28px; }
   .card-full-body { 
     border-left:none; border-top:1px solid var(--arena);
     padding:10px 10px 14px;
@@ -641,6 +641,15 @@
   }
   .card-full-bottom {
     margin-top:10px; padding-top:10px;
+  }
+  .card-full-bottom-stacked {
+    flex-direction:column; align-items:stretch; gap:8px;
+  }
+  .card-full-bottom-stacked > div:last-child {
+    display:flex; gap:6px; align-items:center;
+  }
+  .card-full-bottom-stacked .btn-agregar-full {
+    flex:1; text-align:center; padding:10px;
   }
   .precio-full { font-size:13px; }
   .btn-agregar-full {
@@ -1060,7 +1069,12 @@ const PRODUCTOS = {
     { id:'puglia-rattan', nombre:'Colgante Puglia Rattan', precio:178900, badge:null, medida:'55×44×26 / 70×55×40 / 90×65×50cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, '3 medidas · Pieza de impacto') },
     { id:'varapodio', nombre:'Colgante Varapodio', precio:205900, badge:null, medida:'35×25 / 50×46cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, 'Top of line · Pieza destacada') },
     { id:'praiano', nombre:'Colgante Praiano', precio:152900, badge:'nuevo', medida:'39 × 90cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP, null, 'Nuevo · Diseño premium') },
-    { id:'liguria', nombre:'Colgante Liguria', precio:109900, badge:null, medida:'50×25 / 60×45 / 60×60cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria', nombre:'Colgante Liguria', precio:52900, badge:null, medida:'20×30×50cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria-2', nombre:'Colgante Liguria 02', precio:52900, badge:null, medida:'50×25cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria-3', nombre:'Colgante Liguria', precio:145000, badge:null, medida:'40×40cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria-4', nombre:'Colgante Liguria', precio:109900, badge:null, medida:'50×50cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria-5', nombre:'Colgante Liguria', precio:99900, badge:null, medida:'60×45cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
+    { id:'liguria-6', nombre:'Colgante Liguria', precio:109900, badge:null, medida:'40×45×60cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
     { id:'veneto', nombre:'Colgante Veneto', precio:98900, badge:null, medida:'30 × 30cm', variantes: [], ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
     { id:'viena', nombre:'Colgante Viena', precio:97900, badge:null, medida:'40 × 30cm', variantes: MAT_KRAFT, ficha: mkFicha('Rattan natural', ORIGEN_IMP) },
     // ── SEAGRASS / BAMBOO / OTROS ──
@@ -1079,7 +1093,7 @@ const PRODUCTOS = {
   veladores: [
     { id:'capri', nombre:'Velador Capri Set x2', precio:47900, badge:'best', medida:'Set de 2 unidades', variantes:['Negro','Blanco','Simil madera clara con negro'], ficha: mkFicha('Estructura metálica con pantalla', ORIGEN_PROPIO, null, 'Se vende en set de 2 · Best seller') },
     { id:'indi-mesa', nombre:'Velador Indi', precio:89900, badge:'best', medida:'Pantalla: Lienzo natural o negro', variantes:['Hilo de papel kraft tostado','Hilo de papel kraft negro'], ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Pantalla lienzo') },
-    { id:'cali', nombre:'Velador Cali', precio:55900, badge:null, medida:'Velador de mesa', variantes: MAT_ALL, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'cali', nombre:'Velador Cali', precio:55900, badge:null, medida:'Velador de mesa', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'ona', nombre:'Velador Ona Set x2', precio:155900, badge:null, medida:'Set de 2 unidades', variantes:[], ficha: mkFicha('Fibra natural', ORIGEN_IMP, null, 'Se vende en set de 2') },
     { id:'duomo', nombre:'Velador Duomo Set x2', precio:155900, badge:null, medida:'Set de 2 unidades', variantes:[], ficha: mkFicha('Fibra natural', ORIGEN_IMP, null, 'Se vende en set de 2') },
   ],
@@ -1238,7 +1252,10 @@ const FOTOS = {
   'viena':        { default:'col_viena_rattan' },
   // COLGANTES — medida (Tipo B)
   'vicenza':      { '16×65cm':'col_vicenza_16x65cm', '35×55cm':'col_vicenza_35x55cm', '50×80cm':'col_vicenza_50x80cm' },
-  'liguria':      { '50×25cm':'col_liguria_RT_50x25cm', '60×45cm':'col_liguria_rn_40x40cm', '60×60cm':'col_liguria_40x40cm', '40×40cm':'col_liguria_20x30x50cm' },
+  'liguria':      { '20×30×50cm':'col_liguria_20x30x50cm' },
+  'liguria-2':    { default:'col_liguria_RT_50x25cm' },
+  'liguria-3':    { default:'col_liguria_rn_40x40cm' },
+  'liguria-4':    { default:'col_liguria_40x40cm' },
   // VELADORES
   'capri':        { Negro:'vel_capri_negro', Blanco:'vel_capri_blanco', 'Simil madera clara con negro':'vel_capri_madera' },
   'indi-mesa':    { PKT:'vel_indi_pkt' },
@@ -1396,7 +1413,7 @@ function buildCardCompact(p, pi, cat){
       <div class="card-vsel-compact" id="vsel-${p.id}">${varSel||''}</div>
       ${getMedidaHTML(p)}
       <div class="card-bottom-compact">
-        <div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>
+        ${p.descuento ? `<div><div style="font-size:9px;color:var(--gris);text-decoration:line-through;">${fmt(precioInicialCompact)}</div><div class="precio-compact" id="precio-${p.id}">${fmt(Math.round(precioInicialCompact*(1-parseInt(p.descuento)/100)))}</div></div>` : `<div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>`}
         <div class="card-bottom-actions">
           ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Info</button>`:''}
           <button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>
@@ -1436,10 +1453,10 @@ function buildCardFull(p, pi, cat){
           <div class="card-full-vsel" id="vsel-${p.id}">${varSel||'Sin variantes'}</div>
           ${getMedidaHTMLFull(p)}
         </div>
-        <div class="card-full-bottom">
+        <div class="card-full-bottom${p.variantes.length >= 3 ? ' card-full-bottom-stacked' : ''}">
           <div>
             <div class="precio-full-label">Precio unidad</div>
-            <div class="precio-full" id="precio-${p.id}">${fmt(precioInicialFull)}</div>
+            ${p.descuento ? `<div style="font-size:10px;color:var(--gris);text-decoration:line-through;">${fmt(precioInicialFull)}</div><div class="precio-full" id="precio-${p.id}">${fmt(Math.round(precioInicialFull*(1-parseInt(p.descuento)/100)))}</div>` : `<div class="precio-full" id="precio-${p.id}">${fmt(precioInicialFull)}</div>`}
           </div>
           <div style="display:flex;gap:6px;align-items:center;">
             ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Ficha</button>`:''}
@@ -1754,7 +1771,6 @@ const MEDIDAS = {
   'mini-firenze':   [{m:'15×30cm',p:47900},{m:'30×25cm',p:54900}],
   'cinque-terre':   [{m:'40×35cm',p:171900},{m:'60×54cm',p:221900},{m:'80×70cm',p:318900}],
   'vicenza':        [{m:'16×65cm',p:37900},{m:'35×55cm',p:78900},{m:'50×80cm',p:97900}],
-  'liguria':        [{m:'50×25cm',p:52900},{m:'60×45cm',p:99900},{m:'60×60cm',p:109900},{m:'40×40cm',p:145000}],
   'varapodio':      [{m:'35×25cm',p:205900},{m:'50×46cm',p:239900}],
   'matera':         [{m:'36×34cm',p:79900,stock:false},{m:'45×42cm',p:79900}],
   'avellino':       [{m:'10×32×20cm',p:63900,stock:false},{m:'15×55×20cm',p:63900},{m:'15×45×26cm',p:63900}],
@@ -1886,29 +1902,55 @@ async function cargarDesdeSheets() {
     const text = await res.text();
     const rows = parseCSV(text);
 
-    // Solo actualizar precio, stock, badge y descuento desde el Sheet
-    // El resto (variantes, orden, medidas, fichas) lo maneja el código local
-    const sheetData = {};
+    // Resetear productos
+    const cats = { colgantes:[], veladores:[], pie:[], apliques:[] };
+
+    // Mapa de abreviaturas a nombres completos
+    const VAR_MAP = {
+      'PKT':'Hilo de papel kraft tostado','PKN':'Hilo de papel kraft negro',
+      'CH':'Cordón Habano','CN':'Cordón Natural','CNG':'Cordón Negro','CG':'Cordón Gris',
+      'Negro':'Negro','Blanco':'Blanco','Simil madera clara con negro':'Simil madera clara con negro',
+      'Kraft+Yute Tostado':'Hilo de papel kraft tostado y yute tostado',
+      'Kraft+Yute Negro':'Hilo de papel kraft negro y yute negro',
+    };
+
     rows.forEach(r => {
-      if(!r.id) return;
-      if(!sheetData[r.id]) sheetData[r.id] = { precio: r.precio, stock: r.stock, badge: r.badge, descuento: r.descuento, activo: r.activo };
+      if(!r.id || r.activo === 'NO') return;
+      const cat = r.categoria;
+      if(!cats[cat]) return;
+
+      // Parsear variantes desde campo separado por |
+      const variantes = r.variantes ? r.variantes.split('|').map(v => VAR_MAP[v.trim()] || v.trim()).filter(Boolean) : [];
+
+      // Determinar origen
+      const mat = r.material || '';
+      const origen = (mat.includes('Rattan')||mat.includes('Seagrass')||mat.includes('Bamboo')||mat.includes('Yute')||mat.includes('banano')||mat.includes('Fibra')) ? ORIGEN_IMP : ORIGEN_PROPIO;
+
+      const p = {
+        id:        r.id,
+        nombre:    r.nombre,
+        precio:    parseInt(r.precio) || 0,
+        badge:     r.badge || null,
+        medida:    r.medida || '',
+        material:  mat,
+        categoria: cat,
+        stock:     r.stock || 'SI',
+        pvp:       parseInt(r.pvp) || null,
+        descuento: r.descuento || null,
+        usos:      r.usos || null,
+        variantes: variantes,
+        ficha:     mkFicha(mat, origen, parseInt(r.pvp)||null, null),
+        _cat:      cat,
+      };
+      cats[cat].push(p);
     });
 
-    // Aplicar datos del Sheet a los productos locales
-    Object.keys(PRODUCTOS).forEach(cat => {
-      PRODUCTOS[cat] = PRODUCTOS[cat].filter(p => {
-        const s = sheetData[p.id];
-        if(!s) return true; // Si no está en Sheet, mantener
-        if(s.activo === 'NO') return false; // Ocultar si inactivo
-        if(s.precio) p.precio = parseInt(s.precio) || p.precio;
-        if(s.stock) p.stock = s.stock;
-        if(s.badge !== undefined) p.badge = s.badge || null;
-        if(s.descuento) p.descuento = s.descuento;
-        return true;
-      });
+    // Actualizar PRODUCTOS con los del Sheet (si hay datos)
+    Object.keys(cats).forEach(cat => {
+      if(cats[cat].length > 0) PRODUCTOS[cat] = cats[cat];
     });
 
-    console.log('✓ Precios y estados actualizados desde Sheets');
+    console.log('✓ Productos cargados desde Sheets');
   } catch(e) {
     console.warn('No se pudo cargar desde Sheets, usando datos locales:', e);
   }
