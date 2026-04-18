@@ -577,47 +577,61 @@ async function cargarTodo() {
 }
 
 async function cargarProductos() {
-  // Leer hoja Productos del Sheet
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Productos`;
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=0&single=true&output=csv';
+  const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent(csvUrl);
   try {
     const res = await fetch(url);
-    const text = await res.text();
-    const json = JSON.parse(text.substring(47, text.length - 2));
-    const rows = json.table.rows;
-    productosData = rows.map(r => ({
-      id:        r.c[0]?.v || '',
-      nombre:    r.c[1]?.v || '',
-      categoria: r.c[2]?.v || '',
-      variante:  r.c[3]?.v || '',
-      precio:    r.c[4]?.v || 0,
-      medida:    r.c[5]?.v || '',
-      material:  r.c[6]?.v || '',
-      badge:     r.c[7]?.v || '',
-      stock:     r.c[8]?.v || 'SI',
-      activo:    r.c[9]?.v || 'SI',
-      foto:      r.c[10]?.v || '',
-    }));
+    const data = await res.json();
+    const text = data.contents;
+    const lines = text.trim().split('\n');
+    const headers = parseCSVLine(lines[0]);
+    productosData = lines.slice(1).map(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h,i) => obj[h.trim()] = (vals[i]||'').trim());
+      return {
+        id:        obj.id || '',
+        nombre:    obj.nombre || '',
+        categoria: obj.categoria || '',
+        variante:  obj.variante || '',
+        precio:    parseInt(obj.precio) || 0,
+        medida:    obj.medida || '',
+        material:  obj.material || '',
+        badge:     obj.badge || '',
+        stock:     obj.stock || 'SI',
+        activo:    obj.activo || 'SI',
+        foto:      obj.foto || '',
+        pvp:       obj.pvp || '',
+        descuento: obj.descuento || '',
+        usos:      obj.usos || '',
+        nota:      obj.nota || '',
+      };
+    }).filter(p => p.id);
     renderProductos(productosData);
     actualizarStats();
     document.getElementById('badge-productos').textContent = productosData.length;
   } catch(e) {
     document.getElementById('tabla-productos-wrap').innerHTML = `<div class="cargando">No se pudo conectar con Google Sheets.<br>Verificá que la planilla sea pública.</div>`;
-    // Mostrar productos de ejemplo si no hay conexión
-    cargarProductosEjemplo();
   }
 }
 
-function cargarProductosEjemplo() {
-  productosData = [
-    { id:'carmina', nombre:'Colgante Carmina', categoria:'colgantes', variante:'PKT', precio:93900, medida:'40×25cm', material:'Kraft tejido a mano', badge:'', stock:'SI', activo:'SI', foto:'col_carmina_pkt' },
-    { id:'carmina', nombre:'Colgante Carmina', categoria:'colgantes', variante:'PKN', precio:93900, medida:'40×25cm', material:'Kraft tejido a mano', badge:'', stock:'SI', activo:'SI', foto:'col_carmina_pkn' },
-    { id:'mesina', nombre:'Colgante Mesina', categoria:'colgantes', variante:'PKT', precio:111900, medida:'60cm', material:'Kraft tejido a mano', badge:'best', stock:'SI', activo:'SI', foto:'col_mesina_pkt' },
-    { id:'mesina', nombre:'Colgante Mesina', categoria:'colgantes', variante:'PKN', precio:119900, medida:'70cm', material:'Kraft tejido a mano', badge:'best', stock:'SI', activo:'SI', foto:'col_mesina_pkn' },
-    { id:'vicenza', nombre:'Colgante Vicenza', categoria:'colgantes', variante:'', precio:37900, medida:'16×65cm', material:'Bamboo', badge:'', stock:'SI', activo:'SI', foto:'col_vicenza_16x65cm' },
-  ];
-  renderProductos(productosData);
-  actualizarStats();
-  document.getElementById('badge-productos').textContent = productosData.length;
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for(let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if(ch === '"') {
+      if(inQuotes && line[i+1] === '"') { cur += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if(ch === ',' && !inQuotes) {
+      result.push(cur); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
 }
 
 async function cargarPedidos() {
