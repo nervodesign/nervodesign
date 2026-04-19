@@ -617,15 +617,15 @@
     .ficha-panel.visible { bottom:0; }
   }
 
-  /* MOBILE: card-full en 1 columna */
+  /* MOBILE: card-full en 1 columna, imagen arriba */
   .grid-1col {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1px;
     background: var(--arena);
   }
-  .card-full-inner { flex-direction: row; }
-  .card-full-img { width:160px; flex-shrink:0; aspect-ratio:auto; height:auto; min-height:200px; }
+  .card-full-inner { flex-direction: column; }
+  .card-full-img { width:100%; aspect-ratio:4/5; height:auto; }
   .card-full-variantes {
     width:100%; flex-direction:row; flex-wrap:wrap;
     padding:5px 6px; gap:3px;
