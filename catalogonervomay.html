@@ -617,15 +617,15 @@
     .ficha-panel.visible { bottom:0; }
   }
 
-  /* MOBILE: card-full en grilla 2 columnas */
+  /* MOBILE: card-full en 1 columna */
   .grid-1col {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1px;
     background: var(--arena);
   }
-  .card-full-inner { flex-direction: column; }
-  .card-full-img { width:100%; aspect-ratio:1; height:auto; }
+  .card-full-inner { flex-direction: row; }
+  .card-full-img { width:160px; flex-shrink:0; aspect-ratio:auto; height:auto; min-height:200px; }
   .card-full-variantes {
     width:100%; flex-direction:row; flex-wrap:wrap;
     padding:5px 6px; gap:3px;
@@ -1299,12 +1299,14 @@ function imgContent(p, varSel, color, badge) {
   const url = fotoURL(p, varSel);
   return `${badge}
     <img src="${url}" 
-      style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"
+      style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;pointer-events:none;"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      draggable="false"
     />
     <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;position:absolute;top:0;left:0;">
       ${lampSVG(color)}
-    </span>`;
+    </span>
+    <span style="position:absolute;bottom:6px;right:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:8px;letter-spacing:2px;color:rgba(255,255,255,0.28);text-transform:uppercase;pointer-events:none;user-select:none;text-shadow:0 1px 2px rgba(0,0,0,0.3);">NERVO DESIGN</span>`;
 }
 
 function lampSVG(color){
@@ -1787,12 +1789,14 @@ function getMedidaActual(pid) {
 
 function selMed(pid, idx, cat) {
   selMedida[pid] = idx;
-  const m = MEDIDAS[pid][idx];
+  const p = PRODUCTOS[cat] ? PRODUCTOS[cat].find(x=>x.id===pid) : null;
+  const meds = p ? getMedidasDelProducto(p) : null;
+  const m = meds ? meds[idx] : null;
   // update botones
   document.querySelectorAll(`.btn-medida[data-pid="${pid}"]`).forEach((b,i)=>b.classList.toggle('activa',i===idx));
   // update precio
   const precioEl = document.getElementById(`precio-${pid}`);
-  if(precioEl) {
+  if(precioEl && m) {
     if(m.stock === false) {
       precioEl.textContent = 'Sin stock';
       precioEl.style.color = 'var(--gris)';
@@ -1805,7 +1809,7 @@ function selMed(pid, idx, cat) {
   }
   // update boton agregar
   const btnEl = document.getElementById(`ba-${pid}`);
-  if(btnEl) {
+  if(btnEl && m) {
     if(m.stock === false) {
       btnEl.style.opacity = '0.4';
       btnEl.style.pointerEvents = 'none';
@@ -1815,7 +1819,6 @@ function selMed(pid, idx, cat) {
     }
   }
   // update foto si es Tipo B
-  const p = PRODUCTOS[cat] ? PRODUCTOS[cat].find(x=>x.id===pid) : null;
   if(p && p.variantes.length === 0 && FOTOS[pid]) {
     const imgEl = document.getElementById(`img-${pid}`);
     if(imgEl) {
@@ -1825,22 +1828,29 @@ function selMed(pid, idx, cat) {
   }
 }
 
+function getMedidasDelProducto(p) {
+  return p.medidas_precio || MEDIDAS[p.id] || null;
+}
+
 function getPrecio(p) {
-  if(MEDIDAS[p.id]) return getMedidaActual(p.id).p;
+  const meds = getMedidasDelProducto(p);
+  if(meds) return meds[selMedida[p.id]??0].p;
   return p.precio;
 }
 
 function getMedidaHTML(p) {
-  if(!MEDIDAS[p.id]) return `<div class="card-medida-compact">${p.medida}</div>`;
-  const btns = MEDIDAS[p.id].map((m,i)=>
+  const meds = getMedidasDelProducto(p);
+  if(!meds) return `<div class="card-medida-compact">${p.medida}</div>`;
+  const btns = meds.map((m,i)=>
     `<button class="btn-medida${i===0?' activa':''}${m.stock===false?' btn-medida-sinstock':''}" data-pid="${p.id}" onclick="selMed('${p.id}',${i},'${p._cat}')" ${m.stock===false?'title="Sin stock"':''}>${m.m}${m.stock===false?' ✕':''}</button>`
   ).join('');
   return `<div class="medidas-row">${btns}</div>`;
 }
 
 function getMedidaHTMLFull(p) {
-  if(!MEDIDAS[p.id]) return `<div class="card-full-medida">${p.medida}</div>`;
-  const btns = MEDIDAS[p.id].map((m,i)=>
+  const meds = getMedidasDelProducto(p);
+  if(!meds) return `<div class="card-full-medida">${p.medida}</div>`;
+  const btns = meds.map((m,i)=>
     `<button class="btn-medida${i===0?' activa':''}${m.stock===false?' btn-medida-sinstock':''}" data-pid="${p.id}" onclick="selMed('${p.id}',${i},'${p._cat}')" ${m.stock===false?'title="Sin stock"':''}>${m.m}${m.stock===false?' ✕':''}</button>`
   ).join('');
   return `<div class="medidas-row">${btns}</div>`;
@@ -1926,12 +1936,26 @@ async function cargarDesdeSheets() {
       const mat = r.material || '';
       const origen = (mat.includes('Rattan')||mat.includes('Seagrass')||mat.includes('Bamboo')||mat.includes('Yute')||mat.includes('banano')||mat.includes('Fibra')) ? ORIGEN_IMP : ORIGEN_PROPIO;
 
+      // Parsear medidas con precios desde campo medidas_precio
+      let medidasPrecio = null;
+      if(r.medidas_precio) {
+        medidasPrecio = r.medidas_precio.split('|').map(m => {
+          const parts = m.split(':');
+          return {
+            m: parts[0],
+            p: parseInt(parts[1]) || parseInt(r.precio),
+            stock: parts[2] === 'NO' ? false : true
+          };
+        });
+      }
+
       const p = {
         id:        r.id,
         nombre:    r.nombre,
         precio:    parseInt(r.precio) || 0,
         badge:     r.badge || null,
         medida:    r.medida || '',
+        medidas_precio: medidasPrecio,
         material:  mat,
         categoria: cat,
         stock:     r.stock || 'SI',
@@ -2028,6 +2052,10 @@ function renderCombos() {
     grid.appendChild(card);
   });
 }
+
+// Protección de imágenes
+document.addEventListener('contextmenu', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
+document.addEventListener('dragstart', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
 
 // Arrancar
 cargarDesdeSheets();
