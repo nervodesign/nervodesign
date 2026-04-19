@@ -685,7 +685,7 @@ function renderProductos(data) {
           <div style="font-weight:500;font-size:12px;">${p.nombre}</div>
           <div style="font-size:10px;color:var(--gris);">${p.categoria}</div>
         </td>
-        <td style="font-size:11px;">${p.variante || '—'}</td>
+        <td style="font-size:11px;">${p.variantes || '—'}</td>
         <td style="font-size:11px;">${p.medida || '—'}</td>
         <td style="font-weight:500;">$${Number(p.precio).toLocaleString('es-AR')}${descuento}</td>
         <td><span style="${badgeStyle}">${badgeText}</span></td>
@@ -763,7 +763,7 @@ function filtrarProductos(q) {
   const f = productosData.filter(p =>
     p.nombre.toLowerCase().includes(q.toLowerCase()) ||
     p.categoria.toLowerCase().includes(q.toLowerCase()) ||
-    p.variante.toLowerCase().includes(q.toLowerCase())
+    p.variantes.toLowerCase().includes(q.toLowerCase())
   );
   renderProductos(f);
 }
@@ -790,7 +790,7 @@ function toggleActivo(i) {
   renderProductos(productosData);
   actualizarStats();
   // Guardar en Sheets
-  guardarEnSheets({ tipo:'toggleActivo', id:productosData[i].id, variante:productosData[i].variante, activo:productosData[i].activo });
+  guardarEnSheets({ tipo:'toggleActivo', id:productosData[i].id, variante:productosData[i].variantes, activo:productosData[i].activo });
 }
 
 // ─── EDITAR ───────────────────────────────────────────
@@ -808,7 +808,7 @@ function editarProducto(i) {
   document.getElementById('edit-precio').value = p.precio;
   document.getElementById('edit-medidas-precio').value = p.medidas_precio || '';
   document.getElementById('edit-medida').value = p.medida;
-  document.getElementById('edit-variantes').value = p.variante;
+  document.getElementById('edit-variantes').value = p.variantes;
   document.getElementById('edit-stock').value = p.stock;
   document.getElementById('edit-activo').value = p.activo;
   document.getElementById('edit-usos').value = p.usos || '';
@@ -832,29 +832,35 @@ function editarProducto(i) {
 }
 
 function guardarProducto() {
-  const i = parseInt(document.getElementById('edit-idx').value);
-  const badgeSel = document.getElementById('edit-badge').value;
-  const badgeFinal = badgeSel === 'custom' ? document.getElementById('edit-badge-custom').value : badgeSel;
+  try {
+    const i = parseInt(document.getElementById('edit-idx').value);
+    const badgeSel = document.getElementById('edit-badge').value;
+    const badgeFinal = badgeSel === 'custom' ? document.getElementById('edit-badge-custom').value : badgeSel;
 
-  productosData[i].nombre     = document.getElementById('edit-nombre').value;
-  productosData[i].categoria  = document.getElementById('edit-categoria').value;
-  productosData[i].precio     = parseInt(document.getElementById('edit-precio').value);
-  productosData[i].medidas_precio = document.getElementById('edit-medidas-precio').value;
-  productosData[i].medida     = document.getElementById('edit-medida').value;
-  productosData[i].variante   = document.getElementById('edit-variantes').value;
-  productosData[i].stock      = document.getElementById('edit-stock').value;
-  productosData[i].activo     = document.getElementById('edit-activo').value;
-  productosData[i].usos       = document.getElementById('edit-usos').value;
-  productosData[i].nota       = document.getElementById('edit-nota').value;
-  productosData[i].pvp        = document.getElementById('edit-pvp').value;
-  productosData[i].badge      = badgeFinal;
-  productosData[i].descuento  = document.getElementById('edit-descuento').value;
+    productosData[i].nombre     = document.getElementById('edit-nombre').value;
+    productosData[i].categoria  = document.getElementById('edit-categoria').value;
+    productosData[i].precio     = parseInt(document.getElementById('edit-precio').value);
+    productosData[i].medidas_precio = document.getElementById('edit-medidas-precio').value;
+    productosData[i].medida     = document.getElementById('edit-medida').value;
+    productosData[i].variantes   = document.getElementById('edit-variantes').value;
+    productosData[i].stock      = document.getElementById('edit-stock').value;
+    productosData[i].activo     = document.getElementById('edit-activo').value;
+    productosData[i].usos       = document.getElementById('edit-usos').value;
+    productosData[i].nota       = document.getElementById('edit-nota').value;
+    productosData[i].pvp        = document.getElementById('edit-pvp').value;
+    productosData[i].badge      = badgeFinal;
+    productosData[i].descuento  = document.getElementById('edit-descuento').value;
 
-  renderProductos(productosData);
-  actualizarStats();
-  cerrarModal();
-  guardarEnSheets({ tipo:'editarProducto', producto:productosData[i] });
-  mostrarToast('Cambios guardados ✓');
+    renderProductos(productosData);
+    actualizarStats();
+    cerrarModal();
+    guardarEnSheets({ tipo:'editarProducto', producto:productosData[i] });
+    mostrarToast('Cambios guardados ✓');
+  } catch(err) {
+    console.error('Error al guardar:', err);
+    cerrarModal();
+    mostrarToast('Error al guardar: ' + err.message);
+  }
 }
 
 // ─── PROMOS ───────────────────────────────────────────
