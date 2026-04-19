@@ -498,7 +498,11 @@ Válido hasta el 30/04
         <input type="text" id="edit-badge-custom" placeholder="Ej: 2x1, Liquidación, Solo esta semana...">
       </div>
       <div class="campo">
-        <label>Material / Medida</label>
+        <label>Medidas con precio (formato: 40×25cm:93900|50×30cm:103900 — agregá :NO al final para sin stock)</label>
+        <textarea id="edit-medidas-precio" placeholder="40×25cm:93900|50×30cm:103900|65×40cm:118900"></textarea>
+      </div>
+      <div class="campo">
+        <label>Medida (texto descriptivo)</label>
         <input type="text" id="edit-medida">
       </div>
       <div class="campo">
@@ -577,31 +581,23 @@ async function cargarTodo() {
 }
 
 async function cargarProductos() {
-  const url = 'https://script.google.com/macros/s/AKfycbxVfyeidTo2G7kmNAtAHsugElaQYoRXKgaQH0hYJR3YPxeLyY3JlqeB7zsNooq84rIGzw/exec?sheet=Productos';
+  const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=0&single=true&output=csv';
   try {
-    const res = await fetch(url);
-    const rows = await res.json();
-    productosData = rows.filter(r => r.id).map(r => ({
-      id:        r.id || '',
-      nombre:    r.nombre || '',
-      categoria: r.categoria || '',
-      variante:  r.variante || '',
-      precio:    parseInt(r.precio) || 0,
-      medida:    r.medida || '',
-      material:  r.material || '',
-      badge:     r.badge || '',
-      stock:     r.stock || 'SI',
-      activo:    r.activo || 'SI',
-      foto:      r.foto || '',
-      pvp:       r.pvp || '',
-      descuento: r.descuento || '',
-      usos:      r.usos || '',
-      nota:      r.nota || '',
-    }));
+    const res = await fetch(url, {mode:'cors'});
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    const headers = parseCSVLine(lines[0]);
+    productosData = lines.slice(1).map(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h,i) => obj[h.trim()] = (vals[i]||'').trim());
+      return obj;
+    }).filter(p => p.id);
     renderProductos(productosData);
     actualizarStats();
     document.getElementById('badge-productos').textContent = productosData.length;
   } catch(e) {
+    console.error(e);
     document.getElementById('tabla-productos-wrap').innerHTML = `<div class="cargando">No se pudo conectar con Google Sheets.<br>Verificá que la planilla sea pública.</div>`;
   }
 }
@@ -810,6 +806,7 @@ function editarProducto(i) {
   document.getElementById('edit-nombre').value = p.nombre;
   document.getElementById('edit-categoria').value = p.categoria;
   document.getElementById('edit-precio').value = p.precio;
+  document.getElementById('edit-medidas-precio').value = p.medidas_precio || '';
   document.getElementById('edit-medida').value = p.medida;
   document.getElementById('edit-variantes').value = p.variante;
   document.getElementById('edit-stock').value = p.stock;
@@ -842,6 +839,7 @@ function guardarProducto() {
   productosData[i].nombre     = document.getElementById('edit-nombre').value;
   productosData[i].categoria  = document.getElementById('edit-categoria').value;
   productosData[i].precio     = parseInt(document.getElementById('edit-precio').value);
+  productosData[i].medidas_precio = document.getElementById('edit-medidas-precio').value;
   productosData[i].medida     = document.getElementById('edit-medida').value;
   productosData[i].variante   = document.getElementById('edit-variantes').value;
   productosData[i].stock      = document.getElementById('edit-stock').value;
