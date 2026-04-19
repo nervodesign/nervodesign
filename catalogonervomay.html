@@ -1234,6 +1234,7 @@ const FOTOS = {
   'arauco':       { default:'col_arauco_bamboo' },
   'amalfi':       { CH:'col_amalfi_ch', CN:'col_amalfi_cn' },
   'bolzano':      { default:'col_bolzano_yute' },
+  'avellino':     { default:'col_avellino' },
   'castellana':   { default:'col_castellana_seagrass' },
   'cinque-terre': { default:'col_cinque_terre' },
   'lombardia':    { default:'col_lombardia' },
@@ -1711,15 +1712,15 @@ function abrirFicha(pid) {
       <span style="color:var(--dorado);">✦</span> Embalaje sin costo — pluribol, cartón corrugado y film de protección
     </div>
 
-    ${f.usos ? `
+    ${(p.usos || f.usos) ? `
     <div class="ficha-seccion-titulo">Usos sugeridos</div>
-    <div style="font-size:11px;color:var(--gris);line-height:1.8;">${f.usos}</div>` : ''}
+    <div style="font-size:11px;color:var(--gris);line-height:1.8;">${p.usos || f.usos}</div>` : ''}
 
-    ${pvp ? `
+    ${(p.pvp || pvp) ? `
     <div class="ficha-pvp">
       <div>
         <div class="ficha-pvp-label">PVP sugerido</div>
-        <div class="ficha-pvp-precio">${fmt(pvp)}</div>
+        <div class="ficha-pvp-precio">${fmt(p.pvp || pvp)}</div>
         ${margen ? `<div class="ficha-pvp-margen">Margen aprox. ${margen}%</div>` : ''}
       </div>
     </div>` : ''}
