@@ -1274,15 +1274,20 @@ const FOTOS = {
 // Devuelve la URL de la foto correspondiente
 function fotoURL(p, varSel) {
   const mapa = FOTOS[p.id];
-  if(!mapa) return null;
+
+  // Si no hay mapa pero tiene foto en el Sheet, usarla directamente
+  if(!mapa) {
+    if(p.foto) return `${CDN}/${p.foto}.png`;
+    return null;
+  }
 
   let key = 'default';
 
   // Tipo B: medida cambia foto (sin variante de color) — solo si hay múltiples fotos en el mapa
-  if(p.variantes.length === 0 && MEDIDAS[p.id]) {
+  if(p.variantes.length === 0 && getMedidasDelProducto(p)) {
     const mi = selMedida[p.id] ?? 0;
-    const medKey = MEDIDAS[p.id][mi].m;
-    // Solo usar la medida como key si existe en el mapa
+    const meds = getMedidasDelProducto(p);
+    const medKey = meds[mi].m;
     if(mapa[medKey]) key = medKey;
   }
   // Tipo A: color cambia foto
@@ -1291,7 +1296,8 @@ function fotoURL(p, varSel) {
   }
 
   const archivo = mapa[key] || mapa['default'] || Object.values(mapa)[0];
-  if(!archivo) return null;
+  // Si no encuentra en el mapa, usar foto del Sheet
+  if(!archivo) return p.foto ? `${CDN}/${p.foto}.png` : null;
   return `${CDN}/${archivo}.png`;
 }
 
@@ -1419,7 +1425,7 @@ function buildCardCompact(p, pi, cat){
         ${p.descuento ? `<div><div style="font-size:9px;color:var(--gris);text-decoration:line-through;">${fmt(precioInicialCompact)}</div><div class="precio-compact" id="precio-${p.id}">${fmt(Math.round(precioInicialCompact*(1-parseInt(p.descuento)/100)))}</div></div>` : `<div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>`}
         <div class="card-bottom-actions">
           ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Info</button>`:''}
-          <button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>
+          ${p.stock === 'NO' ? `<button class="btn-agregar-compact" style="opacity:0.4;pointer-events:none;">Sin stock</button>` : `<button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
         </div>
       </div>
     </div>`;
@@ -1463,7 +1469,7 @@ function buildCardFull(p, pi, cat){
           </div>
           <div style="display:flex;gap:6px;align-items:center;">
             ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Ficha</button>`:''}
-            <button class="btn-agregar-full" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>
+            ${p.stock === 'NO' ? `<button class="btn-agregar-full" style="opacity:0.4;pointer-events:none;">Sin stock</button>` : `<button class="btn-agregar-full" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
           </div>
         </div>
       </div>
@@ -1557,7 +1563,8 @@ function agregar(pid, cat){
   const mi=selMedida[pid]??0;
   const medInfo=MEDIDAS[pid]?MEDIDAS[pid][mi]:null;
 
-  // Bloquear si sin stock
+  // Bloquear si sin stock (producto o medida)
+  if(p.stock === 'NO') return;
   if(medInfo && medInfo.stock === false) return;
 
   const precioFinal=medInfo?medInfo.p:p.precio;
