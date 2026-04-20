@@ -338,6 +338,8 @@
     margin:0 -16px 24px;
   }
   .combos-grid { display:grid; grid-template-columns:1fr; gap:1px; background:var(--arena); }
+  .combos-grid-small { display:grid; grid-template-columns:1fr; gap:1px; background:var(--arena); margin-top:1px; }
+  .combo-card-small .combo-img-area { min-height:0; aspect-ratio:4/5; padding:0; overflow:hidden; }
 
   .combo-card { background:var(--blanco); overflow:hidden; transition:background 0.2s; }
   .combo-img-area {
@@ -345,8 +347,13 @@
     border-bottom:1px solid var(--arena);
     padding:20px 16px;
     display:flex; align-items:flex-end; justify-content:center;
-    gap:4px; min-height:100px;
+    gap:4px; min-height:180px;
   }
+  .combo-card-small .combo-img-area {
+    padding:0; overflow:hidden;
+    aspect-ratio:4/5; min-height:0;
+  }
+  .combo-img-area img { width:100%; height:100%; object-fit:cover; }
   .combo-card-body { padding:20px; }
   .combo-card:hover { background:var(--lino); }
   .combo-header { display:flex; align-items:center; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
@@ -661,6 +668,7 @@
     .seccion { padding:0 24px 48px; }
     .combos-wrap { padding:48px 24px; }
     .combos-grid { grid-template-columns:repeat(2,1fr); }
+    .combos-grid-small { grid-template-columns:repeat(2,1fr); }
 
     /* Grid compacto: 4 columnas en desktop */
     .grid-2col { grid-template-columns: repeat(4, 1fr); }
@@ -735,6 +743,7 @@
     <img src="https://raw.githubusercontent.com/nervodesign/nervodesign/main/logo_nervo.png" 
       alt="Nervo Design" 
       style="height:36px;width:auto;object-fit:contain;"
+      loading="eager"
       onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 52" width="150" height="39" aria-label="Nervo Design" style="display:none;">
       <text x="100" y="32" font-family="Didot,Georgia,serif" font-size="30" font-weight="700" fill="#251408" text-anchor="middle" letter-spacing="3">NERVO</text>
@@ -822,7 +831,7 @@
 
 <div id="combos" class="combos-wrap">
   <div class="combos-titulo">Combos</div>
-  <div class="combos-grid" id="grid-combos"></div>
+  <div id="grid-combos" style="display:flex;flex-direction:column;gap:1px;background:var(--arena);"></div>
 </div>
 
 <!-- CONDICIONES DE COMPRA -->
@@ -1124,28 +1133,6 @@ const COMBOS = [
     nota:'Todos incluyen kit eléctrico blanco o negro'
   },
   {
-    nombre:'Combo Asti x3',
-    foto:'combo_asti',
-    bajada:'Pack compacto para exhibir · Alta rotación',
-    desc:'-10%',
-    precio:267900, original:296700,
-    items:[
-      { nombre:'Colgante Asti x3', detalle:'3 unidades · Colores a elección' },
-    ],
-    nota:'Incluyen kit eléctrico blanco o negro'
-  },
-  {
-    nombre:'Combo Módena x3',
-    foto:'combo_modena',
-    bajada:'Minimalista y versátil · Muy buen margen',
-    desc:'-5%',
-    precio:176900, original:185900,
-    items:[
-      { nombre:'Colgante Módena x3', detalle:'30×30cm · Colores a elección' },
-    ],
-    nota:'Incluyen kit eléctrico blanco o negro'
-  },
-  {
     nombre:'Combo Premium x8',
     foto:'combo_premium',
     bajada:'Máxima rentabilidad · Top ventas temporada',
@@ -1160,11 +1147,24 @@ const COMBOS = [
     nota:'Todos incluyen kit eléctrico blanco o negro'
   },
   {
+    nombre:'Combo Asti x3',
+    foto:'combo_asti',
+    bajada:'Pack compacto para exhibir · Alta rotación',
+    desc:'-10%',
+    precio:267900, original:296700,
+    small: true,
+    items:[
+      { nombre:'Colgante Asti x3', detalle:'3 unidades · Colores a elección' },
+    ],
+    nota:'Incluyen kit eléctrico blanco o negro'
+  },
+  {
     nombre:'Combo Taormina x3',
     foto:'combo_taormina',
     bajada:'Natural y versátil · Excelente salida en decoración',
     desc:'-6%',
     precio:123900, original:131700,
+    small: true,
     items:[
       { nombre:'Colgante Taormina x3', detalle:'25×27cm · Seagrass natural artesanal' },
     ],
@@ -1253,14 +1253,16 @@ const FOTOS = {
   'viena':        { default:'col_viena_rattan' },
   // COLGANTES — medida (Tipo B)
   'vicenza':      { '16×65cm':'col_vicenza_16x65cm', '35×55cm':'col_vicenza_35x55cm', '50×80cm':'col_vicenza_50x80cm' },
-  'liguria':      { '20×30×50cm':'col_liguria_20x30x50cm' },
+  'liguria':      { default:'col_liguria_20x30x50cm' },
   'liguria-2':    { default:'col_liguria_RT_50x25cm' },
   'liguria-3':    { default:'col_liguria_rn_40x40cm' },
   'liguria-4':    { default:'col_liguria_40x40cm' },
+  'liguria-5':    { default:'col_liguria_60x45cm' },
+  'liguria-6':    { default:'col_liguria_40x45x60cm' },
   // VELADORES
   'capri':        { Negro:'vel_capri_negro', Blanco:'vel_capri_blanco', 'Simil madera clara con negro':'vel_capri_madera' },
   'indi-mesa':    { PKT:'vel_indi_pkt' },
-  'ona':          { default:'vel_ona' },
+  'cali':         { CH:'vel_cali_ch' },
   'duomo':        { default:'vel_duomo' },
   // PIE
   'amapola':      { PKN:'pie_amapola_pkn', PKT:'pie_amapola_pkt' },
@@ -1308,6 +1310,7 @@ function imgContent(p, varSel, color, badge) {
     <img src="${url}" 
       style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;pointer-events:none;"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      loading="lazy"
       draggable="false"
     />
     <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;position:absolute;top:0;left:0;">
@@ -1866,6 +1869,7 @@ function getMedidaHTMLFull(p) {
 
 // ── CARGA DESDE GOOGLE SHEETS ──────────────────────────
 const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=0&single=true&output=csv';
+const COMBOS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfW1YpT06l_iM_sMxhzpChXW82s0Vxak7w2P3OgGvWi5oPtJd_-8NkxQIm9GVMB7BI_U1zTq-DtVSt/pub?gid=1834184301&single=true&output=csv';
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
@@ -1987,6 +1991,36 @@ async function cargarDesdeSheets() {
     console.warn('No se pudo cargar desde Sheets, usando datos locales:', e);
   }
 
+  // Cargar combos desde Sheet
+  try {
+    const resC = await fetch(COMBOS_CSV);
+    const textC = await resC.text();
+    const combosRows = parseCSV(textC);
+    if(combosRows.length > 0) {
+      COMBOS.length = 0; // limpiar array
+      combosRows.forEach(r => {
+        if(!r.id) return;
+        const items = r.items ? r.items.split('|').map(it => {
+          const parts = it.split(':');
+          return { nombre: parts[0], detalle: parts[1] || '' };
+        }) : [];
+        COMBOS.push({
+          nombre:   r.nombre,
+          foto:     r.foto || null,
+          bajada:   r.bajada || '',
+          desc:     r.desc || '',
+          precio:   parseInt(r.precio) || 0,
+          original: parseInt(r.original) || 0,
+          nota:     r.nota || '',
+          small:    r.small === 'SI',
+          items:    items,
+        });
+      });
+    }
+  } catch(e) {
+    console.warn('No se pudieron cargar combos desde Sheet:', e);
+  }
+
   // Renderizar siempre
   renderSeccion('colgantes');
   renderSeccion('veladores');
@@ -2016,49 +2050,71 @@ function renderCombos() {
   var grid = document.getElementById('grid-combos');
   if(!grid) return;
   grid.innerHTML = '';
-  COMBOS.forEach(function(c, i) {
-    var imgArea = '';
-    if(c.foto) {
-      var fotoURL = CDN + '/' + c.foto + '.png';
-      imgArea = '<div class="combo-img-area" style="padding:0;overflow:hidden;">' +
-        '<img src="' + fotoURL + '" style="width:100%;height:100%;object-fit:cover;" ' +
-        'onerror="this.style.display=\'none\'">' +
-        '</div>';
-    } else {
-      imgArea = '<div class="combo-img-area">' + generarSVGsCombo(c) + '</div>';
-    }
 
-    // Items
-    var itemsHTML = '';
-    c.items.forEach(function(it) {
-      itemsHTML += '<div class="combo-item">' +
-        '<span class="combo-item-nombre">' + it.nombre + '</span>' +
-        '<span class="combo-item-detalle">' + it.detalle + '</span>' +
-        '</div>';
-    });
+  var grandes = COMBOS.filter(function(c) { return !c.small; });
+  var pequenos = COMBOS.filter(function(c) { return c.small; });
 
-    var card = document.createElement('div');
-    card.className = 'combo-card';
-    card.innerHTML =
-      imgArea +
-      '<div class="combo-card-body">' +
-        '<div class="combo-header">' +
-          '<span class="combo-nombre">' + c.nombre + '</span>' +
-          '<span class="combo-desc-tag">' + c.desc + '</span>' +
-        '</div>' +
-        '<div class="combo-bajada">' + c.bajada + '</div>' +
-        '<div class="combo-items">' + itemsHTML + '</div>' +
-        '<div class="combo-kit">' + c.nota + '</div>' +
-        '<div class="combo-bottom">' +
-          '<div>' +
-            '<div class="combo-original">' + fmt(c.original) + '</div>' +
-            '<div class="combo-precio">' + fmt(c.precio) + '</div>' +
-          '</div>' +
-          '<button class="btn-combo" onclick="agregarCombo(' + i + ')">Agregar</button>' +
-        '</div>' +
-      '</div>';
-    grid.appendChild(card);
+  // Grid principal para combos grandes
+  var gridGrande = document.createElement('div');
+  gridGrande.className = 'combos-grid';
+
+  grandes.forEach(function(c, i) {
+    gridGrande.appendChild(buildComboCard(c, COMBOS.indexOf(c), false));
   });
+  grid.appendChild(gridGrande);
+
+  // Grid 2 columnas para combos pequeños
+  if(pequenos.length > 0) {
+    var gridPequeno = document.createElement('div');
+    gridPequeno.className = 'combos-grid-small';
+    pequenos.forEach(function(c) {
+      gridPequeno.appendChild(buildComboCard(c, COMBOS.indexOf(c), true));
+    });
+    grid.appendChild(gridPequeno);
+  }
+}
+
+function buildComboCard(c, i, small) {
+  var imgArea = '';
+  if(c.foto) {
+    var fotoURL = CDN + '/' + c.foto + '.png';
+    imgArea = '<div class="combo-img-area" style="padding:0;overflow:hidden;">' +
+      '<img src="' + fotoURL + '" style="width:100%;height:100%;object-fit:cover;" ' +
+      'onerror="this.style.display=\'none\'" loading="lazy">' +
+      '</div>';
+  } else {
+    imgArea = '<div class="combo-img-area">' + generarSVGsCombo(c) + '</div>';
+  }
+
+  var itemsHTML = '';
+  c.items.forEach(function(it) {
+    itemsHTML += '<div class="combo-item">' +
+      '<span class="combo-item-nombre">' + it.nombre + '</span>' +
+      '<span class="combo-item-detalle">' + it.detalle + '</span>' +
+      '</div>';
+  });
+
+  var card = document.createElement('div');
+  card.className = 'combo-card' + (small ? ' combo-card-small' : '');
+  card.innerHTML =
+    imgArea +
+    '<div class="combo-card-body">' +
+      '<div class="combo-header">' +
+        '<span class="combo-nombre">' + c.nombre + '</span>' +
+        '<span class="combo-desc-tag">' + c.desc + '</span>' +
+      '</div>' +
+      '<div class="combo-bajada">' + c.bajada + '</div>' +
+      '<div class="combo-items">' + itemsHTML + '</div>' +
+      '<div class="combo-kit">' + c.nota + '</div>' +
+      '<div class="combo-bottom">' +
+        '<div>' +
+          '<div class="combo-original">' + fmt(c.original) + '</div>' +
+          '<div class="combo-precio">' + fmt(c.precio) + '</div>' +
+        '</div>' +
+        '<button class="btn-combo" onclick="agregarCombo(' + i + ')">Agregar</button>' +
+      '</div>' +
+    '</div>';
+  return card;
 }
 
 // Protección de imágenes
