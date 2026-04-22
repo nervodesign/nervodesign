@@ -187,6 +187,8 @@
   }
   .swatch:hover { transform:scale(1.15); }
   .swatch.activa { border-color:var(--chocolate); }
+  .swatch.swatch-sinstock { opacity:0.35; cursor:not-allowed; }
+  .swatch.swatch-sinstock::after { content:'✕'; position:absolute; font-size:8px; color:white; top:50%; left:50%; transform:translate(-50%,-50%); }
 
   /* Cuerpo card compacta */
   .card-body-compact {
@@ -1405,16 +1407,20 @@ function buildCardCompact(p, pi, cat){
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
   const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   
-  // swatches circulares
+  // swatches circulares con indicador de sin stock
   const swatches = p.variantes.map((v,vi2)=>{
     const c=C[v]||'#C4966A';
-    return `<div class="swatch ${vi2===vi?'activa':''}" onclick="selVarCompact('${p.id}',${vi2},'${cat}')" title="${v}" style="background:${c}"></div>`;
+    const abbr = VAR_ABBR[v] || v;
+    const sinStock = p.stock_variantes && p.stock_variantes[abbr] === 'NO';
+    return `<div class="swatch ${vi2===vi?'activa':''} ${sinStock?'swatch-sinstock':''}" onclick="selVarCompact('${p.id}',${vi2},'${cat}')" title="${v}${sinStock?' — Sin stock':''}" style="background:${c}"></div>`;
   }).join('');
 
   const div = document.createElement('div');
   div.className='card';
   div.style.animationDelay=(pi*0.05)+'s';
   const precioInicialCompact = getPrecio(p);
+  const varStockActual = varSel ? (p.stock_variantes && p.stock_variantes[VAR_ABBR[varSel]||varSel] === 'NO') : false;
+  const sinStockTotal = p.stock === 'NO' || varStockActual;
   div.innerHTML=`
     <div class="card-img" id="img-${p.id}" style="position:relative;">
       ${imgContent(p, varSel, color, badge)}
@@ -1428,7 +1434,7 @@ function buildCardCompact(p, pi, cat){
         ${p.descuento ? `<div><div style="font-size:9px;color:var(--gris);text-decoration:line-through;">${fmt(precioInicialCompact)}</div><div class="precio-compact" id="precio-${p.id}">${fmt(Math.round(precioInicialCompact*(1-parseInt(p.descuento)/100)))}</div></div>` : `<div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>`}
         <div class="card-bottom-actions">
           ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Info</button>`:''}
-          ${p.stock === 'NO' ? `<button class="btn-agregar-compact" style="opacity:0.4;pointer-events:none;">Sin stock</button>` : `<button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
+          ${sinStockTotal ? `<button class="btn-agregar-compact" id="ba-${p.id}" style="opacity:0.4;pointer-events:none;">Sin stock</button>` : `<button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
         </div>
       </div>
     </div>`;
@@ -1491,6 +1497,21 @@ function selVarCompact(pid, vi, cat){
   document.getElementById(`vsel-${pid}`).textContent=v;
   // update swatches
   imgEl.closest('.card').querySelectorAll('.swatch').forEach((s,i)=>s.classList.toggle('activa',i===vi));
+  // update botón según stock de variante
+  const abbr = VAR_ABBR[v] || v;
+  const sinStock = p.stock === 'NO' || (p.stock_variantes && p.stock_variantes[abbr] === 'NO');
+  const btnEl = document.getElementById(`ba-${pid}`);
+  if(btnEl) {
+    if(sinStock) {
+      btnEl.textContent = 'Sin stock';
+      btnEl.style.opacity = '0.4';
+      btnEl.style.pointerEvents = 'none';
+    } else {
+      btnEl.textContent = '+ Agregar';
+      btnEl.style.opacity = '';
+      btnEl.style.pointerEvents = '';
+    }
+  }
 }
 
 function selVarFull(pid, vi, cat){
@@ -1566,9 +1587,14 @@ function agregar(pid, cat){
   const mi=selMedida[pid]??0;
   const medInfo=MEDIDAS[pid]?MEDIDAS[pid][mi]:null;
 
-  // Bloquear si sin stock (producto o medida)
+  // Bloquear si sin stock (producto, medida o variante)
   if(p.stock === 'NO') return;
   if(medInfo && medInfo.stock === false) return;
+  const varActual = p.variantes[vi];
+  if(varActual && p.stock_variantes) {
+    const abbr = VAR_ABBR[varActual] || varActual;
+    if(p.stock_variantes[abbr] === 'NO') return;
+  }
 
   const precioFinal=medInfo?medInfo.p:p.precio;
   const medLabel=medInfo?medInfo.m:'';
@@ -1647,7 +1673,7 @@ function actualizarCarrito(){
     </div>`).join('');
 }
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVfyeidTo2G7kmNAtAHsugElaQYoRXKgaQH0hYJR3YPxeLyY3JlqeB7zsNooq84rIGzw/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzdhL4c-sw-UREgjeDyK-NvfuOqEmEbsPjOKIW2h29Gbe1occh0iCH_3RRCcN6n9K-fg/exec';
 
 function irWA(){
   if(!carrito.length) return;
@@ -1961,6 +1987,16 @@ async function cargarDesdeSheets() {
         });
       }
 
+      // Parsear stock_variantes
+      let stockVariantes = null;
+      if(r.stock_variantes) {
+        stockVariantes = {};
+        r.stock_variantes.split('|').forEach(function(item) {
+          const parts = item.split(':');
+          if(parts.length === 2) stockVariantes[parts[0].trim()] = parts[1].trim();
+        });
+      }
+
       const p = {
         id:        r.id,
         nombre:    r.nombre,
@@ -1971,6 +2007,7 @@ async function cargarDesdeSheets() {
         material:  mat,
         categoria: cat,
         stock:     r.stock || 'SI',
+        stock_variantes: stockVariantes,
         pvp:       parseInt(r.pvp) || null,
         descuento: r.descuento || null,
         usos:      r.usos || null,
