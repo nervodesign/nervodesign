@@ -1321,8 +1321,15 @@ function fotoURL(p, varSel) {
     if(mapa[medKey]) key = medKey;
   }
   // Tipo A: color cambia foto
-  else if(varSel && VAR_ABBR[varSel]) {
-    key = VAR_ABBR[varSel];
+  else if(varSel) {
+    // Primero intentar con abreviatura (PKT, CN, etc.)
+    if(VAR_ABBR[varSel] && mapa[VAR_ABBR[varSel]]) {
+      key = VAR_ABBR[varSel];
+    }
+    // Si no, buscar por nombre completo de variante
+    else if(mapa[varSel]) {
+      key = varSel;
+    }
   }
 
   const archivo = mapa[key] || mapa['default'] || Object.values(mapa)[0];
