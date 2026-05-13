@@ -999,6 +999,10 @@
     <input class="form-input" id="f-tel" type="tel" placeholder="+54 9 11 0000-0000">
   </div>
   <div class="form-error" id="f-error"></div>
+  <button class="btn-enviar" onclick="descargarPDF()" style="background:var(--marron);margin-bottom:10px;">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Descargar resumen PDF
+  </button>
   <button class="btn-enviar" onclick="enviarPedido()">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
     Enviar pedido por WhatsApp
@@ -1029,9 +1033,14 @@
     </div>
     <div class="ctotal-sub" id="ctotal-uds">0 unidades seleccionadas</div>
     <div class="minimo-aviso" id="maviso" style="display:none"></div>
-    <button class="btn-wa" id="btnwa" onclick="irWA()" disabled>
+    <div style="margin:12px 0 8px;">
+      <input id="c-nombre" type="text" placeholder="Tu nombre" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d4c9bb;border-radius:6px;font-size:13px;margin-bottom:8px;font-family:inherit;background:#faf7f3;color:#2c1a0e;">
+      <input id="c-mail" type="email" placeholder="tu@email.com" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d4c9bb;border-radius:6px;font-size:13px;font-family:inherit;background:#faf7f3;color:#2c1a0e;">
+      <div id="c-error" style="font-size:11px;color:#c0392b;margin-top:6px;display:none;">Completá tu nombre y email para continuar.</div>
+    </div>
+    <button class="btn-wa" id="btnwa" onclick="irWA()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-      Consultar por WhatsApp
+      Enviar pedido por WhatsApp
     </button>
   </div>
 </div>
@@ -1711,7 +1720,24 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzdhL4c-sw-UREgjeDy
 
 function irWA(){
   if(!carrito.length) return;
-  abrirFormulario();
+  const nombre = document.getElementById('c-nombre').value.trim();
+  const mail = document.getElementById('c-mail').value.trim();
+  const err = document.getElementById('c-error');
+  if(!nombre || !mail){ err.style.display='block'; return; }
+  err.style.display='none';
+
+  let productosTexto = '';
+  carrito.forEach(it => { productosTexto += `${it.nombre} — ${it.variante} × ${it.cantidad} (${fmtTotal(it.precio*it.cantidad)})\n`; });
+  const total = fmtTotal(totalPrecio());
+
+  // Guardar en Sheets
+  const data = { tipo:'pedido', nombre, mail, telefono:'', productos:productosTexto, total };
+  const dataCliente = { tipo:'cliente', nombre, mail, telefono:'' };
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(data) }).catch(()=>{});
+  fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(dataCliente) }).catch(()=>{});
+
+  const msg = `¡Hola! Soy ${nombre}.\n\nArmé este carrito:\n\n${productosTexto}\n*Total estimado: ${total}*`;
+  window.location.href = `https://wa.me/${WA}?text=${encodeURIComponent(msg)}`;
 }
 
 function abrirFormulario(){
@@ -1722,6 +1748,82 @@ function abrirFormulario(){
 function cerrarFormulario(){
   document.getElementById('formOverlay').classList.remove('visible');
   document.getElementById('formPanel').classList.remove('visible');
+}
+
+function descargarPDF(){
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  if(!nombre){
+    document.getElementById('f-error').textContent = 'Completá tu nombre para generar el PDF.';
+    return;
+  }
+  document.getElementById('f-error').textContent = '';
+
+  const fecha = new Date().toLocaleDateString('es-AR');
+  const num = Math.floor(Math.random()*9000)+1000;
+  let filas = '';
+  carrito.forEach(it => {
+    filas += `<tr>
+      <td style="padding:10px 14px;border-bottom:0.5px solid #e8e0d4;">
+        <div style="font-weight:500;font-size:13px;color:#2c1a0e;">${it.nombre}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">${it.variante}</div>
+      </td>
+      <td style="padding:10px 14px;border-bottom:0.5px solid #e8e0d4;text-align:center;font-size:13px;color:#2c1a0e;">${it.cantidad}</td>
+      <td style="padding:10px 14px;border-bottom:0.5px solid #e8e0d4;text-align:right;font-size:13px;color:#2c1a0e;">${fmtTotal(it.precio*it.cantidad)}</td>
+    </tr>`;
+  });
+  const total = totalPrecio();
+  const totalUnidades = carrito.reduce((s,i)=>s+i.cantidad,0);
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+  <style>
+    body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f5f0ea;}
+    .wrap{max-width:600px;margin:30px auto;background:#fff;border-radius:8px;overflow:hidden;}
+    .header{background:#3B1F0F;padding:28px 32px;display:flex;justify-content:space-between;align-items:flex-start;}
+    .brand{color:#EDE5D8;font-size:20px;letter-spacing:3px;font-weight:bold;}
+    .sub{color:#C9A84C;font-size:10px;letter-spacing:2px;margin-top:4px;}
+    .pedido-num{text-align:right;color:#EDE5D8;font-size:12px;}
+    .cliente-bar{padding:16px 32px;border-bottom:0.5px solid #e8e0d4;background:#faf7f3;}
+    .label{font-size:10px;color:#999;letter-spacing:1px;margin-bottom:3px;}
+    .val{font-size:14px;color:#2c1a0e;font-weight:500;}
+    table{width:100%;border-collapse:collapse;}
+    .th{background:#faf7f3;padding:8px 14px;font-size:10px;color:#999;letter-spacing:1px;text-align:left;border-bottom:0.5px solid #e8e0d4;}
+    .th.r{text-align:right;}
+    .th.c{text-align:center;}
+    .total-row{padding:20px 32px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e8e0d4;}
+    .total-label{font-size:11px;color:#999;}
+    .total-val{font-size:22px;font-weight:bold;color:#3B1F0F;}
+    .footer{padding:14px 32px;background:#faf7f3;text-align:center;font-size:10px;color:#bbb;letter-spacing:1px;border-top:0.5px solid #e8e0d4;}
+  </style></head><body>
+  <div class="wrap">
+    <div class="header">
+      <div><div class="brand">NERVO DESIGN</div><div class="sub">CATÁLOGO MAYORISTA</div></div>
+      <div class="pedido-num"><div style="opacity:0.6;font-size:10px;">PEDIDO</div><div style="font-size:14px;font-weight:bold;">#${num} — ${fecha}</div></div>
+    </div>
+    <div class="cliente-bar">
+      <div class="label">CLIENTE</div>
+      <div class="val">${nombre}</div>
+      ${tel ? `<div style="font-size:12px;color:#888;margin-top:2px;">${tel}</div>` : ''}
+    </div>
+    <div style="padding:20px 32px 0;">
+      <div class="label" style="margin-bottom:12px;">DETALLE DEL PEDIDO</div>
+      <table>
+        <tr><th class="th">PRODUCTO</th><th class="th c">CANT.</th><th class="th r">SUBTOTAL</th></tr>
+        ${filas}
+      </table>
+    </div>
+    <div class="total-row">
+      <div><div class="total-label">${totalUnidades} unidades · Mínimo 8 ✓</div></div>
+      <div style="text-align:right;"><div class="total-label">TOTAL ESTIMADO</div><div class="total-val">${fmtTotal(total)}</div></div>
+    </div>
+    <div class="footer">nervomayorista.com · @nervodesign</div>
+  </div>
+  <script>window.onload=()=>window.print();<\/script>
+  </body></html>`;
+
+  const win = window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
 }
 
 function enviarPedido(){
@@ -1748,7 +1850,7 @@ function enviarPedido(){
 
   // Cerrar formulario y abrir WhatsApp
   cerrarFormulario();
-  const msg = `¡Hola! Soy ${nombre}.\n\nArmé este carrito:\n\n${productosTexto}\n*Total estimado: ${total}*\n\n¿Tienen stock disponible?`;
+  const msg = `¡Hola! Soy ${nombre}.\n\nArmé este carrito:\n\n${productosTexto}\n*Total estimado: ${total}*`;
   window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
