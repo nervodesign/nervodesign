@@ -1117,6 +1117,7 @@ const PRODUCTOS = {
     { id:'arauco', nombre:'Colgante Arauco', precio:69900, badge:null, medida:'18×40 / 22×55cm', variantes: [], ficha: mkFicha('Bamboo natural', ORIGEN_IMP) },
     { id:'lombardia', nombre:'Colgante Lombardía', precio:135900, badge:null, medida:'', variantes: [], ficha: mkFicha('Fibra de banano tejida a mano', ORIGEN_IMP) },
     { id:'castellana', nombre:'Colgante Castellana', precio:169900, badge:'nuevo', medida:'', variantes: [], ficha: mkFicha('Seagrass tejido a mano', ORIGEN_IMP, null, 'Nuevo · Diseño exclusivo') },
+    { id:'calabria', nombre:'Colgante Calabria', precio:75900, badge:null, medida:'30×30 / 40×40 / 50×50cm', variantes: [], ficha: mkFicha('Bamboo natural', ORIGEN_IMP) },
   ],
   veladores: [
     { id:'capri', nombre:'Velador Capri Set x2', precio:47900, badge:'best', medida:'Set de 2 unidades', variantes:['Negro','Blanco','Simil madera clara con negro'], ficha: mkFicha('Estructura metálica con pantalla', ORIGEN_PROPIO, null, 'Se vende en set de 2 · Best seller') },
@@ -1194,7 +1195,11 @@ const COMBOS = [
 let sel = {};
 let carrito = [];
 
-function fmt(n){ return '$'+n.toLocaleString('es-AR'); }
+function fmt(n){ 
+  if(!n || n === 0) return 'Consultar';
+  return '$'+n.toLocaleString('es-AR'); 
+}
+function fmtTotal(n){ return '$'+n.toLocaleString('es-AR'); }
 
 const CLOUD = 'nervocatalogo';
 const CDN = `https://raw.githubusercontent.com/nervodesign/nervodesign/main`;
@@ -1255,6 +1260,7 @@ const FOTOS = {
   'bolzano':      { default:'col_bolzano_yute' },
   'avellino':     { default:'col_avellino' },
   'castellana':   { default:'col_castellana_seagrass' },
+  'calabria':     { default:'col_calabria_bamboo' },
   'cinque-terre': { default:'col_cinque_terre' },
   'lombardia':    { default:'col_lombardia' },
   'matera':       { default:'col_matera' },
@@ -1283,6 +1289,7 @@ const FOTOS = {
   'indi-mesa':    { PKT:'vel_indi_pkt' },
   'cali':         { CH:'vel_cali_ch' },
   'duomo':        { default:'vel_duomo' },
+  'ona':          { default:'vel_ona' },
   // PIE
   'amapola':      { PKN:'pie_amapola_pkn', PKT:'pie_amapola_pkt' },
   'palermo':      { default:'pie_palermo' },
@@ -1438,6 +1445,7 @@ function buildCardCompact(p, pi, cat){
   const precioInicialCompact = getPrecio(p);
   const varStockActual = varSel ? (p.stock_variantes && p.stock_variantes[VAR_ABBR[varSel]||varSel] === 'NO') : false;
   const sinStockTotal = p.stock === 'NO' || varStockActual;
+  const sinPrecio = !precioInicialCompact || precioInicialCompact === 0;
   div.innerHTML=`
     <div class="card-img" id="img-${p.id}" style="position:relative;">
       ${imgContent(p, varSel, color, badge)}
@@ -1451,7 +1459,7 @@ function buildCardCompact(p, pi, cat){
         ${p.descuento ? `<div><div style="font-size:9px;color:var(--gris);text-decoration:line-through;">${fmt(precioInicialCompact)}</div><div class="precio-compact" id="precio-${p.id}">${fmt(Math.round(precioInicialCompact*(1-parseInt(p.descuento)/100)))}</div></div>` : `<div class="precio-compact" id="precio-${p.id}">${fmt(precioInicialCompact)}</div>`}
         <div class="card-bottom-actions">
           ${p.ficha?`<button class="btn-ficha" onclick="abrirFicha('${p.id}')">Info</button>`:''}
-          ${sinStockTotal ? `<button class="btn-agregar-compact" id="ba-${p.id}" style="opacity:0.4;pointer-events:none;">Sin stock</button>` : `<button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
+          ${(sinStockTotal || sinPrecio) ? `<button class="btn-agregar-compact" id="ba-${p.id}" style="opacity:0.4;pointer-events:none;">${sinPrecio ? 'Consultar' : 'Sin stock'}</button>` : `<button class="btn-agregar-compact" id="ba-${p.id}" data-cat="${cat}" onclick="agregar('${p.id}','${cat}')">+ Agregar</button>`}
         </div>
       </div>
     </div>`;
@@ -1658,7 +1666,7 @@ function totalPrecio(){ return carrito.reduce((s,x)=>s+(x.precio*x.cantidad),0);
 function actualizarCarrito(){
   const uds=totalUds();
   document.getElementById('ccount').textContent=uds;
-  document.getElementById('ctotal').textContent=fmt(totalPrecio());
+  document.getElementById('ctotal').textContent=fmtTotal(totalPrecio());
   document.getElementById('ctotal-uds').textContent=uds+' unidad'+(uds!==1?'es':'')+' seleccionada'+(uds!==1?'s':'');
   const ci=document.getElementById('citems');
   if(!carrito.length){
@@ -1685,7 +1693,7 @@ function actualizarCarrito(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
         <button class="eliminar" onclick="eliminar('${it.key}')">✕</button>
-        <div class="citem-precio">${fmt(it.precio*it.cantidad)}</div>
+        <div class="citem-precio">${fmtTotal(it.precio*it.cantidad)}</div>
       </div>
     </div>`).join('');
 }
@@ -1720,8 +1728,8 @@ function enviarPedido(){
 
   // Armar texto del pedido
   let productosTexto = '';
-  carrito.forEach(it => { productosTexto += `${it.nombre} — ${it.variante} × ${it.cantidad} (${fmt(it.precio*it.cantidad)})\n`; });
-  const total = fmt(totalPrecio());
+  carrito.forEach(it => { productosTexto += `${it.nombre} — ${it.variante} × ${it.cantidad} (${fmtTotal(it.precio*it.cantidad)})\n`; });
+  const total = fmtTotal(totalPrecio());
 
   // Guardar en Sheets (sin esperar respuesta para no bloquear)
   const data = { tipo:'pedido', nombre, mail, telefono:tel, productos:productosTexto, total };
@@ -1832,6 +1840,7 @@ const MEDIDAS = {
   'avellino':       [{m:'10×32×20cm',p:63900,stock:false},{m:'15×55×20cm',p:63900},{m:'15×45×26cm',p:63900}],
   'arauco':         [{m:'18×40cm',p:69900},{m:'22×55cm',p:69900}],
   'puglia-bamboo':  [{m:'60×15cm',p:113900},{m:'80×25cm',p:137900}],
+  'calabria':       [{m:'30×30cm',p:75900},{m:'40×40cm',p:89900},{m:'50×50cm',p:97900}],
   'puglia-rattan':  [{m:'55×44×26cm',p:178900},{m:'70×55×40cm',p:219800},{m:'90×65×50cm',p:287900}],
 };
 let selMedida = {}; // { pid: idx }
@@ -2041,6 +2050,7 @@ async function cargarDesdeSheets() {
         pvp:       parseInt(r.pvp) || null,
         descuento: r.descuento || null,
         usos:      r.usos || null,
+        foto:      r.foto || null,
         variantes: variantes,
         ficha:     mkFicha(mat, origen, parseInt(r.pvp)||null, null),
         _cat:      cat,
