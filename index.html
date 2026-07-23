@@ -400,6 +400,7 @@
   .cerrar:hover { opacity:1; }
   .citems { flex:1; overflow-y:auto; padding:14px; }
   .citem { display:flex; gap:10px; padding:13px 0; border-bottom:1px solid var(--arena); }
+  .citem-foto { width:56px; height:56px; object-fit:cover; border-radius:6px; background:var(--lino); flex-shrink:0; }
   .citem-info { flex:1; }
   .citem-nombre { font-size:11px; font-weight:500; color:var(--chocolate); text-transform:uppercase; letter-spacing:0.3px; margin-bottom:2px; }
   .citem-var { font-size:9px; color:var(--gris); letter-spacing:1px; text-transform:uppercase; margin-bottom:7px; }
@@ -1698,7 +1699,7 @@ function agregar(pid, cat){
   const varianteFull=[medLabel,varLabel2].filter(Boolean).join(' · ')||'—';
   const key=`${pid}-${vi}-${mi}`;
   const ex=carrito.find(x=>x.key===key);
-  if(ex) ex.cantidad++; else carrito.push({key,nombre:p.nombre,variante:varianteFull,precio:precioFinal,cantidad:1});
+  if(ex) ex.cantidad++; else carrito.push({key,nombre:p.nombre,variante:varianteFull,precio:precioFinal,cantidad:1,foto:fotoURL(p,varActual)});
 
   // Actualizar botón en card
   const qty = carrito.find(x=>x.key===key).cantidad;
@@ -1722,7 +1723,7 @@ function agregar(pid, cat){
 function agregarCombo(i){
   const c=COMBOS[i]; const key=`combo-${i}`;
   const ex=carrito.find(x=>x.key===key);
-  if(ex) ex.cantidad++; else carrito.push({key,nombre:c.nombre,variante:'Combo',precio:c.precio,cantidad:1});
+  if(ex) ex.cantidad++; else carrito.push({key,nombre:c.nombre,variante:'Combo',precio:c.precio,cantidad:1,foto:c.foto?`${CDN}/${c.foto}.png`:null});
   actualizarCarrito(); toggleCarrito();
 }
 
@@ -1753,6 +1754,7 @@ function actualizarCarrito(){
   document.getElementById('btnwa').disabled=false;
   ci.innerHTML=carrito.map(it=>`
     <div class="citem">
+      ${it.foto ? `<img class="citem-foto" src="${it.foto}" onerror="this.style.display='none'">` : ''}
       <div class="citem-info">
         <div class="citem-nombre">${it.nombre}</div>
         <div class="citem-var">${it.variante}</div>
