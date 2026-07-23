@@ -582,6 +582,13 @@
     transition:bottom 0.4s cubic-bezier(0.4,0,0.2,1);
     overflow-y:auto; padding:0 0 32px;
   }
+
+  .ficha-galeria { padding:16px 20px 0; }
+  .ficha-foto-grande { width:100%; height:220px; object-fit:cover; border-radius:8px; background:var(--lino); display:block; }
+  .ficha-thumbs { display:flex; gap:8px; margin-top:8px; }
+  .ficha-thumb { width:56px; height:56px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0.6; border:1.5px solid transparent; }
+  .ficha-thumb.activa { opacity:1; border-color:var(--chocolate); }
+  .ficha-thumb:hover { opacity:1; }
   .ficha-panel.visible { bottom:0; }
   .ficha-handle {
     width:36px; height:4px; background:var(--arena);
@@ -1323,20 +1330,19 @@ const FOTOS = {
 };
 
 // Devuelve la URL de la foto correspondiente
-function fotoURL(p, varSel) {
+function nombreArchivoBase(p, varSel) {
   const mapa = FOTOS[p.id];
 
   // Si no hay mapa pero tiene foto en el Sheet, usarla directamente
   if(!mapa) {
-    if(p.foto) return `${CDN}/${p.foto}.png`;
-    return null;
+    return p.foto || null;
   }
 
   let key = 'default';
 
   // Tipo B: medida cambia foto (sin variante de color) — solo si hay múltiples fotos en el mapa
   if(p.variantes.length === 0 && getMedidasDelProducto(p)) {
-    const mi = selMedida[p.id] ?? 0;
+    const mi = selMedida[p.id] || 0;
     const meds = getMedidasDelProducto(p);
     const medKey = meds[mi].m;
     if(mapa[medKey]) key = medKey;
@@ -1353,10 +1359,20 @@ function fotoURL(p, varSel) {
     }
   }
 
-  const archivo = mapa[key] || mapa['default'] || Object.values(mapa)[0];
-  // Si no encuentra en el mapa, usar foto del Sheet
-  if(!archivo) return p.foto ? `${CDN}/${p.foto}.png` : null;
-  return `${CDN}/${archivo}.png`;
+  return mapa[key] || mapa['default'] || Object.values(mapa)[0] || p.foto || null;
+}
+
+// Devuelve la URL de la foto principal correspondiente
+function fotoURL(p, varSel) {
+  const archivo = nombreArchivoBase(p, varSel);
+  return archivo ? `${CDN}/${archivo}.png` : null;
+}
+
+// Devuelve hasta 2 URLs de fotos extra para la galeria del panel Info (nombre_2.png, nombre_3.png)
+function fotosGaleriaExtra(p, varSel) {
+  const archivo = nombreArchivoBase(p, varSel);
+  if(!archivo) return [];
+  return [`${CDN}/${archivo}_2.png`, `${CDN}/${archivo}_3.png`];
 }
 
 // Renderiza la imagen: foto real si carga, SVG fallback si no
@@ -1868,6 +1884,13 @@ function enviarPedido(){
 }
 
 
+function verFotoFicha(imgEl) {
+  const grande = document.getElementById('ficha-foto-grande');
+  if(grande) grande.src = imgEl.src;
+  imgEl.parentElement.querySelectorAll('.ficha-thumb').forEach(t => t.classList.remove('activa'));
+  imgEl.classList.add('activa');
+}
+
 function abrirFicha(pid) {
   let p = null;
   for(const cat of Object.keys(PRODUCTOS)) {
@@ -1877,12 +1900,25 @@ function abrirFicha(pid) {
   if(!p || !p.ficha) return;
   const f = p.ficha;
 
+  const vi = sel[p.id] || 0;
+  const varSel = p.variantes.length ? p.variantes[vi] : null;
+  const fotoPrincipal = fotoURL(p, varSel);
+  const galeriaExtra = fotosGaleriaExtra(p, varSel);
+
   const precio = p.precio;
   const pvp = f.pvp;
   const margen = pvp ? Math.round(((pvp - precio) / pvp) * 100) : null;
 
   document.getElementById('ficha-nombre').textContent = p.nombre;
   document.getElementById('ficha-body').innerHTML = `
+    ${fotoPrincipal ? `
+    <div class="ficha-galeria">
+      <img class="ficha-foto-grande" id="ficha-foto-grande" src="${fotoPrincipal}" onerror="this.style.display='none'">
+      <div class="ficha-thumbs">
+        <img class="ficha-thumb activa" src="${fotoPrincipal}" onclick="verFotoFicha(this)" onerror="this.style.display='none'">
+        ${galeriaExtra.map(u => `<img class="ficha-thumb" src="${u}" onclick="verFotoFicha(this)" onerror="this.style.display='none'">`).join('')}
+      </div>
+    </div>` : ''}
     <div class="ficha-seccion-titulo">Especificaciones</div>
     ${f.material ? `<div class="ficha-row"><span class="ficha-row-label">Material</span><span class="ficha-row-value">${f.material}</span></div>` : ''}
     ${f.origen ? `<div class="ficha-row"><span class="ficha-row-label">Origen</span><span class="ficha-row-value">${f.origen}</span></div>` : ''}
