@@ -722,6 +722,17 @@
     .grid-2col { grid-template-columns: repeat(5, 1fr); }
     .grid-1col { grid-template-columns: repeat(3, 1fr); }
   }
+  .categorias-nav {
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    max-width:700px; margin:14px auto 0; padding:0 14px;
+  }
+  .cat-btn {
+    background:var(--lino); color:var(--chocolate); border:1px solid var(--arena);
+    border-radius:20px; padding:8px 16px; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:500; cursor:pointer; transition:background .2s, color .2s;
+    white-space:nowrap;
+  }
+  .cat-btn:hover { background:var(--chocolate); color:var(--blanco); }
 </style>
 </head>
 <body>
@@ -737,7 +748,7 @@
     <div class="menu-nav">
       <button class="menu-nav-btn" onclick="irA('colgantes')">Colgantes</button>
       <button class="menu-nav-btn" onclick="irA('veladores')">Veladores</button>
-      <button class="menu-nav-btn" onclick="irA('pie')">Lámparas de pie</button>
+      <button class="menu-nav-btn" onclick="irA('pie')">Veladores de pie</button>
       <button class="menu-nav-btn" onclick="irA('apliques')">Apliques de pared</button>
       <button class="menu-nav-btn" onclick="irA('combos')">Combos</button>
       <button class="menu-nav-btn" onclick="irA('condiciones')">Condiciones</button>
@@ -796,6 +807,15 @@
     <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:0.4;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
   </div>
   <div id="resultados-busqueda" style="display:none;max-width:400px;margin:8px auto 0;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
+</div>
+
+<div class="categorias-nav">
+  <button class="cat-btn" onclick="irASeccion('colgantes')">Colgantes</button>
+  <button class="cat-btn" onclick="irASeccion('veladores')">Veladores de mesa</button>
+  <button class="cat-btn" onclick="irASeccion('pie')">Veladores de pie</button>
+  <button class="cat-btn" onclick="irASeccion('apliques')">Apliques</button>
+  <button class="cat-btn" onclick="irASeccion('combos')">Combos</button>
+  <button class="cat-btn" onclick="irASeccion('condiciones')">Condiciones de compra</button>
 </div>
 
 <!-- BENEFICIOS -->
@@ -857,7 +877,7 @@
 </div>
 
 <div id="pie" class="seccion">
-  <div class="seccion-titulo"><h2>Lámparas de pie</h2><div class="linea"></div><div class="count" id="count-pie"></div></div>
+  <div class="seccion-titulo"><h2>Veladores de pie</h2><div class="linea"></div><div class="count" id="count-pie"></div></div>
   <div id="grid-pie"></div>
 </div>
 
@@ -2418,6 +2438,11 @@ document.addEventListener('click', function(e) {
 // Protección de imágenes
 document.addEventListener('contextmenu', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
 document.addEventListener('dragstart', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
+
+function irASeccion(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
 
 // Arrancar
 cargarDesdeSheets();
