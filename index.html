@@ -584,7 +584,7 @@
   }
 
   .ficha-galeria { padding:16px 20px 0; }
-  .ficha-foto-grande { width:100%; aspect-ratio:3/4; max-height:420px; object-fit:cover; border-radius:8px; background:var(--lino); display:block; }
+  .ficha-foto-grande { width:100%; max-width:300px; margin:0 auto; aspect-ratio:3/4; max-height:300px; object-fit:cover; border-radius:8px; background:var(--lino); display:block; }
   .ficha-thumbs { display:flex; gap:8px; margin-top:8px; }
   .ficha-thumb { width:56px; height:56px; object-fit:cover; border-radius:6px; cursor:pointer; opacity:0.6; border:1.5px solid transparent; }
   .ficha-thumb.activa { opacity:1; border-color:var(--chocolate); }
@@ -723,7 +723,7 @@
     .grid-1col { grid-template-columns: repeat(3, 1fr); }
   }
   .categorias-nav {
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    display:none; flex-wrap:wrap; gap:8px; justify-content:center;
     max-width:700px; margin:14px auto 22px; padding:0 14px;
   }
   .cat-btn {
@@ -734,7 +734,7 @@
   }
   .cat-btn:hover { background:var(--chocolate); color:var(--blanco); }
   @media(min-width:700px) {
-    .categorias-nav { max-width:1100px; flex-wrap:nowrap; }
+    .categorias-nav { display:flex; max-width:1100px; flex-wrap:nowrap; }
     .cat-btn { padding:8px 12px; font-size:11px; }
   }
 </style>
@@ -1396,7 +1396,7 @@ function fotoURL(p, varSel) {
 function fotosGaleriaExtra(p, varSel) {
   const archivo = nombreArchivoBase(p, varSel);
   if(!archivo) return [];
-  return [`${CDN}/${archivo}_2.png`, `${CDN}/${archivo}_3.png`];
+  return [`${CDN}/${archivo}1.png`, `${CDN}/${archivo}2.png`];
 }
 
 // Renderiza la imagen: foto real si carga, SVG fallback si no
