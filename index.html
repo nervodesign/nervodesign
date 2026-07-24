@@ -1407,7 +1407,7 @@ function imgContent(p, varSel, color, badge) {
     <img src="${url}" 
       alt="${(p.nombre||'Producto Nervo Design')}"
       style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;pointer-events:none;"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      onerror="const _c=this.closest('.card,.card-full');if(_c)_c.style.display='none';"
       loading="lazy"
       draggable="false"
     />
@@ -1501,7 +1501,7 @@ function buildCardCompact(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   
   // swatches circulares con indicador de sin stock
   const swatches = p.variantes.map((v,vi2)=>{
@@ -1542,7 +1542,7 @@ function buildCardFull(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
 
   const thumbs = p.variantes.map((v,vi2)=>{
     const c=C[v]||'#C4966A';
@@ -1589,7 +1589,7 @@ function selVarCompact(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   // update swatches
@@ -1617,7 +1617,7 @@ function selVarFull(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   imgEl.closest('.card-full').querySelectorAll('.vthumb-full').forEach((t,i)=>t.classList.toggle('activa',i===vi));
@@ -2071,7 +2071,7 @@ function selMed(pid, idx, cat) {
   if(p && p.variantes.length === 0 && FOTOS[pid]) {
     const imgEl = document.getElementById(`img-${pid}`);
     if(imgEl) {
-      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${p.badge}">${p.badge==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
       imgEl.innerHTML = imgContent(p, null, '#C4966A', badge);
     }
   }
