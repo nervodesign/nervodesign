@@ -138,19 +138,19 @@
   .grid-2col {
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:1px; background:var(--arena);
+    gap:1px; background:var(--blanco);
   }
   /* Grid 1 columna para productos con muchas variantes */
   .grid-1col {
     display:grid;
     grid-template-columns:1fr;
-    gap:1px; background:var(--arena);
+    gap:1px; background:var(--blanco);
   }
   /* Grid especial para lámparas de pie — 2 columnas en mobile, imagen portrait */
   .grid-pie {
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:1px; background:var(--arena);
+    gap:1px; background:var(--blanco);
   }
   .grid-pie .card-img,
   .grid-pie .card-full-img {
@@ -650,7 +650,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1px;
-    background: var(--arena);
+    background: var(--blanco);
   }
   .card-full-inner { flex-direction: column; }
   .card-full-img { width:100%; aspect-ratio:4/5; height:auto; }
@@ -1454,24 +1454,25 @@ function varLabel(v){
 }
 
 // Ajusta columnas reales de la grilla segun cantidad de productos, para que no queden celdas vacias
-      function ajustarColumnasGrid(el, maxMobile, maxDesktop) {
-              if(!el) return;
-              const n = el.children.length;
-              if(n === 0) return;
-              const desktop = window.matchMedia('(min-width:900px)').matches;
-              const max = desktop ? maxDesktop : maxMobile;
-              const cols = Math.min(max, n);
-              el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      }
-      let _resizeGridTimer;
-      window.addEventListener('resize', () => {
-              clearTimeout(_resizeGridTimer);
-              _resizeGridTimer = setTimeout(() => {
-                        document.querySelectorAll('.grid-2col').forEach(el => ajustarColumnasGrid(el, 2, 5));
-                        document.querySelectorAll('.grid-1col').forEach(el => ajustarColumnasGrid(el, 1, 4));
-                        document.querySelectorAll('.grid-pie').forEach(el => ajustarColumnasGrid(el, 2, 3));
-              }, 150);
-      });
+function ajustarColumnasGrid(el, maxMobile, maxTablet, maxDesktop) {
+      if(!el) return;
+      const n = el.children.length;
+      if(n === 0) return;
+      const desktop = window.matchMedia('(min-width:900px)').matches;
+      const tablet = !desktop && window.matchMedia('(min-width:600px)').matches;
+      const max = desktop ? maxDesktop : (tablet ? maxTablet : maxMobile);
+      const cols = Math.min(max, n);
+      el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+}
+    let _resizeGridTimer;
+    window.addEventListener('resize', () => {
+          clearTimeout(_resizeGridTimer);
+          _resizeGridTimer = setTimeout(() => {
+                  document.querySelectorAll('.grid-2col').forEach(el => ajustarColumnasGrid(el, 2, 4, 5));
+                  document.querySelectorAll('.grid-1col').forEach(el => ajustarColumnasGrid(el, 1, 2, 4));
+                  document.querySelectorAll('.grid-pie').forEach(el => ajustarColumnasGrid(el, 2, 2, 3));
+          }, 150);
+    });
   
       // Render section: agrupa productos en grids según cantidad de variantes
 function renderSeccion(cat){
@@ -1489,7 +1490,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardCompact(p, pi, cat));
     });
     container.appendChild(g);
-        ajustarColumnasGrid(g, 2, 3);
+        ajustarColumnasGrid(g, 2, 2, 3);
     return;
   }
 
@@ -1510,7 +1511,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardCompact(p, pi, cat));
     });
     container.appendChild(g);
-        ajustarColumnasGrid(g, 2, 5);
+        ajustarColumnasGrid(g, 2, 4, 5);
   }
 
   // Grid full para muchas variantes
@@ -1521,7 +1522,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardFull(p, pi, cat));
     });
     container.appendChild(g);
-        ajustarColumnasGrid(g, 1, 4);
+        ajustarColumnasGrid(g, 1, 2, 4);
   }
 }
 
