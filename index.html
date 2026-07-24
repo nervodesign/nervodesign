@@ -724,19 +724,27 @@
     .grid-1col { grid-template-columns: repeat(3, 1fr); }
   }
   .categorias-nav {
-    display:none; flex-wrap:wrap; gap:8px; justify-content:center;
-    max-width:700px; margin:14px auto 22px; padding:0 14px;
+    display:flex; flex-wrap:nowrap; align-items:center; gap:22px;
+    max-width:1100px; margin:0 auto; padding:12px 16px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    position:sticky; top:62px; z-index:90; background:var(--blanco);
+    border-bottom:1px solid var(--arena);
   }
+  .categorias-nav::-webkit-scrollbar { display:none; }
   .cat-btn {
-    background:var(--marron); color:var(--blanco); border:1px solid var(--marron);
-    border-radius:20px; padding:8px 16px; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif;
-    font-weight:500; cursor:pointer; transition:background .2s, color .2s;
-    white-space:nowrap;
+    background:none; border:none; color:var(--marron); opacity:.5;
+    padding:6px 0; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:600; cursor:pointer; transition:opacity .25s ease, border-color .25s ease;
+    white-space:nowrap; border-bottom:2px solid transparent;
   }
-  .cat-btn:hover { background:var(--chocolate); color:var(--blanco); }
+  .cat-btn:hover { opacity:.85; }
+  .cat-btn.active { opacity:1; border-bottom-color:var(--marron); }
+  .seccion, .combos-wrap { transition:opacity .25s ease; }
+  .seccion, .combos-wrap, .condiciones-wrap { scroll-margin-top:112px; }
   @media(min-width:700px) {
-    .categorias-nav { display:flex; max-width:1100px; flex-wrap:nowrap; }
-    .cat-btn { padding:8px 12px; font-size:11px; }
+    .categorias-nav { justify-content:center; gap:30px; padding:14px 16px; }
+    .cat-btn { font-size:12px; }
   }
 </style>
 </head>
@@ -814,13 +822,14 @@
   <div id="resultados-busqueda" style="display:none;max-width:400px;margin:8px auto 0;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
 </div>
 
-<div class="categorias-nav">
-  <button class="cat-btn" onclick="irASeccion('colgantes')">Colgantes</button>
-  <button class="cat-btn" onclick="irASeccion('veladores')">Veladores de mesa</button>
-  <button class="cat-btn" onclick="irASeccion('pie')">Veladores de pie</button>
-  <button class="cat-btn" onclick="irASeccion('apliques')">Apliques</button>
-  <button class="cat-btn" onclick="irASeccion('combos')">Combos</button>
-  <button class="cat-btn" onclick="irASeccion('condiciones')">Condiciones de compra</button>
+<div class="categorias-nav" id="categoriasNav">
+  <button class="cat-btn active" onclick="navCategoria('todo', this)">Ver todo</button>
+  <button class="cat-btn" onclick="navCategoria('colgantes', this)">Colgantes</button>
+  <button class="cat-btn" onclick="navCategoria('veladores', this)">Veladores de mesa</button>
+  <button class="cat-btn" onclick="navCategoria('pie', this)">Veladores de pie</button>
+  <button class="cat-btn" onclick="navCategoria('apliques', this)">Apliques</button>
+  <button class="cat-btn" onclick="navCategoria('combos', this)">Combos</button>
+  <button class="cat-btn" onclick="navCategoria('condiciones', this)">Condiciones de compra</button>
 </div>
 
 <!-- BENEFICIOS -->
@@ -2417,6 +2426,7 @@ function buscarProducto(q) {
 function irAProducto(id) {
   document.getElementById('buscador-catalogo').value = '';
   document.getElementById('resultados-busqueda').style.display = 'none';
+  resetFiltroCategorias(true);
 
   // Buscar la card por id de imagen
   const imgEl = document.getElementById('img-' + id);
@@ -2426,12 +2436,14 @@ function irAProducto(id) {
   let card = imgEl.closest('[class*="card"]');
   if(!card) card = imgEl.parentElement;
 
-  // Scroll
-  card.scrollIntoView({ behavior:'smooth', block:'center' });
+  setTimeout(() => {
+    // Scroll
+    card.scrollIntoView({ behavior:'smooth', block:'center' });
 
-  // Highlight
-  card.style.outline = '2px solid var(--burdeo)';
-  setTimeout(() => card.style.outline = '', 2500);
+    // Highlight
+    card.style.outline = '2px solid var(--burdeo)';
+    setTimeout(() => card.style.outline = '', 2500);
+  }, 250);
 }
 
 // Cerrar resultados al hacer clic afuera
@@ -2445,9 +2457,57 @@ document.addEventListener('click', function(e) {
 document.addEventListener('contextmenu', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
 document.addEventListener('dragstart', e => { if(e.target.tagName==='IMG') e.preventDefault(); });
 
-function irASeccion(id) {
+const PRODUCT_CATS = ['colgantes','veladores','pie','apliques'];
+
+function ocultarSeccion(el) {
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => { el.style.display = 'none'; }, 200);
+}
+
+function mostrarSeccion(el) {
+  if (!el) return;
+  el.style.display = '';
+  el.style.opacity = '0';
+  requestAnimationFrame(() => { requestAnimationFrame(() => { el.style.opacity = '1'; }); });
+}
+
+function resetFiltroCategorias(activarBtnTodo) {
+  PRODUCT_CATS.forEach(c => mostrarSeccion(document.getElementById(c)));
+  mostrarSeccion(document.getElementById('combos'));
+  if (activarBtnTodo) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    const nav = document.getElementById('categoriasNav');
+    const btnTodo = nav ? nav.querySelector('.cat-btn') : null;
+    if (btnTodo) btnTodo.classList.add('active');
+  }
+}
+
+function navCategoria(id, btn) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  if (id === 'todo') {
+    resetFiltroCategorias(false);
+    window.scrollTo({ top:0, behavior:'smooth' });
+    return;
+  }
+
+  if (PRODUCT_CATS.includes(id)) {
+    PRODUCT_CATS.forEach(c => {
+      const el = document.getElementById(c);
+      if (c === id) mostrarSeccion(el); else ocultarSeccion(el);
+    });
+    ocultarSeccion(document.getElementById('combos'));
+    const el = document.getElementById(id);
+    if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 60);
+    return;
+  }
+
+  // Combos / Condiciones de compra: mostrar todo el catálogo y llevar a esa sección
+  resetFiltroCategorias(false);
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  if (el) setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 60);
 }
 
 // Arrancar
