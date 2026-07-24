@@ -1453,7 +1453,27 @@ function varLabel(v){
   return m[v]||v.split(' ').pop();
 }
 
-// Render section: agrupa productos en grids según cantidad de variantes
+// Ajusta columnas reales de la grilla segun cantidad de productos, para que no queden celdas vacias
+      function ajustarColumnasGrid(el, maxMobile, maxDesktop) {
+              if(!el) return;
+              const n = el.children.length;
+              if(n === 0) return;
+              const desktop = window.matchMedia('(min-width:900px)').matches;
+              const max = desktop ? maxDesktop : maxMobile;
+              const cols = Math.min(max, n);
+              el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      }
+      let _resizeGridTimer;
+      window.addEventListener('resize', () => {
+              clearTimeout(_resizeGridTimer);
+              _resizeGridTimer = setTimeout(() => {
+                        document.querySelectorAll('.grid-2col').forEach(el => ajustarColumnasGrid(el, 2, 5));
+                        document.querySelectorAll('.grid-1col').forEach(el => ajustarColumnasGrid(el, 1, 4));
+                        document.querySelectorAll('.grid-pie').forEach(el => ajustarColumnasGrid(el, 2, 3));
+              }, 150);
+      });
+  
+      // Render section: agrupa productos en grids según cantidad de variantes
 function renderSeccion(cat){
   const prods = PRODUCTOS[cat];
   document.getElementById(`count-${cat}`).textContent = prods.length+' productos';
@@ -1469,6 +1489,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardCompact(p, pi, cat));
     });
     container.appendChild(g);
+        ajustarColumnasGrid(g, 2, 3);
     return;
   }
 
@@ -1489,6 +1510,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardCompact(p, pi, cat));
     });
     container.appendChild(g);
+        ajustarColumnasGrid(g, 2, 5);
   }
 
   // Grid full para muchas variantes
@@ -1499,6 +1521,7 @@ function renderSeccion(cat){
       g.appendChild(buildCardFull(p, pi, cat));
     });
     container.appendChild(g);
+        ajustarColumnasGrid(g, 1, 4);
   }
 }
 
