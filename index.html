@@ -2299,7 +2299,21 @@ async function cargarDesdeSheets() {
     console.warn('No se pudieron cargar combos desde Sheet:', e);
   }
 
-  // Renderizar siempre
+// Ajustar "incluye" segun categoria (mkFicha asigna por defecto el kit de colgante a todos)
+    var KIT_VELADOR = 'Kit eléctrico incluido (negro) · Cable · Portalámparas · Interruptor';
+    ['veladores','pie'].forEach(function(cat){
+          (PRODUCTOS[cat] || []).forEach(function(p){ if(p.ficha) p.ficha.kit = KIT_VELADOR; });
+    });
+    (PRODUCTOS.apliques || []).forEach(function(p){
+          if(!p.ficha) return;
+          if(p.id === 'aplique_taormina') {
+                  p.ficha.kit = 'Incluye kit y portalámparas de yute · Interruptor on/off y enchufe de plástico transparente';
+          } else {
+                  p.ficha.kit = null;
+          }
+    });
+  
+    // Renderizar siempre
   renderSeccion('colgantes');
   renderSeccion('veladores');
   renderSeccion('pie');
