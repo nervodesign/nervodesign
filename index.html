@@ -192,7 +192,7 @@
   }
   .badge-best { background:var(--burdeo); color:white; }
   .badge-nuevo { background:var(--marron); color:white; }
-  .badge-vendidos { background:var(--dorado); color:white; }
+  .vendidos-tag { font-size:9px; color:var(--gris); letter-spacing:0.3px; margin:2px 0 4px; }
 
   /* Swatches debajo de la imagen en card compacta */
   .swatches-row {
@@ -1161,16 +1161,16 @@ function mkFicha(material, origen, pvp, nota) {
 const PRODUCTOS = {
   colgantes: [
     // ── KRAFT — fabricación propia ──
-    { id:'mesina', nombre:'Colgante Mesina', precio:111900, badge:'best', medida:'60cm / 70cm alt', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · 2 medidas disponibles') },
+    { id:'mesina', nombre:'Colgante Mesina', precio:111900, badge:'best', vendidos:true, medida:'60cm / 70cm alt', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · 2 medidas disponibles') },
     { id:'cagliari', nombre:'Colgante Cagliari', precio:108900, badge:null, medida:'50 × 25cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'toscana', nombre:'Colgante Toscana', precio:98900, badge:null, medida:'40×25 / 50×30 / 65×40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'carmina', nombre:'Colgante Carmina', precio:93900, badge:null, medida:'40×25 / 50×30 / 65×40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Alta rotación · Ideal para barras de cocina y dormitorios') },
     { id:'burano', nombre:'Colgante Burano', precio:107900, badge:null, medida:'50 × 25cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
-    { id:'siena', nombre:'Colgante Siena', precio:112900, badge:null, medida:'50 × 40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'siena', nombre:'Colgante Siena', precio:112900, badge:null, vendidos:true, medida:'50 × 40cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'parma', nombre:'Colgante Parma', precio:135900, badge:'best', medida:'50×35 / 60×45 / 70×60 / 80×70cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · 4 medidas disponibles') },
     { id:'lucca', nombre:'Colgante Lucca', precio:98900, badge:null, medida:'', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'parma-jaula', nombre:'Colgante Parma Jaula', precio:115900, badge:null, medida:'30 × 45cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
-    { id:'trento', nombre:'Colgante Trento', precio:132900, badge:null, medida:'40 × 50cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
+    { id:'trento', nombre:'Colgante Trento', precio:132900, badge:null, vendidos:true, medida:'40 × 50cm', variantes: MAT_KRAFT, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'firenze', nombre:'Colgante Firenze', precio:78900, badge:'best', medida:'50 × 30cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Best seller · Ideal para barras de cocina') },
     { id:'firenze-xl', nombre:'Colgante Firenze XL', precio:89900, badge:null, medida:'60 × 38cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO) },
     { id:'mini-firenze', nombre:'Colgante Mini Firenze', precio:47900, badge:null, medida:'15×30 / 30×25cm', variantes: MAT_STD, ficha: mkFicha('Hilo de papel kraft tejido a mano', ORIGEN_PROPIO, null, 'Ideal en tríos · Muy buen precio de entrada') },
@@ -1567,7 +1567,7 @@ function buildCardCompact(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   
   // swatches circulares con indicador de sin stock
   const swatches = p.variantes.map((v,vi2)=>{
@@ -1591,6 +1591,7 @@ function buildCardCompact(p, pi, cat){
     ${p.variantes.length>0?`<div class="swatches-row">${swatches}</div>`:''}
     <div class="card-body-compact">
       <div class="card-nombre-compact">${p.nombre}</div>
+      ${p.vendidos?'<div class="vendidos-tag">+100 vendidos</div>':''}
       <div class="card-vsel-compact" id="vsel-${p.id}">${varSel||''}</div>
       ${getMedidaHTML(p)}
       <div class="card-bottom-compact">
@@ -1608,7 +1609,7 @@ function buildCardFull(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
 
   const thumbs = p.variantes.map((v,vi2)=>{
     const c=C[v]||'#C4966A';
@@ -1631,6 +1632,7 @@ function buildCardFull(p, pi, cat){
       <div class="card-full-body">
         <div>
           <div class="card-full-nombre">${p.nombre}</div>
+          ${p.vendidos?'<div class="vendidos-tag">+100 vendidos</div>':''}
           <div class="card-full-vsel" id="vsel-${p.id}">${varSel||'Sin variantes'}</div>
           ${getMedidaHTMLFull(p)}
         </div>
@@ -1655,7 +1657,7 @@ function selVarCompact(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   // update swatches
@@ -1683,7 +1685,7 @@ function selVarFull(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   imgEl.closest('.card-full').querySelectorAll('.vthumb-full').forEach((t,i)=>t.classList.toggle('activa',i===vi));
@@ -2137,7 +2139,7 @@ function selMed(pid, idx, cat) {
   if(p && p.variantes.length === 0 && FOTOS[pid]) {
     const imgEl = document.getElementById(`img-${pid}`);
     if(imgEl) {
-      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
+      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
       imgEl.innerHTML = imgContent(p, null, '#C4966A', badge);
     }
   }
