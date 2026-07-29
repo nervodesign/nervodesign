@@ -192,7 +192,7 @@
   }
   .badge-best { background:var(--burdeo); color:white; }
   .badge-nuevo { background:var(--marron); color:white; }
-  .vendidos-tag { font-size:9px; color:var(--gris); letter-spacing:0.3px; margin:2px 0 4px; }
+  .vendidos-tag { font-size:9px; color:var(--gris); letter-spacing:0.3px; margin-left:6px; }  .vendidos-tag-block { font-size:9px; color:var(--gris); letter-spacing:0.3px; margin:2px 0 4px; } .card-material-compact { font-size:8px; color:var(--gris); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:2px; } .card-full-material { font-size:9px; color:var(--gris); letter-spacing:0.5px; text-transform:uppercase; margin-bottom:4px; }
 
   /* Swatches debajo de la imagen en card compacta */
   .swatches-row {
@@ -1588,10 +1588,10 @@ function buildCardCompact(p, pi, cat){
     <div class="card-img" id="img-${p.id}" style="position:relative;">
       ${imgContent(p, varSel, color, badge)}
     </div>
-    ${p.variantes.length>0?`<div class="swatches-row">${swatches}</div>`:''}
+    ${p.variantes.length>0?`<div class="swatches-row">${swatches}${p.vendidos?'<span class="vendidos-tag">+100 vendidos</span>':''}</div>`:''}
     <div class="card-body-compact">
-      <div class="card-nombre-compact">${p.nombre}</div>
-      ${p.vendidos?'<div class="vendidos-tag">+100 vendidos</div>':''}
+      <div class="card-nombre-compact">${p.nombre}</div><div class="card-material-compact">${p.material||''}</div>
+      
       <div class="card-vsel-compact" id="vsel-${p.id}">${varSel||''}</div>
       ${getMedidaHTML(p)}
       <div class="card-bottom-compact">
@@ -1631,7 +1631,7 @@ function buildCardFull(p, pi, cat){
       ${p.variantes.length>0?`<div class="card-full-variantes">${thumbs}</div>`:''}
       <div class="card-full-body">
         <div>
-          <div class="card-full-nombre">${p.nombre}</div>
+          <div class="card-full-nombre">${p.nombre}</div><div class="card-full-material">${p.material||''}</div>
           ${p.vendidos?'<div class="vendidos-tag">+100 vendidos</div>':''}
           <div class="card-full-vsel" id="vsel-${p.id}">${varSel||'Sin variantes'}</div>
           ${getMedidaHTMLFull(p)}
