@@ -747,6 +747,9 @@
   }
   .cat-btn:hover { opacity:.85; }
   .cat-btn.active { opacity:1; border-bottom-color:var(--marron); }
+  .sort-bar { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:10px 16px; font-size:12px; color:var(--texto); background:var(--lino); border-bottom:1px solid var(--arena); }
+  .sort-bar label { font-weight:600; }
+  .sort-bar select { padding:6px 10px; border:1px solid var(--arena); border-radius:4px; background:var(--blanco); font-family:inherit; font-size:12px; color:var(--texto); }
   .seccion, .combos-wrap { transition:opacity .25s ease; }
   .seccion, .combos-wrap, .condiciones-wrap { scroll-margin-top:112px; }
   @media(min-width:700px) {
@@ -838,6 +841,14 @@
   <button class="cat-btn" onclick="navCategoria('combos', this)">Combos</button>
   <button class="cat-btn" onclick="navCategoria('condiciones', this)">Condiciones de compra</button>
 </div>
+  <div class="sort-bar" id="sortBar">
+      <label for="ordenarPrecio">Ordenar por:</label>
+      <select id="ordenarPrecio" onchange="nervoOrdenarPrecio(this.value)">
+            <option value="">Relevancia</option>
+            <option value="asc">Precio: menor a mayor</option>
+            <option value="desc">Precio: mayor a menor</option>
+      </select>
+  </div>
 
 <!-- BENEFICIOS -->
 <div class="beneficios">
@@ -2557,6 +2568,24 @@ function navCategoria(id, btn) {
 
 // Arrancar
 cargarDesdeSheets();
+  function nervoPrecioNum(card) {
+      var el = card.querySelector('.precio-compact, .precio-full, .combo-precio');
+      if (!el) return 0;
+      var digits = el.textContent.replace(/[^0-9]/g, '');
+      return digits ? parseInt(digits, 10) : 0;
+  }
+  window.nervoOrdenarPrecio = function (modo) {
+      if (!modo) { window.location.reload(); return; }
+      var grupos = document.querySelectorAll('#grid-colgantes > div, #grid-veladores > div, #grid-pie > div, #grid-apliques > div, #grid-combos > div');
+      grupos.forEach(function (g) {
+            var cards = Array.from(g.children);
+            cards.sort(function (a, b) {
+                    var pa = nervoPrecioNum(a), pb = nervoPrecioNum(b);
+                    return modo === 'asc' ? pa - pb : pb - pa;
+            });
+            cards.forEach(function (c) { g.appendChild(c); });
+      });
+  };
 </script>
 </body>
 </html>
