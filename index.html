@@ -2295,6 +2295,7 @@ async function cargarDesdeSheets() {
         nombre:    r.nombre,
         precio:    parseInt(r.precio) || 0,
         badge:     r.badge || null,
+        vendidos: ['mesina','siena','trento'].includes(r.id),
         medida:    r.medida || '',
         medidas_precio: medidasPrecio,
         material:  mat,
