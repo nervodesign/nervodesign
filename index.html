@@ -1154,8 +1154,8 @@ const LAMPARA_STD = 'E27 hasta 60W · LED recomendada';
 const ORIGEN_PROPIO = 'Fabricación propia · Córdoba, Argentina';
 const ORIGEN_IMP = 'Importado · Distribución exclusiva Nervo Design';
 
-function mkFicha(material, origen, pvp, nota) {
-  return { material, kit: KIT_ELECTRICO, lampara: LAMPARA_STD, origen, pvp: pvp||null, nota: nota||null };
+function mkFicha(material, origen, pvp, nota, embalaje) {
+  return { material, kit: KIT_ELECTRICO, lampara: LAMPARA_STD, origen, pvp: pvp||null, nota: nota||null, embalaje: embalaje||null };
 }
 
 const PRODUCTOS = {
@@ -2024,7 +2024,7 @@ function abrirFicha(pid) {
     <div class="ficha-seccion-titulo">Incluye</div>
     <div style="font-size:11px;color:var(--gris);line-height:1.8;">
       ${f.kit || '—'}<br>
-      <span style="color:var(--dorado);">✦</span> Embalaje sin costo — pluribol, cartón corrugado y film de protección
+      <span style="color:var(--dorado);">✦</span> Embalaje sin costo — pluribol, cartón corrugado y film de protección${f.embalaje?` + ${f.embalaje}`:''}
     </div>
 
     ${(p.usos || f.usos) ? `
@@ -2307,7 +2307,7 @@ async function cargarDesdeSheets() {
         usos:      r.usos || null,
         foto:      r.foto || null,
         variantes: variantes,
-        ficha:     mkFicha(mat, origen, parseInt(r.pvp)||null, null),
+        ficha:     mkFicha(mat, origen, parseInt(r.pvp)||null, null, mat.includes('Rattan') ? 'Caja' : null),
         _cat:      cat,
       };
       cats[cat].push(p);
