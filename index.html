@@ -106,14 +106,23 @@
 
   /* STRIP */
   .strip {
-    background:var(--lino); border-bottom:1px solid var(--arena);
-    padding:10px 16px;
-    text-align:center;
+        background:var(--lino); border-bottom:1px solid var(--arena);
+        padding:10px 0;
+        text-align:center;
+        overflow:hidden;
   }
-  .strip-item {
-    font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--gris); display:inline; white-space:normal; line-height:1.8;
-  }
+    .strip-track {
+          display:inline-flex;
+          white-space:nowrap;
+          animation:stripScroll 26s linear infinite;
+    }
+    .strip-track:hover { animation-play-state:paused; }
+    @keyframes stripScroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .strip-item {
+          font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+          color:var(--gris); display:inline-block; white-space:nowrap; line-height:1.8;
+          padding:0 36px;
+    }
   .strip-sep { display:none; }
 
   /* SECCIÓN */
@@ -183,6 +192,7 @@
   }
   .badge-best { background:var(--burdeo); color:white; }
   .badge-nuevo { background:var(--marron); color:white; }
+  .badge-vendidos { background:var(--dorado); color:white; }
 
   /* Swatches debajo de la imagen en card compacta */
   .swatches-row {
@@ -796,7 +806,12 @@
 </div>
 
 <div class="strip">
-  <span class="strip-item">✦ Todos los colgantes incluyen kit eléctrico blanco o negro</span>
+    <div class="strip-track">
+          <span class="strip-item">✦ Todos los colgantes incluyen kit eléctrico blanco o negro</span>
+          <span class="strip-item">✦ Fabricantes con + de 6 años en el mercado</span>
+          <span class="strip-item">✦ Todos los colgantes incluyen kit eléctrico blanco o negro</span>
+          <span class="strip-item">✦ Fabricantes con + de 6 años en el mercado</span>
+    </div>
 </div>
 
 <header>
@@ -877,12 +892,12 @@
   <div class="beneficio">
     <div class="beneficio-icono">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        <path d="M3 21V9l9-6 9 6v12 M3 21h18 M8 21v-7h3v7 M13 21v-7h3v7"/>
       </svg>
     </div>
     <div class="beneficio-texto">
       <div class="beneficio-titulo">Somos fabricantes</div>
-      <div class="beneficio-sub">Diseño propio · Córdoba</div>
+            <div class="beneficio-sub">Diseño propio · Córdoba · + de 6 años en el mercado</div>
     </div>
   </div>
   <div class="beneficio">
@@ -1552,7 +1567,7 @@ function buildCardCompact(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
   
   // swatches circulares con indicador de sin stock
   const swatches = p.variantes.map((v,vi2)=>{
@@ -1593,7 +1608,7 @@ function buildCardFull(p, pi, cat){
   const vi = sel[p.id]??0;
   const varSel = p.variantes[vi];
   const color = varSel?(C[varSel]||'#C4966A'):'#C4966A';
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
 
   const thumbs = p.variantes.map((v,vi2)=>{
     const c=C[v]||'#C4966A';
@@ -1640,7 +1655,7 @@ function selVarCompact(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   // update swatches
@@ -1668,7 +1683,7 @@ function selVarFull(pid, vi, cat){
   const v=p.variantes[vi];
   const color=C[v]||'#C4966A';
   const imgEl=document.getElementById(`img-${pid}`);
-  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+  const badge = p.badge?`<div class="card-badges" style="position:absolute;top:8px;left:8px;z-index:2;"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
   imgEl.innerHTML = imgContent(p, v, color, badge);
   document.getElementById(`vsel-${pid}`).textContent=v;
   imgEl.closest('.card-full').querySelectorAll('.vthumb-full').forEach((t,i)=>t.classList.toggle('activa',i===vi));
@@ -2122,7 +2137,7 @@ function selMed(pid, idx, cat) {
   if(p && p.variantes.length === 0 && FOTOS[pid]) {
     const imgEl = document.getElementById(`img-${pid}`);
     if(imgEl) {
-      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':'Nuevo'}</span></div>`:'';
+      const badge = p.badge?`<div class="card-badges"><span class="badge badge-${(p.badge||'').toLowerCase()}">${(p.badge||'').toLowerCase()==='best'?'Best Seller':(p.badge||'').toLowerCase()==='vendidos'?'+100 vendidos':'Nuevo'}</span></div>`:'';
       imgEl.innerHTML = imgContent(p, null, '#C4966A', badge);
     }
   }
