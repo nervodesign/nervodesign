@@ -1430,14 +1430,14 @@ function nombreArchivoBase(p, varSel) {
 // Devuelve la URL de la foto principal correspondiente
 function fotoURL(p, varSel) {
   const archivo = nombreArchivoBase(p, varSel);
-  return archivo ? `${CDN}/${archivo}.png` : null;
+  return archivo ? `${CDN}/${archivo}.webp` : null;
 }
 
 // Devuelve hasta 2 URLs de fotos extra para la galeria del panel Info (nombre_2.png, nombre_3.png)
 function fotosGaleriaExtra(p, varSel) {
   const archivo = nombreArchivoBase(p, varSel);
   if(!archivo) return [];
-  return [`${CDN}/${archivo}1.png`, `${CDN}/${archivo}2.png`];
+  return [`${CDN}/${archivo}1.webp`, `${CDN}/${archivo}2.webp`];
 }
 
 // Renderiza la imagen: foto real si carga, SVG fallback si no
@@ -1789,7 +1789,7 @@ function agregar(pid, cat){
 function agregarCombo(i){
   const c=COMBOS[i]; const key=`combo-${i}`;
   const ex=carrito.find(x=>x.key===key);
-  if(ex) ex.cantidad++; else carrito.push({key,nombre:c.nombre,variante:'Combo',precio:c.precio,cantidad:1,foto:c.foto?`${CDN}/${c.foto}.png`:null});
+  if(ex) ex.cantidad++; else carrito.push({key,nombre:c.nombre,variante:'Combo',precio:c.precio,cantidad:1,foto:c.foto?`${CDN}/${c.foto}.webp`:null});
   actualizarCarrito(); toggleCarrito();
 }
 
@@ -2421,7 +2421,7 @@ function renderCombos() {
 function buildComboCard(c, i, small) {
   var imgArea = '';
   if(c.foto) {
-    var fotoURL = CDN + '/' + c.foto + '.png';
+    var fotoURL = CDN + '/' + c.foto + '.webp';
     imgArea = '<div class="combo-img-area" style="padding:0;overflow:hidden;">' +
       '<img src="' + fotoURL + '" style="width:100%;height:100%;object-fit:cover;" ' +
       'onerror="this.style.display=\'none\'" loading="lazy">' +
@@ -2484,7 +2484,7 @@ function buscarProducto(q) {
   resultadosEl.innerHTML = resultados.map(p => `
     <div onclick="irAProducto('${p.id}')" style="padding:10px 16px;cursor:pointer;border-bottom:1px solid var(--arena);display:flex;align-items:center;gap:10px;" onmouseover="this.style.background='var(--lino)'" onmouseout="this.style.background=''">
       <div style="width:36px;height:36px;background:var(--lino);flex-shrink:0;overflow:hidden;">
-        <img src="${(FOTOS[p.id]&&(FOTOS[p.id].default||Object.values(FOTOS[p.id])[0]))||p.foto||''}.png" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
+        <img src="${(FOTOS[p.id]&&(FOTOS[p.id].default||Object.values(FOTOS[p.id])[0]))||p.foto||''}.webp" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
       </div>
       <div>
         <div style="font-size:12px;color:var(--chocolate);font-weight:500;">${p.nombre}</div>
