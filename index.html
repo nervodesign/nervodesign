@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nervo Design — Catálogo Mayorista</title>
-<link rel="icon" type="image/png" href="logo_nervo.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <meta name="description" content="Catálogo mayorista de lámparas y veladores artesanales Nervo Design. Fabricación propia en Córdoba, Argentina. Envíos a todo el país.">
 <meta property="og:title" content="Nervo Design — Catálogo Mayorista">
 <meta property="og:description" content="Lámparas y veladores artesanales de fibras naturales. Fabricación propia, venta mayorista, envíos a todo el país.">
@@ -442,6 +443,31 @@
 
 
   /* BENEFICIOS */
+  /* PORTADA */
+  .portada { display:grid; grid-template-columns:1fr 1fr; min-height:340px; background:var(--arena); }
+  .portada-texto { display:flex; flex-direction:column; justify-content:center; padding:48px 56px; }
+  .portada-eyebrow { font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--dorado); margin-bottom:14px; }
+  .portada-titulo { font-size:40px; line-height:1.1; font-weight:300; color:var(--chocolate); letter-spacing:-0.5px; margin:0 0 12px; }
+  .portada-sub { font-size:13px; color:var(--marron); margin:0 0 26px; }
+  .portada-botones { display:flex; gap:10px; flex-wrap:wrap; }
+  .portada-btn { font-family:'Plus Jakarta Sans',sans-serif; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; padding:12px 20px; background:var(--marron); color:var(--blanco); border:1px solid var(--marron); cursor:pointer; text-decoration:none; display:inline-block; }
+  .portada-btn:hover { opacity:0.85; }
+  .portada-btn-sec { background:transparent; color:var(--marron); }
+  .portada-foto { background:url('portada.webp') center/cover no-repeat; min-height:340px; }
+  .info-linea { display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:6px 12px; padding:9px 16px; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#fff; font-weight:500; background:#A9845A; border-bottom:none; text-align:center; margin-bottom:28px; }
+  .info-linea i { font-style:normal; color:rgba(255,255,255,0.6); }
+  @media(max-width:700px){
+    .portada { grid-template-columns:1fr; min-height:0; }
+    .portada-foto { order:-1; min-height:150px; height:150px; }
+    .portada-texto { padding:16px 20px 18px; }
+    .portada-eyebrow { margin-bottom:6px; font-size:9px; }
+    .portada-titulo { font-size:24px; margin-bottom:6px; }
+    .portada-sub { font-size:12px; margin-bottom:14px; }
+    .portada-botones { flex-wrap:nowrap; gap:8px; }
+    .portada-btn { padding:10px 12px; font-size:9px; letter-spacing:1px; white-space:nowrap; }
+    .info-linea { font-size:9px; justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
+    .info-linea::-webkit-scrollbar { display:none; }
+  }
   .beneficios {
     display:grid;
     grid-template-columns:repeat(2,1fr);
@@ -717,6 +743,8 @@
   @media(min-width:600px) {
     .seccion { padding:0 24px 48px; }
     .combos-wrap { padding:48px 24px; }
+    .seccion-titulo { margin:0 -24px; }
+    .combos-titulo { margin:0 -24px 24px; }
     .combos-grid { grid-template-columns:repeat(2,1fr); }
     .combos-grid-small { grid-template-columns:repeat(2,1fr); }
 
@@ -890,53 +918,29 @@
   <button class="cat-btn" onclick="navCategoria('condiciones', this)">Condiciones de compra</button>
 </div>
 
-<!-- BENEFICIOS -->
-<div class="beneficios">
-  <div class="beneficio">
-    <div class="beneficio-icono">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-      </svg>
-    </div>
-    <div class="beneficio-texto">
-      <div class="beneficio-titulo">Envíos a todo el país</div>
-      <div class="beneficio-sub">Elegís tu transporte</div>
+<!-- PORTADA -->
+<section class="portada">
+  <div class="portada-texto">
+    <div class="portada-eyebrow">Catálogo mayorista</div>
+    <h1 class="portada-titulo">Luz tejida a mano</h1>
+    <p class="portada-sub">Somos fabricantes · Córdoba</p>
+    <div class="portada-botones">
+      <button class="portada-btn" onclick="window.scrollTo({top:document.querySelector('.info-linea').getBoundingClientRect().bottom+window.scrollY-130,behavior:'smooth'})">Ver catálogo</button>
+      <a class="portada-btn portada-btn-sec" href="https://wa.me/5493518622392" target="_blank" rel="noopener">Consultar por WhatsApp</a>
     </div>
   </div>
-  <div class="beneficio">
-    <div class="beneficio-icono">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-      </svg>
-    </div>
-    <div class="beneficio-texto">
-      <div class="beneficio-titulo">Medios de pago</div>
-      <div class="beneficio-sub">Efectivo · Transferencia</div>
-    </div>
-  </div>
-  <div class="beneficio">
-    <div class="beneficio-icono">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 21V9l9-6 9 6v12 M3 21h18 M8 21v-7h3v7 M13 21v-7h3v7"/>
-      </svg>
-    </div>
-    <div class="beneficio-texto">
-      <div class="beneficio-titulo">Somos fabricantes</div>
-            <div class="beneficio-sub">Diseño propio · Córdoba · + de 6 años en el mercado</div>
-    </div>
-  </div>
-  <div class="beneficio">
-    <div class="beneficio-icono">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-      </svg>
-    </div>
-    <div class="beneficio-texto">
-      <div class="beneficio-titulo">Mínimo 8 unidades</div>
-      <div class="beneficio-sub">Mix libre entre productos</div>
-    </div>
-  </div>
+  <div class="portada-foto" role="img" aria-label="Colgantes Nervo tejidos a mano"></div>
+</section>
+<div class="info-linea">
+  <span>Envíos a todo el país</span><i>·</i>
+  <span>Efectivo o transferencia</span><i>·</i>
+  <span>Mínimo 8 unidades, mix libre</span><i>·</i>
+  <span>Fabricantes desde hace + de 6 años</span>
 </div>
+
+
+
+
 
 <div id="colgantes" class="seccion">
   <div class="seccion-titulo"><h2>Colgantes</h2><div class="linea"></div><div class="count" id="count-colgantes"></div></div>
