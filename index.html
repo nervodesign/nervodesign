@@ -759,6 +759,11 @@
   .cat-btn.active { opacity:1; border-bottom-color:var(--marron); }
   .sort-bar { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:10px 16px; font-size:12px; color:var(--texto); background:var(--lino); border-bottom:1px solid var(--arena); }
   .sort-bar label { font-weight:600; }
+  .busqueda-fila { max-width:640px; margin:0 auto; display:flex; align-items:center; gap:12px; }
+  .busqueda-fila .sort-bar { padding:0; background:none; border:none; flex-wrap:nowrap; white-space:nowrap; }
+  .busqueda-fila .sort-bar label { font-weight:500; font-size:11px; color:var(--gris); }
+  .busqueda-fila .sort-bar select { padding:9px 10px; border-radius:2px; background:var(--lino); }
+  @media (max-width:600px) { .busqueda-fila .sort-bar label { display:none; } .busqueda-fila .sort-bar select { max-width:130px; } }
   .sort-bar select { padding:6px 10px; border:1px solid var(--arena); border-radius:4px; background:var(--blanco); font-family:inherit; font-size:12px; color:var(--texto); }
   .seccion, .combos-wrap { transition:opacity .25s ease; }
   .seccion, .combos-wrap, .condiciones-wrap { scroll-margin-top:112px; }
@@ -836,13 +841,23 @@
 
 <!-- BARRA DE BÚSQUEDA -->
 <div style="background:var(--blanco);padding:12px 16px;position:sticky;top:56px;z-index:90;">
-  <div style="max-width:400px;margin:0 auto;position:relative;">
+  <div class="busqueda-fila">
+  <div style="flex:1;min-width:0;position:relative;">
     <input type="text" id="buscador-catalogo" placeholder="Buscar producto... ej: Carmina, Parma, Puglia"
       oninput="buscarProducto(this.value)"
       style="width:100%;padding:10px 36px 10px 14px;border:1px solid var(--arena);border-radius:2px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--chocolate);background:var(--lino);box-sizing:border-box;outline:none;">
     <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:0.4;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
   </div>
-  <div id="resultados-busqueda" style="display:none;max-width:400px;margin:8px auto 0;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
+  <div class="sort-bar" id="sortBar">
+    <label for="ordenarPrecio">Ordenar por</label>
+    <select id="ordenarPrecio" onchange="nervoOrdenarPrecio(this.value)">
+      <option value="">Relevancia</option>
+      <option value="asc">Precio: menor a mayor</option>
+      <option value="desc">Precio: mayor a menor</option>
+    </select>
+  </div>
+  </div>
+  <div id="resultados-busqueda" style="display:none;max-width:640px;margin:8px auto 0;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
 </div>
 
 <div class="categorias-nav" id="categoriasNav">
@@ -854,14 +869,6 @@
   <button class="cat-btn" onclick="navCategoria('combos', this)">Combos</button>
   <button class="cat-btn" onclick="navCategoria('condiciones', this)">Condiciones de compra</button>
 </div>
-  <div class="sort-bar" id="sortBar">
-      <label for="ordenarPrecio">Ordenar por:</label>
-      <select id="ordenarPrecio" onchange="nervoOrdenarPrecio(this.value)">
-            <option value="">Relevancia</option>
-            <option value="asc">Precio: menor a mayor</option>
-            <option value="desc">Precio: mayor a menor</option>
-      </select>
-  </div>
 
 <!-- BENEFICIOS -->
 <div class="beneficios">
@@ -2039,10 +2046,25 @@ function abrirFicha(pid) {
     </div>` : ''}
 
     ${f.nota ? `<div style="font-size:10px;color:var(--dorado);margin-top:14px;padding:8px 10px;border:1px solid rgba(184,147,90,0.3);">✦ ${f.nota}</div>` : ''}
+    ${fichaBotonAgregar(p.id)}
   `;
 
   document.getElementById('fichaOverlay').classList.add('visible');
   document.getElementById('fichaPanel').classList.add('visible');
+}
+
+// Botón "Agregar al pedido" dentro de la ficha: usa el mismo botón de la card
+function fichaBotonAgregar(pid) {
+  const btn = document.getElementById('ba-' + pid);
+  if(!btn) return '';
+  const deshabilitado = btn.style.pointerEvents === 'none';
+  const texto = deshabilitado ? btn.textContent.trim() : '+ Agregar al pedido';
+  return `<button class="btn-agregar-compact" style="width:100%;padding:12px;margin:18px 0 20px;font-size:11px;letter-spacing:0.12em;${deshabilitado?'opacity:0.4;pointer-events:none;':''}" onclick="fichaAgregar('${pid}')">${texto}</button>`;
+}
+function fichaAgregar(pid) {
+  const btn = document.getElementById('ba-' + pid);
+  if(btn) btn.click();
+  cerrarFicha();
 }
 
 function cerrarFicha() {
@@ -2500,22 +2522,15 @@ function irAProducto(id) {
   document.getElementById('resultados-busqueda').style.display = 'none';
   resetFiltroCategorias(true);
 
-  // Buscar la card por id de imagen
+  // Dejar la card del producto en pantalla (queda detrás de la ficha)
   const imgEl = document.getElementById('img-' + id);
-  if(!imgEl) return;
+  if(imgEl) {
+    let card = imgEl.closest('[class*="card"]') || imgEl.parentElement;
+    setTimeout(() => card.scrollIntoView({ behavior:'auto', block:'center' }), 50);
+  }
 
-  // Subir hasta encontrar la card contenedora
-  let card = imgEl.closest('[class*="card"]');
-  if(!card) card = imgEl.parentElement;
-
-  setTimeout(() => {
-    // Scroll
-    card.scrollIntoView({ behavior:'smooth', block:'center' });
-
-    // Highlight
-    card.style.outline = '2px solid var(--burdeo)';
-    setTimeout(() => card.style.outline = '', 2500);
-  }, 250);
+  // Abrir directo la ficha del producto
+  setTimeout(() => abrirFicha(id), 120);
 }
 
 // Cerrar resultados al hacer clic afuera
