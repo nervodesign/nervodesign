@@ -1433,11 +1433,11 @@ function fotoURL(p, varSel) {
   return archivo ? `${CDN}/${archivo}.webp` : null;
 }
 
-// Devuelve hasta 2 URLs de fotos extra para la galeria del panel Info (nombre_2.png, nombre_3.png)
+// Devuelve hasta 5 URLs de fotos extra para la galeria del panel Info (nombre_2.png, nombre_3.png)
 function fotosGaleriaExtra(p, varSel) {
   const archivo = nombreArchivoBase(p, varSel);
   if(!archivo) return [];
-  return [`${CDN}/${archivo}1.webp`, `${CDN}/${archivo}2.webp`];
+  return [1,2,3,4,5].map(n => `${CDN}/${archivo}${n}.webp`);
 }
 
 // Renderiza la imagen: foto real si carga, SVG fallback si no
