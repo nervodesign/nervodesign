@@ -664,6 +664,14 @@
     #ficha-body > :not(.ficha-galeria) { margin-left:358px; }
     #ficha-body > .ficha-seccion-titulo:first-of-type { margin-top:0; }
   }
+  @media(max-width:599px){
+    .ficha-panel { max-height:80vh; }
+    .ficha-galeria { display:flex; gap:10px; align-items:flex-start; padding:12px 16px 0; }
+    .ficha-foto-grande { width:auto; max-width:62%; height:min(34vh,230px); max-height:none; aspect-ratio:auto; margin:0; flex:0 0 auto; }
+    .ficha-thumbs { flex-direction:column; margin-top:0; gap:6px; }
+    .ficha-thumb { width:46px; height:46px; }
+    .ficha-body { padding:12px 16px 0; }
+  }
   .ficha-agregar-wrap { position:sticky; bottom:-32px; background:var(--blanco); padding:14px 0 18px; margin-top:8px; z-index:2; }
 
   /* MOBILE: card-full en 1 columna, imagen arriba */
@@ -775,7 +783,7 @@
   .busqueda-fila .sort-bar { padding:0; background:none; border:none; flex-wrap:nowrap; white-space:nowrap; }
   .busqueda-fila .sort-bar label { font-weight:500; font-size:11px; color:var(--gris); }
   .busqueda-fila .sort-bar select { padding:9px 10px; border-radius:2px; background:var(--lino); }
-  @media (max-width:600px) { .busqueda-fila .sort-bar label { display:none; } .busqueda-fila .sort-bar select { max-width:130px; } }
+  @media (max-width:600px) { .busqueda-fila .sort-bar label { display:none; } .busqueda-fila .sort-bar select { max-width:120px; font-size:16px !important; padding:7px 8px; } #buscador-catalogo { font-size:16px !important; padding-top:8px !important; padding-bottom:8px !important; } }
   .sort-bar select { padding:6px 10px; border:1px solid var(--arena); border-radius:4px; background:var(--blanco); font-family:inherit; font-size:12px; color:var(--texto); }
   .seccion, .combos-wrap { transition:opacity .25s ease; }
   .seccion, .combos-wrap, .condiciones-wrap { scroll-margin-top:112px; }
@@ -852,7 +860,7 @@
 </header>
 
 <!-- BARRA DE BÚSQUEDA -->
-<div style="background:var(--blanco);padding:12px 16px;position:sticky;top:56px;z-index:90;">
+<div style="background:var(--blanco);padding:12px 16px;position:sticky;top:56px;z-index:120;">
   <div class="busqueda-fila">
   <div style="flex:1;min-width:0;position:relative;">
     <input type="text" id="buscador-catalogo" placeholder="Buscar producto... ej: Carmina, Parma, Puglia"
