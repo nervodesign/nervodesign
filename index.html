@@ -2,7 +2,7 @@
 <html lang="es">
 <head><!-- Google Tag Manager --><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src= 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f); })(window,document,'script','dataLayer','GTM-NG8WQQMF');</script><!-- End Google Tag Manager -->
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Nervo Design — Catálogo Mayorista</title>
 <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
@@ -459,14 +459,15 @@
   @media(max-width:700px){
     .portada { grid-template-columns:1fr; min-height:0; }
     .portada-foto { order:-1; min-height:150px; height:150px; }
-    .portada-texto { padding:16px 20px 18px; }
-    .portada-eyebrow { margin-bottom:6px; font-size:9px; }
-    .portada-titulo { font-size:24px; margin-bottom:6px; }
+    .portada-texto { display:none; }
+    .portada-eyebrow, .portada-titulo { display:none; }
     .portada-sub { font-size:12px; margin-bottom:14px; }
     .portada-botones { flex-wrap:nowrap; gap:8px; }
     .portada-btn { padding:10px 12px; font-size:9px; letter-spacing:1px; white-space:nowrap; }
-    .info-linea { font-size:9px; justify-content:flex-start; flex-wrap:nowrap; overflow-x:auto; white-space:nowrap; scrollbar-width:none; }
-    .info-linea::-webkit-scrollbar { display:none; }
+    .info-linea { display:grid; grid-template-columns:1fr 1fr; align-items:stretch; gap:0; padding:0; background:var(--lino); color:var(--marron); font-size:9px; letter-spacing:0.5px; border-bottom:1px solid var(--arena); }
+    .info-linea span { display:flex; align-items:center; justify-content:center; padding:10px 8px; line-height:1.35; border-top:1px solid var(--arena); border-right:1px solid var(--arena); }
+    .info-linea span:nth-of-type(2n) { border-right:none; }
+    .info-linea i { display:none; }
   }
   .beneficios {
     display:grid;
@@ -811,7 +812,7 @@
   .busqueda-fila .sort-bar { padding:0; background:none; border:none; flex-wrap:nowrap; white-space:nowrap; }
   .busqueda-fila .sort-bar label { font-weight:500; font-size:11px; color:var(--gris); }
   .busqueda-fila .sort-bar select { padding:9px 10px; border-radius:2px; background:var(--lino); }
-  @media (max-width:600px) { .busqueda-fila .sort-bar label { display:none; } .busqueda-fila .sort-bar select { max-width:120px; font-size:16px !important; padding:7px 8px; } #buscador-catalogo { font-size:16px !important; padding-top:8px !important; padding-bottom:8px !important; } }
+  @media (max-width:600px) { .busqueda-fila .sort-bar label { display:none; } .busqueda-fila .sort-bar select { max-width:120px; font-size:13px !important; padding:6px 8px; } #buscador-catalogo { font-size:13px !important; padding-top:7px !important; padding-bottom:7px !important; } }
   .sort-bar select { padding:6px 10px; border:1px solid var(--arena); border-radius:4px; background:var(--blanco); font-family:inherit; font-size:12px; color:var(--texto); }
   .seccion, .combos-wrap { transition:opacity .25s ease; }
   .seccion, .combos-wrap, .condiciones-wrap { scroll-margin-top:112px; }
@@ -897,6 +898,7 @@
     <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:0.4;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <div id="resultados-busqueda" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:95;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
   </div>
+  <script>if(window.matchMedia('(max-width:600px)').matches){document.getElementById('buscador-catalogo').placeholder='Buscar';}</script>
   <div class="sort-bar" id="sortBar">
     <label for="ordenarPrecio">Ordenar por</label>
     <select id="ordenarPrecio" onchange="nervoOrdenarPrecio(this.value)">
