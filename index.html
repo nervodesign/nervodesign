@@ -654,6 +654,17 @@
     }
     .ficha-panel.visible { bottom:0; }
   }
+  /* Ficha en compu: más ancha, foto a la izquierda y datos a la derecha */
+  @media(min-width:900px){
+    .ficha-panel { width:820px; max-height:88vh; }
+    #ficha-body { padding:16px 28px 0; }
+    #ficha-body::after { content:''; display:block; clear:both; }
+    #ficha-body > .ficha-galeria { float:left; width:330px; padding:0; margin-right:28px; position:sticky; top:0; }
+    #ficha-body > .ficha-galeria .ficha-foto-grande { max-width:330px; max-height:420px; }
+    #ficha-body > :not(.ficha-galeria) { margin-left:358px; }
+    #ficha-body > .ficha-seccion-titulo:first-of-type { margin-top:0; }
+  }
+  .ficha-agregar-wrap { position:sticky; bottom:-32px; background:var(--blanco); padding:14px 0 18px; margin-top:8px; z-index:2; }
 
   /* MOBILE: card-full en 1 columna, imagen arriba */
   .grid-1col {
@@ -2059,7 +2070,7 @@ function fichaBotonAgregar(pid) {
   if(!btn) return '';
   const deshabilitado = btn.style.pointerEvents === 'none';
   const texto = deshabilitado ? btn.textContent.trim() : '+ Agregar al pedido';
-  return `<button class="btn-agregar-compact" style="width:100%;padding:12px;margin:18px 0 20px;font-size:11px;letter-spacing:0.12em;${deshabilitado?'opacity:0.4;pointer-events:none;':''}" onclick="fichaAgregar('${pid}')">${texto}</button>`;
+  return `<div class="ficha-agregar-wrap"><button class="btn-agregar-compact" style="width:100%;padding:12px;font-size:11px;letter-spacing:0.12em;${deshabilitado?'opacity:0.4;pointer-events:none;':''}" onclick="fichaAgregar('${pid}')">${texto}</button></div>`;
 }
 function fichaAgregar(pid) {
   const btn = document.getElementById('ba-' + pid);
