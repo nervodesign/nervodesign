@@ -106,7 +106,7 @@
 
   /* STRIP */
   .strip {
-        background:var(--lino); border-bottom:1px solid var(--arena);
+        background:var(--chocolate); border-bottom:none;
         padding:10px 0;
         text-align:center;
         overflow:hidden;
@@ -120,7 +120,7 @@
     @keyframes stripScroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
     .strip-item {
                     font-size:9px; letter-spacing:1.5px; text-transform:uppercase; -webkit-text-size-adjust:100%; text-size-adjust:100%;
-          color:var(--gris); display:inline-block; white-space:nowrap; line-height:1.8;
+          color:var(--lino); display:inline-block; white-space:nowrap; line-height:1.8;
           padding:0 36px;
     }
   .strip-sep { display:none; }
@@ -770,7 +770,8 @@
   .cat-btn.active { opacity:1; border-bottom-color:var(--marron); }
   .sort-bar { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:10px 16px; font-size:12px; color:var(--texto); background:var(--lino); border-bottom:1px solid var(--arena); }
   .sort-bar label { font-weight:600; }
-  .busqueda-fila { max-width:640px; margin:0 auto; display:flex; align-items:center; gap:12px; }
+  .busqueda-fila { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .busqueda-fila > div:first-child { flex:0 1 380px !important; }
   .busqueda-fila .sort-bar { padding:0; background:none; border:none; flex-wrap:nowrap; white-space:nowrap; }
   .busqueda-fila .sort-bar label { font-weight:500; font-size:11px; color:var(--gris); }
   .busqueda-fila .sort-bar select { padding:9px 10px; border-radius:2px; background:var(--lino); }
@@ -858,6 +859,7 @@
       oninput="buscarProducto(this.value)"
       style="width:100%;padding:10px 36px 10px 14px;border:1px solid var(--arena);border-radius:2px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--chocolate);background:var(--lino);box-sizing:border-box;outline:none;">
     <svg style="position:absolute;right:12px;top:50%;transform:translateY(-50%);opacity:0.4;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <div id="resultados-busqueda" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:95;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
   </div>
   <div class="sort-bar" id="sortBar">
     <label for="ordenarPrecio">Ordenar por</label>
@@ -868,7 +870,6 @@
     </select>
   </div>
   </div>
-  <div id="resultados-busqueda" style="display:none;max-width:640px;margin:8px auto 0;background:var(--blanco);border:1px solid var(--arena);border-radius:2px;max-height:260px;overflow-y:auto;"></div>
 </div>
 
 <div class="categorias-nav" id="categoriasNav">
